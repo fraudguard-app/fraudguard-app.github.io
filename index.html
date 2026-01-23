@@ -63,6 +63,10 @@
   width: 100% !important;
 }
 
+/* показываем logo только в topbar */
+.logo{ display:none !important; }
+.topbar .logo{ display:grid !important; }
+
 /* мобилка */
 @media (max-width: 980px){
   .topbar{
@@ -1305,6 +1309,7 @@ function initAccordion(){
 initAccordion();
 
 function render(data){
+    if(!data) return;
   $("emptyState").style.display = "none";
 
   // ===== СКОРЫ =====
@@ -1389,7 +1394,6 @@ function render(data){
     }
   });
 }
-
 
   const safe = data.safe_actions || [];
   $("safe").innerHTML = safe.length
