@@ -1395,20 +1395,6 @@ function render(data){
   });
 }
 
-  const safe = data.safe_actions || [];
-  $("safe").innerHTML = safe.length
-    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  const text = $("text").value || "";
-  const badWords = ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"];
-  let out = escapeHTML(text);
-  for(const w of badWords){
-    const re = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "gi");
-    out = out.replace(re, m => `<mark>${escapeHTML(m)}</mark>`);
-  }
-  $("highlight").innerHTML = out || "—";
-
   ["blkWhy","blkSafe","blkHL"].forEach(id=>{
     const b = $(id);
     if(b && b.classList.contains("open")){
