@@ -5,187 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FraudGuard — Anti-Scam</title>
 
-<!-- ✅ FIX 1: относительные пути + реальные файлы (GitHub Pages не любит /favicon.png если файла нет) -->
 <link rel="icon" href="./favicon.ico?v=10007">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10007">
 <meta name="theme-color" content="#070c18">
 
 <style>
-
-/* ===== LAYOUT FIX: логотип в topbar, UI снизу, широко ===== */
-
-/* шапка строго сверху и по центру */
-.topbar{
-  max-width: 1240px !important;
-  margin: 0 auto 18px !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-}
-
-/* бренд теперь часть шапки */
-.brand{
-  position: static !important;
-  left: auto !important;
-  top: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-}
-
-/* основной контейнер шире */
-.wrap{
-  max-width: 1240px !important;
-  margin: 0 auto !important;
-  padding: 24px 18px 48px !important;
-}
-
-/* сетка: Проверка шире, Результат уже */
-.grid{
-  max-width: 1240px !important;
-  margin: 0 auto !important;
-  width: 100% !important;
-
-  display: grid !important;
-  grid-template-columns: 1.15fr .85fr !important;
-  gap: 20px !important;
-  align-items: start !important;
-}
-
-/* карточки тянутся красиво */
-.card{
-  width: 100% !important;
-}
-
-/* показываем logo только в topbar */
-.logo{ display:none !important; }
-.topbar .logo{ display:grid !important; }
-
-/* ===== UI UPGRADE PACK ===== */
-
-:root{
-  --glass: rgba(255,255,255,.06);
-  --glass2: rgba(255,255,255,.035);
-  --stroke: rgba(255,255,255,.12);
-}
-
-/* общая типографика */
-body{ letter-spacing: .1px; }
-.title{ font-size:18px !important; }
-.caption{ font-size:12.5px !important; line-height:1.35; }
-
-/* topbar красивее */
-.topbar{
-  padding: 10px 2px !important;
-}
-.brand h1{
-  font-size:16px !important;
-  letter-spacing:.3px;
-}
-.logo{
-  width:44px !important; height:44px !important;
-  border-radius: 16px !important;
-  box-shadow: 0 18px 65px rgba(0,0,0,.35) !important;
-}
-
-/* карточки: глубина + мягкость */
-.card{
-  background: linear-gradient(180deg, var(--glass), var(--glass2)) !important;
-  border: 1px solid var(--stroke) !important;
-  box-shadow: 0 26px 120px rgba(0,0,0,.55) !important;
-}
-.card::before{ opacity:.95 !important; }
-.card:hover{
-  box-shadow: 0 34px 140px rgba(0,0,0,.62) !important;
-}
-
-/* inputs: чище */
-input, textarea{
-  background: rgba(8,12,22,.72) !important;
-  border: 1px solid rgba(255,255,255,.14) !important;
-}
-input:focus, textarea:focus{
-  border-color: rgba(106,166,255,.65) !important;
-}
-
-/* tabs: плотнее */
-.tabs{ border-radius: 18px !important; }
-.tab{ font-weight: 800; }
-
-/* chips: одинаковая высота */
-.chip{
-  padding: 7px 12px !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,.05) !important;
-}
-
-/* кнопки: единый стиль */
-.actions .btn{
-  min-height: 44px;
-  padding: 10px 14px !important;
-  border-radius: 16px !important;
-}
-
-/* meter: ровнее */
-.meter{
-  border-radius: 20px !important;
-  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(255,255,255,.03)) !important;
-}
-
-/* reason cards: более “AI” */
-.reason{
-  border-radius: 18px !important;
-  background: rgba(255,255,255,.04) !important;
-}
-.reason .ico{
-  border-radius: 18px !important;
-}
-
-/* accordion: кнопка-стрелка приятнее */
-.chev{
-  border-radius: 999px !important;
-  width: 42px !important;
-  height: 42px !important;
-  background: rgba(255,255,255,.05) !important;
-}
-
-/* пустой стейт: аккуратнее */
-.empty-state{
-  border-radius: 20px !important;
-  background: rgba(255,255,255,.03) !important;
-}
-
-/* tag “низкий/средний/высокий”: читаемее */
-.tag{
-  border-radius: 999px !important;
-  padding: 8px 12px !important;
-  background: rgba(255,255,255,.06) !important;
-}
-
-
-/* мобилка */
-@media (max-width: 980px){
-  .topbar{
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
-  }
-
-  .wrap, .topbar, .grid{
-    max-width: 92vw !important;
-  }
-
-  .grid{
-    grid-template-columns: 1fr !important;
-  }
-}
-
 :root{
   --bg0:#04060f;
   --bg2:#0b1220;
@@ -206,6 +30,11 @@ input:focus, textarea:focus{
   --r2:26px;
 
   --spring: cubic-bezier(.16,1,.3,1);
+
+  /* UI UPGRADE */
+  --glass: rgba(255,255,255,.06);
+  --glass2: rgba(255,255,255,.035);
+  --stroke: rgba(255,255,255,.12);
 }
 
 *{box-sizing:border-box}
@@ -216,6 +45,7 @@ body{
   color:var(--text);
   background: linear-gradient(180deg, var(--bg0), var(--bg2));
   overflow-x:hidden;
+  letter-spacing:.1px;
 }
 ::selection{background:rgba(106,166,255,.35)}
 
@@ -266,24 +96,42 @@ body{
   mix-blend-mode: overlay;
 }
 
-.wrap{ max-width: 1220px; margin: 0 auto; padding: 24px 18px 34px; position:relative; z-index:1; }
+/* ===== WIDE LAYOUT ===== */
+.wrap{
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 22px 18px 44px;
+  position:relative;
+  z-index:1;
+}
 
 /* topbar */
-.topbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:16px;
+
+  max-width:1240px;
+  margin-left:auto;
+  margin-right:auto;
+  padding: 10px 2px;
+}
 .brand{ display:flex; align-items:center; gap:12px; }
 .logo{
-  width:46px; height:46px; border-radius:16px;
+  width:44px; height:44px; border-radius:16px;
   background: linear-gradient(135deg, rgba(106,166,255,1), rgba(46,229,157,1));
   display:grid; place-items:center;
   color:#061023; font-weight:950;
-  box-shadow: 0 16px 70px rgba(0,0,0,.34);
+  box-shadow: 0 18px 65px rgba(0,0,0,.35);
   animation: popLogo .7s var(--spring) both;
 }
 @keyframes popLogo{ from{transform:translateY(8px) scale(.92);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-.brand h1{ margin:0; font-size:16px; letter-spacing:.2px; line-height:1.1; }
+.brand h1{ margin:0; font-size:16px; letter-spacing:.3px; line-height:1.1; }
 .brand .sub{ margin-top:2px; font-size:12px; color: var(--muted2); }
 
-.badges{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.badges{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
 .pill{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 12px; border-radius:999px;
@@ -296,19 +144,13 @@ body{
 .pill .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); box-shadow: 0 0 0 6px rgba(106,166,255,.10); }
 .pill .kbd{ padding:2px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); font-size:12px; }
 
-
-/* language switch */
+/* language switch (TOPBAR) */
 .langSel{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 12px; border-radius:999px;
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.05);
+  border:1px solid var(--line); background: rgba(255,255,255,.05);
   font-size:12px; backdrop-filter: blur(10px);
-  animation: fadeIn .7s var(--spring) both;
-  transition: transform .18s var(--spring), filter .18s ease, border-color .18s ease;
 }
-.langSel:hover{ transform: translateY(-1px); filter: brightness(1.06); border-color: rgba(255,255,255,.18); }
-
 .langSel select{
   background: transparent;
   border:0;
@@ -316,38 +158,33 @@ body{
   outline:none;
   cursor:pointer;
   appearance:none;
-  padding-right: 18px; /* место под стрелку */
-  font-weight: 900;
+  padding-right: 2px;
 }
-
-/* стрелка */
-.langSel{
-  position: relative;
-}
-.langSel::after{
-  content:"▾";
-  position:absolute;
-  right:10px;
-  top:50%;
-  transform: translateY(-50%);
-  color: rgba(231,238,255,.70);
-  pointer-events:none;
-  font-size: 12px;
-}
-
+.langSel:hover{ filter: brightness(1.05); }
 
 /* grid */
-.grid{ display:grid; grid-template-columns: 1.05fr .85fr; gap:18px; align-items:start; }
-@media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+.grid{
+  display:grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap:18px;
+  align-items:start;
+  max-width:1240px;
+  margin: 0 auto;
+}
+@media (max-width: 980px){
+  .grid{grid-template-columns: 1fr}
+  .topbar{flex-direction:column; align-items:flex-start}
+  .badges{justify-content:flex-start}
+}
 
 /* ===== Cards ===== */
 .card{
   --mx: 50%;
   --my: 50%;
   border-radius: var(--r2);
-  border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.028));
-  box-shadow: var(--shadow);
+  border: 1px solid var(--stroke);
+  background: linear-gradient(180deg, var(--glass), var(--glass2));
+  box-shadow: 0 26px 120px rgba(0,0,0,.55);
   padding: 18px;
   backdrop-filter: blur(14px);
   position:relative; overflow:hidden;
@@ -360,7 +197,7 @@ body{
 #leftCard{ animation-delay:.05s; }
 #rightCard{ animation-delay:.11s; }
 @keyframes cardIn{ from{opacity:0;transform:translateY(16px) scale(.985)} to{opacity:1;transform:translateY(0) scale(1)} }
-.card:hover{ box-shadow: 0 26px 120px rgba(0,0,0,.52); }
+.card:hover{ box-shadow: 0 34px 140px rgba(0,0,0,.62); }
 
 .card::before{
   content:"";
@@ -369,7 +206,7 @@ body{
   background:
     radial-gradient(900px 260px at 18% 0%, rgba(106,166,255,.12), transparent 62%),
     radial-gradient(900px 260px at 82% 0%, rgba(46,229,157,.10), transparent 62%);
-  opacity: .85;
+  opacity: .95;
 }
 .card > *{ position:relative; transform: translateZ(0.01px); }
 
@@ -393,17 +230,17 @@ body{
 .depth-2{ transform: translateZ(24px); }
 
 .header-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:12px; }
-.title{ font-weight:950; font-size:16px; letter-spacing:.2px; }
-.caption{ font-size:12px; color: var(--muted2); margin-top:4px; }
+.title{ font-weight:950; font-size:18px; letter-spacing:.2px; }
+.caption{ font-size:12.5px; color: var(--muted2); margin-top:4px; line-height:1.35; }
 
-/* ===== Tabs (animated) ===== */
+/* Tabs */
 .tabs{
   --i: 0;
   position:relative;
   display:flex;
   gap:6px;
   padding:6px;
-  border-radius:16px;
+  border-radius:18px;
   border:1px solid var(--line);
   background: rgba(255,255,255,.04);
   overflow:hidden;
@@ -428,6 +265,7 @@ body{
   background: transparent;
   color: var(--muted);
   font-size: 12px;
+  font-weight: 800;
   cursor:pointer;
   transition: transform .18s var(--spring), color .18s ease, filter .18s ease;
   z-index:1;
@@ -455,7 +293,7 @@ body{
 .label{ font-size:12px; color: var(--muted2); margin: 12px 0 6px; }
 input, textarea{
   width:100%;
-  background: rgba(8,12,22,.62);
+  background: rgba(8,12,22,.72);
   border:1px solid rgba(255,255,255,.14);
   border-radius: 16px;
   padding: 12px 12px;
@@ -466,7 +304,7 @@ input, textarea{
 textarea{ min-height: 158px; resize: vertical; line-height: 1.45; }
 input::placeholder, textarea::placeholder{ color: rgba(159,177,209,.62); }
 input:focus, textarea:focus{
-  border-color: rgba(106,166,255,.55);
+  border-color: rgba(106,166,255,.65);
   box-shadow: 0 0 0 4px rgba(106,166,255,.12), 0 18px 55px rgba(0,0,0,.20);
   transform: translateY(-1px);
   filter: brightness(1.02);
@@ -476,9 +314,9 @@ input:focus, textarea:focus{
 .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
 .chip{
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.05);
   color: rgba(231,238,255,.90);
-  padding: 7px 10px;
+  padding: 7px 12px;
   border-radius: 999px;
   font-size: 12px;
   cursor:pointer;
@@ -487,7 +325,7 @@ input:focus, textarea:focus{
 .chip:hover{ transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow2); filter: brightness(1.06); }
 .chip:active{ transform: translateY(0) scale(.985); }
 
-/* buttons + icons + shine + ripple */
+/* buttons + ripple */
 .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
 .btn{
   position:relative;
@@ -498,6 +336,7 @@ input:focus, textarea:focus{
   color: var(--text);
   padding: 10px 14px;
   border-radius: 16px;
+  min-height:44px;
   cursor:pointer;
   transition: transform .18s var(--spring), box-shadow .22s ease, filter .18s ease;
   overflow:hidden;
@@ -548,24 +387,6 @@ input:focus, textarea:focus{
   to{ transform: scale(1); opacity:0; }
 }
 
-/* typing hint */
-.typingHint{
-  display:none;
-  margin-top:10px;
-  font-size:12px;
-  color: rgba(231,238,255,.80);
-  gap:8px;
-  align-items:center;
-}
-.typingHint.show{ display:flex; }
-.blinkDot{
-  width:10px;height:10px;border-radius:50%;
-  background: rgba(106,166,255,.55);
-  box-shadow: 0 0 0 6px rgba(106,166,255,.10);
-  animation: blink 1s ease-in-out infinite;
-}
-@keyframes blink{ 0%,100%{transform:scale(.9);opacity:.6} 50%{transform:scale(1.1);opacity:1} }
-
 /* note */
 .note{
   display:flex; gap:10px; align-items:flex-start;
@@ -586,9 +407,9 @@ input:focus, textarea:focus{
 
 .tag{
   display:inline-flex; align-items:center; gap:8px;
-  padding:7px 12px; border-radius:999px;
+  padding:8px 12px; border-radius:999px;
   border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.05);
+  background: rgba(255,255,255,.06);
   font-size:12px;
   transition: transform .18s var(--spring);
 }
@@ -598,9 +419,9 @@ input:focus, textarea:focus{
 .meter{
   display:flex; align-items:center; gap:14px;
   padding: 14px;
-  border-radius: 18px;
+  border-radius: 20px;
   border:1px solid rgba(255,255,255,.14);
-  background: linear-gradient(180deg, rgba(0,0,0,.16), rgba(255,255,255,.02));
+  background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(255,255,255,.03));
   animation: fadeIn .45s var(--spring) both;
 }
 .ring{ width:78px; height:78px; display:grid; place-items:center; position:relative; flex:0 0 auto; }
@@ -632,10 +453,10 @@ input:focus, textarea:focus{
 .blockHead h3{ margin:0; font-size: 13px; font-weight: 950; }
 
 .chev{
-  width:40px; height:40px; border-radius: 16px;
+  width:42px; height:42px; border-radius: 999px;
   display:grid; place-items:center;
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.05);
   transition: transform .35s var(--spring), background .22s ease;
 }
 .block:hover .chev{ background: rgba(255,255,255,.06); }
@@ -661,15 +482,15 @@ input:focus, textarea:focus{
 .reason{
   display:flex; gap:10px;
   padding: 12px;
-  border-radius: 16px;
+  border-radius: 18px;
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.03);
+  background: rgba(255,255,255,.04);
   transition: transform .2s var(--spring), filter .2s ease;
 }
 .reason:hover{ transform: translateY(-1px); filter: brightness(1.04); }
 .reason .ico{
   width:38px; height:38px;
-  border-radius: 16px;
+  border-radius: 18px;
   display:grid; place-items:center;
   background: linear-gradient(135deg, rgba(106,166,255,.12), rgba(46,229,157,.10));
   border:1px solid rgba(255,255,255,.12);
@@ -709,7 +530,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   margin-top: 14px;
   display:grid; gap:10px;
   padding: 14px;
-  border-radius: 18px;
+  border-radius: 20px;
   border:1px dashed rgba(255,255,255,.18);
   background: rgba(255,255,255,.03);
   animation: fadeIn .45s var(--spring) both;
@@ -757,9 +578,12 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   animation: spin .9s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* show logo ONLY in topbar (kills left duplicate if exists) */
+.logo{ display:none !important; }
+.topbar .logo{ display:grid !important; }
 </style>
 </head>
-
 <body>
 <div class="bg"></div>
 <div class="orbs">
@@ -770,26 +594,35 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 <div class="noise"></div>
 
 <div class="wrap">
-<div class="topbar">
-  <div class="brand">
-    <div class="logo">FG</div>
-    <div>
-      <h1>FraudGuard</h1>
-      <div class="sub">...</div>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">FG</div>
+      <div>
+        <h1>FraudGuard</h1>
+        <div class="sub">Проверка сообщений и ссылок на мошенничество</div>
+      </div>
+    </div>
+
+    <div class="badges">
+      <span class="pill"><span class="dot"></span><span id="pillAI">AI-анализ</span></span>
+      <span class="pill"><span id="pillHot">Горячие клавиши:</span> <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
+
+      <span class="langSel" title="Language">
+        <span id="langLabel">Язык</span>
+        <select id="lang" aria-label="Language">
+          <option value="ru" selected>RU</option>
+          <option value="en">EN</option>
+        </select>
+      </span>
     </div>
   </div>
 
-<div class="badges">
-  <span class="pill"><span class="dot"></span>AI-анализ</span>
-  <span class="pill">Горячие клавиши: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
-
   <div class="grid">
-
     <div class="card tilt" id="leftCard">
       <div class="header-row depth-1">
         <div>
-          <div class="title">Проверка</div>
-          <div class="caption">Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия</div>
+          <div class="title" id="checkTitle">Проверка</div>
+          <div class="caption" id="checkCaption">Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия</div>
         </div>
 
         <div class="tabs depth-2" id="modeTabs">
@@ -800,26 +633,26 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
       </div>
 
       <div id="proWrap" class="proWrap depth-1" aria-hidden="true">
-        <div class="label">От кого пришло (опц.)</div>
+        <div class="label" id="fromLabel">От кого пришло (опц.)</div>
         <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
       </div>
 
       <div class="depth-1">
-        <div class="label">Ссылка (если есть)</div>
+        <div class="label" id="urlLabel">Ссылка (если есть)</div>
         <input id="url" placeholder="например: https://bank-secure.example/verify">
       </div>
 
       <div class="depth-1">
-        <div class="label">Текст сообщения</div>
+        <div class="label" id="textLabel">Текст сообщения</div>
         <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
       </div>
 
       <div class="chips depth-1">
-        <button class="chip" type="button" data-chip="СРОЧНО: подтвердите личность (тестовый пример)">срочно</button>
-        <button class="chip" type="button" data-chip="Запрашивают код из SMS (тестовый пример)">просит код</button>
-        <button class="chip" type="button" data-chip="Просят перейти по ссылке (тестовый пример)">подозр. ссылка</button>
-        <button class="chip" type="button" data-chip="Просят перевод денег (тестовый пример)">перевод денег</button>
-        <button class="chip" type="button" data-chip="Угрожают блокировкой (тестовый пример)">угроза</button>
+        <button class="chip" type="button" data-chip="СРОЧНО: подтвердите личность (тестовый пример)" id="chipUrgent">срочно</button>
+        <button class="chip" type="button" data-chip="Запрашивают код из SMS (тестовый пример)" id="chipCode">просит код</button>
+        <button class="chip" type="button" data-chip="Просят перейти по ссылке (тестовый пример)" id="chipLink">подозр. ссылка</button>
+        <button class="chip" type="button" data-chip="Просят перевод денег (тестовый пример)" id="chipMoney">перевод денег</button>
+        <button class="chip" type="button" data-chip="Угрожают блокировкой (тестовый пример)" id="chipThreat">угроза</button>
       </div>
 
       <div class="actions depth-1">
@@ -830,7 +663,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
               <path d="M8.5 12.2l2.2 2.3 4.8-5" stroke="#071223" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          Проверить (AI)
+          <span id="btnCheckTxt">Проверить (AI)</span>
         </button>
 
         <button class="btn ghost" id="btnClear" type="button">
@@ -841,7 +674,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
               <path d="M8 7l1 14h6l1-14" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
             </svg>
           </span>
-          Очистить
+          <span id="btnClearTxt">Очистить</span>
         </button>
 
         <button class="btn" id="btnDemo" type="button">
@@ -851,18 +684,13 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
               <path d="M8 10h8M8 14h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </span>
-          Пример
+          <span id="btnDemoTxt">Пример</span>
         </button>
-      </div>
-
-      <div class="typingHint depth-1" id="typingHint">
-        <span class="blinkDot"></span>
-        <span>Печатаю пример…</span>
       </div>
 
       <div class="note depth-1">
         <div class="ico">⚠️</div>
-        <div>Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.</div>
+        <div id="noteTxt">Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.</div>
       </div>
     </div>
 
@@ -870,29 +698,31 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
       <div class="card tilt" id="rightCard">
         <div class="header-row depth-1">
           <div>
-            <div class="title">Результат</div>
-            <div class="caption">Скор + причины + что делать безопасно</div>
+            <div class="title" id="resTitle">Результат</div>
+            <div class="caption" id="resCaption">Скор + причины + что делать безопасно</div>
           </div>
-          <span class="tag depth-2" id="categoryTag"><span class="miniDot"></span><span id="catText">—</span></span>
+          <span class="tag depth-2" id="categoryTag">
+            <span class="miniDot"></span><span id="catText">—</span>
+          </span>
         </div>
 
         <div class="meter depth-1" id="compactMeter">
           <div id="scoreBox">0</div>
           <div style="flex:1">
-            <div class="caption">Risk score</div>
+            <div class="caption" id="riskCaption">Риск-скор</div>
             <div style="font-weight:950; font-size:16px" id="scoreText">0 / 100</div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
         </div>
 
         <div id="emptyState" class="empty-state depth-1">
-          <b>Пока нет анализа</b>
-          <div class="muted">Вставь текст/ссылку слева и нажми <span class="kbd">Проверить (AI)</span>.</div>
+          <b id="emptyB">Пока нет анализа</b>
+          <div class="muted" id="emptyT">Вставь текст/ссылку слева и нажми <span class="kbd">Проверить (AI)</span>.</div>
         </div>
 
         <div class="block open depth-1" id="blkWhy">
           <div class="blockHead" data-acc="blkWhy">
-            <h3>Почему так</h3>
+            <h3 id="whyTitle">Почему так</h3>
             <div class="chev">⌃</div>
           </div>
           <div class="accWrap"><div class="accInner">
@@ -902,7 +732,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
         <div class="block open depth-1" id="blkSafe">
           <div class="blockHead" data-acc="blkSafe">
-            <h3>Что делать безопасно</h3>
+            <h3 id="safeTitle">Что делать безопасно</h3>
             <div class="chev">⌃</div>
           </div>
           <div class="accWrap"><div class="accInner">
@@ -912,7 +742,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
         <div class="block open depth-1" id="blkHL">
           <div class="blockHead" data-acc="blkHL">
-            <h3>Подсветка опасных фраз</h3>
+            <h3 id="hlTitle">Подсветка опасных фраз</h3>
             <div class="chev">⌃</div>
           </div>
           <div class="accWrap"><div class="accInner">
@@ -922,44 +752,32 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
       </div>
     </div>
-
   </div>
 </div>
 
 <div id="loading">
   <div class="loading-box">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="spinner"></div>
-        <div>
-          <div style="font-weight:950" id="loadingTitle">Анализируем…</div>
-          <div class="caption" id="loadingSub">Проверяем признаки скама и фишинга</div>
-        </div>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div class="spinner"></div>
+      <div>
+        <div style="font-weight:950" id="loadingTitle">Анализируем…</div>
+        <div class="caption" id="loadingSub">Проверяем признаки скама и фишинга</div>
       </div>
-
-      <div class="langSel" title="Language">
-        <span id="langLabel">Язык</span>
-        <select id="lang" aria-label="Language">
-          <option value="ru" selected>RU</option>
-          <option value="en">EN</option>
-        </select>
-      </div>
+    </div>
   </div>
 </div>
-
 <script>
-/* ✅ FIX 2: вот здесь мы используем Cloudflare Worker */
+/* Cloudflare Worker endpoint (ВАЖНО: /analyze, а не корень) */
 const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
-
 const state = { lang: "ru" };
 
 const I18N = {
   ru: {
-    title: "FraudGuard — Anti-Scam",
     sub: "Проверка сообщений и ссылок на мошенничество",
     pillAI: "AI-анализ",
-    pillHotkeys: "Горячие клавиши: ",
+    pillHotkeys: "Горячие клавиши:",
     langLabel: "Язык",
 
     checkTitle: "Проверка",
@@ -982,12 +800,11 @@ const I18N = {
     btnCheck: "Проверить (AI)",
     btnClear: "Очистить",
     btnDemo: "Пример",
-    typing: "Печатаю пример…",
     note: "Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.",
 
     resTitle: "Результат",
     resCaption: "Скор + причины + что делать безопасно",
-    riskScore: "Скам-Риск",
+    riskScore: "Риск-скор",
     emptyB: "Пока нет анализа",
     emptyT1: "Вставь текст/ссылку слева и нажми ",
     why: "Почему так",
@@ -1000,12 +817,10 @@ const I18N = {
     alertNeed: "Вставь текст сообщения или ссылку.",
     alertErr: "Ошибка анализа: "
   },
-
   en: {
-    title: "FraudGuard — Anti-Scam",
     sub: "Check messages and links for scams",
     pillAI: "AI analysis",
-    pillHotkeys: "Hotkeys: ",
+    pillHotkeys: "Hotkeys:",
     langLabel: "Language",
 
     checkTitle: "Check",
@@ -1028,7 +843,6 @@ const I18N = {
     btnCheck: "Check (AI)",
     btnClear: "Clear",
     btnDemo: "Example",
-    typing: "Typing an example…",
     note: "Never share SMS/Push codes, passwords, CVV/CVC, or PIN. Real banks don’t ask for these in messages.",
 
     resTitle: "Result",
@@ -1053,84 +867,55 @@ function applyLang(next){
   const L = I18N[state.lang];
 
   document.documentElement.lang = state.lang;
-  document.title = L.title;
+  document.title = "FraudGuard — Anti-Scam";
 
-  // topbar
   document.querySelector(".brand .sub").textContent = L.sub;
-  const pills = document.querySelectorAll(".badges .pill");
-  if(pills[0]) pills[0].innerHTML = `<span class="dot"></span>${L.pillAI}`;
-  if(pills[1]) pills[1].innerHTML = `${L.pillHotkeys}<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span>`;
-  const langLabel = document.getElementById("langLabel");
-  if(langLabel) langLabel.textContent = L.langLabel;
-  const langLabelTop = document.getElementById("langLabelTop");
-  if(langLabelTop) langLabelTop.textContent = L.langLabel;
 
+  $("pillAI").textContent = L.pillAI;
+  $("pillHot").textContent = L.pillHotkeys;
 
-  // left card
-  document.querySelector("#leftCard .title").textContent = L.checkTitle;
-  document.querySelector("#leftCard .caption").textContent = L.checkCaption;
+  $("langLabel").textContent = L.langLabel;
 
-  document.getElementById("tabQuick").textContent = L.tabQuick;
-  document.getElementById("tabPro").textContent = L.tabPro;
+  $("checkTitle").textContent = L.checkTitle;
+  $("checkCaption").textContent = L.checkCaption;
 
-  const labels = document.querySelectorAll("#leftCard .label");
-  // order: from (pro), url, text
-  if(labels[0]) labels[0].textContent = L.fromLabel;
-  if(labels[1]) labels[1].textContent = L.urlLabel;
-  if(labels[2]) labels[2].textContent = L.textLabel;
+  $("tabQuick").textContent = L.tabQuick;
+  $("tabPro").textContent = L.tabPro;
 
-  const from = document.getElementById("from");
-  if(from) from.placeholder = L.fromPh;
-  const url = document.getElementById("url");
-  if(url) url.placeholder = L.urlPh;
-  const text = document.getElementById("text");
-  if(text) text.placeholder = L.textPh;
+  $("fromLabel").textContent = L.fromLabel;
+  $("from").placeholder = L.fromPh;
 
-  // chips
-  const chipBtns = document.querySelectorAll(".chips .chip");
-  if(chipBtns[0]) chipBtns[0].textContent = L.chipUrgent;
-  if(chipBtns[1]) chipBtns[1].textContent = L.chipCode;
-  if(chipBtns[2]) chipBtns[2].textContent = L.chipLink;
-  if(chipBtns[3]) chipBtns[3].textContent = L.chipMoney;
-  if(chipBtns[4]) chipBtns[4].textContent = L.chipThreat;
+  $("urlLabel").textContent = L.urlLabel;
+  $("url").placeholder = L.urlPh;
 
-  // buttons
-  document.getElementById("btnCheck").lastChild.textContent = " " + L.btnCheck;
-  document.getElementById("btnClear").lastChild.textContent = " " + L.btnClear;
-  document.getElementById("btnDemo").lastChild.textContent = " " + L.btnDemo;
+  $("textLabel").textContent = L.textLabel;
+  $("text").placeholder = L.textPh;
 
-  // typing hint + note
-  const typing = document.querySelector("#typingHint span:last-child");
-  if(typing) typing.textContent = L.typing;
-  document.querySelector(".note div:last-child").textContent = L.note;
+  $("chipUrgent").textContent = L.chipUrgent;
+  $("chipCode").textContent = L.chipCode;
+  $("chipLink").textContent = L.chipLink;
+  $("chipMoney").textContent = L.chipMoney;
+  $("chipThreat").textContent = L.chipThreat;
 
-  // right card
-  const rTitle = document.querySelector("#rightCard .title");
-  const rCap = document.querySelector("#rightCard .caption");
-  if(rTitle) rTitle.textContent = L.resTitle;
-  if(rCap) rCap.textContent = L.resCaption;
+  $("btnCheckTxt").textContent = L.btnCheck;
+  $("btnClearTxt").textContent = L.btnClear;
+  $("btnDemoTxt").textContent = L.btnDemo;
 
-  const riskCap = document.querySelector("#compactMeter .caption");
-  if(riskCap) riskCap.textContent = L.riskScore;
+  $("noteTxt").textContent = L.note;
 
-  const emptyB = document.querySelector("#emptyState b");
-  const emptyT = document.querySelector("#emptyState .muted");
-  if(emptyB) emptyB.textContent = L.emptyB;
-  if(emptyT) emptyT.innerHTML = `${L.emptyT1}<span class="kbd">${L.btnCheck}</span>.`;
+  $("resTitle").textContent = L.resTitle;
+  $("resCaption").textContent = L.resCaption;
+  $("riskCaption").textContent = L.riskScore;
 
-  // accordion headers
-  const blkWhy = document.querySelector("#blkWhy h3");
-  const blkSafe = document.querySelector("#blkSafe h3");
-  const blkHL = document.querySelector("#blkHL h3");
-  if(blkWhy) blkWhy.textContent = L.why;
-  if(blkSafe) blkSafe.textContent = L.safe;
-  if(blkHL) blkHL.textContent = L.hl;
+  $("emptyB").textContent = L.emptyB;
+  $("emptyT").innerHTML = `${L.emptyT1}<span class="kbd">${L.btnCheck}</span>.`;
 
-  // loading
-  const lb = document.getElementById("loadingTitle");
-  const ls = document.getElementById("loadingSub");
-  if(lb) lb.textContent = L.loadingB;
-  if(ls) ls.textContent = L.loadingS;
+  $("whyTitle").textContent = L.why;
+  $("safeTitle").textContent = L.safe;
+  $("hlTitle").textContent = L.hl;
+
+  $("loadingTitle").textContent = L.loadingB;
+  $("loadingSub").textContent = L.loadingS;
 }
 
 function escapeHTML(s){
@@ -1176,7 +961,7 @@ function iconFor(reason){
   return "⚠️";
 }
 
-/* ===== Ripple on buttons ===== */
+/* Ripple */
 function addRipple(e){
   const btn = e.currentTarget;
   const rect = btn.getBoundingClientRect();
@@ -1197,7 +982,7 @@ function addRipple(e){
   if(el) el.addEventListener("pointerdown", addRipple);
 });
 
-/* ===== Tabs mode switch ===== */
+/* Tabs */
 let mode = "quick";
 function setMode(next){
   mode = next;
@@ -1232,30 +1017,28 @@ document.addEventListener("keydown", (e)=>{
   }
 });
 
-/* ===== FIXED 3D Tilt (edge jitter + RAF + dead-zone) ===== */
+/* ===== FIXED 3D Tilt ===== */
 function tiltBind(el){
   if(!el) return;
 
   const MAX_X = 8;
   const MAX_Y = 10;
-  const EDGE = 10;       // px dead-zone near borders to avoid flicker
+  const EDGE = 10;
   const LEAVE_DELAY = 80;
-  const SMOOTH = 0.16;   // lerp factor
+  const SMOOTH = 0.16;
 
   let rect = null;
   let raf = 0;
   let mx = 0, my = 0;
-
   let active = false;
   let leaving = 0;
 
-  // current + target rotations
   let curRX = 0, curRY = 0;
   let tgtRX = 0, tgtRY = 0;
 
   function measure(){ rect = el.getBoundingClientRect(); }
 
-  function render(){
+  function renderTilt(){
     raf = 0;
     if(!active && Math.abs(curRX) < 0.05 && Math.abs(curRY) < 0.05){
       el.style.transform = `perspective(980px) rotateX(0deg) rotateY(0deg)`;
@@ -1264,7 +1047,6 @@ function tiltBind(el){
       return;
     }
 
-    // smooth
     curRX += (tgtRX - curRX) * SMOOTH;
     curRY += (tgtRY - curRY) * SMOOTH;
 
@@ -1276,19 +1058,15 @@ function tiltBind(el){
       el.style.setProperty("--my", (py * 100).toFixed(2) + "%");
     }
 
-    raf = requestAnimationFrame(render);
+    raf = requestAnimationFrame(renderTilt);
   }
-
-  function requestRender(){
-    if(!raf) raf = requestAnimationFrame(render);
-  }
+  function requestRender(){ if(!raf) raf = requestAnimationFrame(renderTilt); }
 
   function setTargetFromPointer(){
     if(!rect) measure();
     const x = mx - rect.left;
     const y = my - rect.top;
 
-    // If pointer is very close to edge, gently relax instead of flipping states.
     const near = (x < EDGE || y < EDGE || x > rect.width - EDGE || y > rect.height - EDGE);
     if(near){
       tgtRX *= 0.92;
@@ -1320,7 +1098,6 @@ function tiltBind(el){
   }, {passive:true});
 
   el.addEventListener("pointerleave", ()=>{
-    // debounce leave so it doesn't toggle rapidly on the border
     clearTimeout(leaving);
     leaving = setTimeout(()=>{
       active = false;
@@ -1362,7 +1139,6 @@ function springTo(el, from, to){
     if(!done) requestAnimationFrame(frame);
     else el.style.height = Math.round(to) + "px";
   }
-
   requestAnimationFrame(frame);
 }
 
@@ -1410,108 +1186,7 @@ function initAccordion(){
 }
 initAccordion();
 
-function render(data){
-    if(!data) return;
-  $("emptyState").style.display = "none";
-
-  // ===== СКОРЫ =====
- // 1) Выбираем скор из ответа AI
-const scam = Number(data.scam_score ?? data.risk_score ?? 0);
-const danger = Number(data.danger_score ?? 0);
-
-// 2) Итоговый скор: берём максимум (чтобы не было "опасно" при 0)
-const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
-
-  const color = riskColor(score);
-
-  // ===== КРУГ =====
-  $("scoreBox").innerHTML = ringHTML(score, color);
-  $("scoreText").textContent = score + " / 100";
-
-  // ===== КАТЕГОРИЯ (НЕ ВЕРИМ ВОРКЕРУ СЛЕПО) =====
-  let category = "низкий";
-  if (score >= 70) category = "высокий";
-  else if (score >= 35) category = "средний";
-
- const cat = data.category || (score < 20 ? "низкий" : score < 50 ? "средний" : "высокий");
-$("catText").textContent = cat;
-
-  $("categoryTag").querySelector(".miniDot").style.background = color;
-
-  // ===== ПОЛОСА =====
-  $("barFill").style.width = score + "%";
-  $("barFill").style.background = color;
-
-  // ===== ПРИЧИНЫ =====
-  const reasons = Array.isArray(data.reasons) ? data.reasons : [];
-  $("reasons").innerHTML = reasons.length
-    ? `<div class="reasons-grid">${
-        reasons.map(r => `
-          <div class="reason">
-            <div class="ico">${iconFor(r)}</div>
-            <div class="txt">
-              ${escapeHTML(r)}
-              <div class="sub">${
-                r.toLowerCase().includes("банк") ||
-                r.toLowerCase().includes("ссылка") ||
-                r.toLowerCase().includes("домен")
-                  ? "Проверь через официальный канал (приложение/сайт вручную)"
-                  : "Опасный признак"
-              }</div>
-            </div>
-          </div>
-        `).join("")
-      }</div>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  // ===== ЧТО ДЕЛАТЬ =====
-  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
-  $("safe").innerHTML = safe.length
-    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  // ===== ПОДСВЕТКА =====
-  const text = $("text").value || "";
-  let out = escapeHTML(text);
-
-  const phrases = Array.isArray(data.highlight_phrases)
-    ? data.highlight_phrases
-    : [];
-
-  for (const p of phrases){
-    if(!p) continue;
-    const re = new RegExp(
-      p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),
-      "gi"
-    );
-    out = out.replace(re, m => `<mark>${escapeHTML(m)}</mark>`);
-  }
-
-  $("highlight").innerHTML = out || "—";
-
-  // ===== АККОРДЕОН =====
-  ["blkWhy","blkSafe","blkHL"].forEach(id=>{
-    const b = $(id);
-    if(b && b.classList.contains("open")){
-      const wrap = b.querySelector(".accWrap");
-      const inner = b.querySelector(".accInner");
-      if(wrap && inner){
-        wrap.style.height = (inner.scrollHeight + 14) + "px";
-      }
-    }
-  });
-}
-
-  ["blkWhy","blkSafe","blkHL"].forEach(id=>{
-    const b = $(id);
-    if(b && b.classList.contains("open")){
-      const wrap = b.querySelector(".accWrap");
-      const inner = b.querySelector(".accInner");
-      if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
-    }
-  });
-
-/* ✅ API call (Cloudflare) */
+/* timeout wrapper */
 async function fetchWithTimeout(url, opts={}, timeout=9000){
   const ctrl = new AbortController();
   const id = setTimeout(()=>ctrl.abort(), timeout);
@@ -1525,6 +1200,80 @@ async function fetchWithTimeout(url, opts={}, timeout=9000){
   }
 }
 
+/* ===== RENDER (AI -> UI) ===== */
+function render(data){
+  if(!data) return;
+
+  $("emptyState").style.display = "none";
+
+  // score = MAX(scam_score, danger_score) чтобы не было "опасно" при 0
+  const scam = Number(data.scam_score ?? data.risk_score ?? 0);
+  const danger = Number(data.danger_score ?? 0);
+  const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
+  const color = riskColor(score);
+
+  $("scoreBox").innerHTML = ringHTML(score, color);
+  $("scoreText").textContent = score + " / 100";
+
+  const cat = data.category || (score < 20 ? (state.lang==="ru"?"низкий":"low") : score < 50 ? (state.lang==="ru"?"средний":"medium") : (state.lang==="ru"?"высокий":"high"));
+  $("catText").textContent = cat;
+  $("categoryTag").querySelector(".miniDot").style.background = color;
+
+  $("barFill").style.width = score + "%";
+  $("barFill").style.background = color;
+
+  const reasons = Array.isArray(data.reasons) ? data.reasons : [];
+  $("reasons").innerHTML = reasons.length
+    ? `<div class="reasons-grid">${
+        reasons.map(r=>`
+          <div class="reason">
+            <div class="ico">${iconFor(r)}</div>
+            <div class="txt">
+              ${escapeHTML(r)}
+              <div class="sub">${state.lang==="ru" ? "Проверь через официальный канал (приложение/сайт вручную)" : "Verify via official channel (app/site manually)"}</div>
+            </div>
+          </div>`).join("")
+      }</div>`
+    : `<div style="color:var(--muted2)">—</div>`;
+
+  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
+  $("safe").innerHTML = safe.length
+    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
+    : `<div style="color:var(--muted2)">—</div>`;
+
+  // подсветка (UX): локально, но синхронизируем с AI-логикой (берём слова из причин + базовый список)
+  const text = $("text").value || "";
+  const base = (state.lang==="ru")
+    ? ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"]
+    : ["code","sms","password","cvv","cvc","pay","transfer","urgent","immediately","verify","login","account","card","pin"];
+
+  const fromReasons = reasons
+    .join(" ")
+    .split(/[\s,.;:!?()]+/g)
+    .filter(w=>w && w.length>=4)
+    .slice(0, 20);
+
+  const badWords = Array.from(new Set([...base, ...fromReasons]));
+  let out = escapeHTML(text);
+
+  for(const w of badWords){
+    const ww = String(w).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    const re = new RegExp(ww, "gi");
+    out = out.replace(re, m => `<mark>${escapeHTML(m)}</mark>`);
+  }
+  $("highlight").innerHTML = out || "—";
+
+  ["blkWhy","blkSafe","blkHL"].forEach(id=>{
+    const b = $(id);
+    if(b && b.classList.contains("open")){
+      const wrap = b.querySelector(".accWrap");
+      const inner = b.querySelector(".accInner");
+      if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
+    }
+  });
+}
+
+/* ===== API call ===== */
 async function runAiCheck(){
   const url = $("url").value.trim();
   const from = $("from") ? $("from").value.trim() : "";
@@ -1541,29 +1290,32 @@ async function runAiCheck(){
   await new Promise(requestAnimationFrame);
 
   try{
-let r;
-try{
-  r = await fetchWithTimeout(API_URL, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ url, from, text })
-  }, 9000);
-}catch(e){
-  // retry 1 раз
-  r = await fetchWithTimeout(API_URL, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({ url, from, text })
-  }, 9000);
-}
-
+    // 1st try
+    let r;
+    try{
+      r = await fetchWithTimeout(API_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({url,from,text})
+      }, 9000);
+    }catch(e){
+      // retry once
+      r = await fetchWithTimeout(API_URL, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({url,from,text})
+      }, 9000);
+    }
 
     const raw = await r.text();
     let data;
     try { data = JSON.parse(raw); }
-    catch { throw new Error("Функция вернула не-JSON: " + raw.slice(0,140)); }
+    catch { throw new Error((state.lang==="ru"?"Функция вернула не-JSON: ":"Non-JSON response: ") + raw.slice(0,160)); }
 
-    if(!r.ok) throw new Error(data.details || data.error || "API error");
+    if(!r.ok || data?.ok === false){
+      throw new Error(data?.details || data?.error || "API error");
+    }
+
     render(data);
   }catch(e){
     alert(I18N[state.lang].alertErr + (e.message || "API error"));
@@ -1574,64 +1326,10 @@ try{
   }
 }
 
-/* ===== Human-like fast typing for Demo ===== */
-let typingAbort = null;
-function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-function rand(min,max){ return Math.random()*(max-min)+min; }
-
-function cancelTyping(){
-  if(typingAbort) typingAbort.aborted = true;
-  typingAbort = null;
-  $("typingHint").classList.remove("show");
-  $("btnDemo").disabled = false;
-  $("btnClear").disabled = false;
-  $("btnCheck").disabled = false;
-}
-
-async function typeInto(el, text, opts){
-  const o = Object.assign({
-    minDelay: 6, maxDelay: 18,
-    spaceDelay: [4, 10],
-    punctuationDelay: [20, 55],
-    newlineDelay: [70, 130],
-    burstEvery: [16, 30],
-    burstFactor: 0.45,
-  }, opts || {});
-
-  let burstIn = Math.floor(rand(o.burstEvery[0], o.burstEvery[1]));
-  for(let i=0;i<text.length;i++){
-    if(typingAbort?.aborted) return;
-
-    el.value += text[i];
-    el.dispatchEvent(new Event("input", {bubbles:true}));
-    el.scrollTop = el.scrollHeight;
-
-    const ch = text[i];
-    let d = rand(o.minDelay, o.maxDelay);
-    if(ch === " ") d = rand(o.spaceDelay[0], o.spaceDelay[1]);
-    if(ch === "\n") d = rand(o.newlineDelay[0], o.newlineDelay[1]);
-    if(".,:;!?".includes(ch)) d = rand(o.punctuationDelay[0], o.punctuationDelay[1]);
-
-    burstIn--;
-    if(burstIn <= 0){
-      burstIn = Math.floor(rand(o.burstEvery[0], o.burstEvery[1]));
-      d *= o.burstFactor;
-    }
-    await sleep(d);
-  }
-}
-
-async function setValueWithTyping(el, fullText){
-  el.value = "";
-  el.focus();
-  await typeInto(el, fullText);
-}
-
 /* Buttons */
 $("btnCheck").onclick = runAiCheck;
 
 $("btnClear").onclick = ()=>{
-  cancelTyping();
   $("url").value="";
   if($("from")) $("from").value="";
   $("text").value="";
@@ -1647,69 +1345,31 @@ $("btnClear").onclick = ()=>{
   $("barFill").style.width="0%";
 };
 
-$("btnDemo").onclick = async ()=>{
-  cancelTyping();
-
-  typingAbort = {aborted:false};
-  $("btnDemo").disabled = true;
-  $("btnClear").disabled = true;
-  $("btnCheck").disabled = true;
-  $("typingHint").classList.add("show");
-
+$("btnDemo").onclick = ()=>{
   setMode("quick");
-
-  const demoUrl = "https://bank-secure.example/verify";
-  const demoText =
+  $("url").value = "https://bank-secure.example/verify";
+  $("text").value =
 "[ТЕСТ] СРОЧНО подтвердите личность.\n" +
 "[ТЕСТ] Запрашивают код из SMS.\n" +
 "[ТЕСТ] Просят перейти по ссылке.";
-
-  $("url").value = "";
-  $("url").focus();
-  await typeInto($("url"), demoUrl, {minDelay:3, maxDelay:10, punctuationDelay:[12,30]});
-  await sleep(120);
-  await setValueWithTyping($("text"), demoText);
-
-  await sleep(120);
-
-  if(!typingAbort?.aborted){
-    $("typingHint").classList.remove("show");
-    $("btnDemo").disabled = false;
-    $("btnClear").disabled = false;
-    $("btnCheck").disabled = false;
-    typingAbort = null;
-    $("text").focus();
-  }
+  $("text").focus();
 };
 
-/* ===== Language switch ===== */
+/* Language init */
 (function initLang(){
-  const sel = document.getElementById("lang");
-  const selTop = document.getElementById("langTop");
-
+  const sel = $("lang");
   const saved = localStorage.getItem("fg_lang");
-  const start = (saved === "en" || saved === "ru")
-    ? saved
-    : ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en");
-
+  const start = (saved === "en" || saved === "ru") ? saved : "ru";
   applyLang(start);
-
-  if(sel) sel.value = start;
-  if(selTop) selTop.value = start;
-
-  function onChange(v){
-    const lang = v === "en" ? "en" : "ru";
-    localStorage.setItem("fg_lang", lang);
-    applyLang(lang);
-    if(sel) sel.value = lang;
-    if(selTop) selTop.value = lang;
+  if(sel){
+    sel.value = start;
+    sel.addEventListener("change", ()=>{
+      const v = sel.value === "en" ? "en" : "ru";
+      localStorage.setItem("fg_lang", v);
+      applyLang(v);
+    });
   }
-
-  if(sel) sel.addEventListener("change", ()=> onChange(sel.value));
-  if(selTop) selTop.addEventListener("change", ()=> onChange(selTop.value));
 })();
-
-
 </script>
 
 </body>
