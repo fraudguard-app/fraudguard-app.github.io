@@ -1023,6 +1023,7 @@ async function runAiCheck(){
   $("loading").style.display = "block";
   setScan(true);
   $("btnCheck").disabled = true;
+  await new Promise(requestAnimationFrame);
 
 const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
