@@ -121,6 +121,26 @@ body{
 .pill .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); box-shadow: 0 0 0 6px rgba(106,166,255,.10); }
 .pill .kbd{ padding:2px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); font-size:12px; }
 
+
+/* language switch */
+.langSel{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px;
+  border:1px solid var(--line); background: rgba(255,255,255,.05);
+  font-size:12px; backdrop-filter: blur(10px);
+  animation: fadeIn .7s var(--spring) both;
+}
+.langSel select{
+  background: transparent;
+  border:0;
+  color: var(--text);
+  outline:none;
+  cursor:pointer;
+  appearance:none;
+  padding-right: 4px;
+}
+.langSel:hover{ filter: brightness(1.05); }
+
 /* grid */
 .grid{ display:grid; grid-template-columns: 1.05fr .85fr; gap:18px; align-items:start; }
 @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
@@ -513,12 +533,18 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 /* loading overlay */
 #loading{
-  display:none;
   position:fixed; inset:0;
+  display:grid;
+  place-items:center;
+  padding:18px;
   background: rgba(2,6,14,.72);
   backdrop-filter: blur(10px);
   z-index: 9999;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .22s ease;
 }
+#loading.show{ opacity:1; pointer-events:auto; }
 .loading-box{
   width: min(560px, 92vw);
   background: rgba(15,27,51,.95);
@@ -708,16 +734,22 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 </div>
 
 <div id="loading">
-  <div style="height:100%;display:grid;place-items:center;padding:18px">
-    <div class="loading-box">
+  <div class="loading-box">
       <div style="display:flex;gap:12px;align-items:center">
         <div class="spinner"></div>
         <div>
-          <div style="font-weight:950">Анализируем…</div>
-          <div class="caption">Проверяем признаки скама и фишинга</div>
+          <div style="font-weight:950" id="loadingTitle">Анализируем…</div>
+          <div class="caption" id="loadingSub">Проверяем признаки скама и фишинга</div>
         </div>
       </div>
-    </div>
+
+      <div class="langSel" title="Language">
+        <span id="langLabel">Язык</span>
+        <select id="lang" aria-label="Language">
+          <option value="ru" selected>RU</option>
+          <option value="en">EN</option>
+        </select>
+      </div>
   </div>
 </div>
 
@@ -726,6 +758,184 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 const API_URL = "https://fraudguard-app.guideyahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
+
+const state = { lang: "ru" };
+
+const I18N = {
+  ru: {
+    title: "FraudGuard — Anti-Scam",
+    sub: "Проверка сообщений и ссылок на мошенничество",
+    pillAI: "AI-анализ",
+    pillHotkeys: "Горячие клавиши: ",
+    langLabel: "Язык",
+
+    checkTitle: "Проверка",
+    checkCaption: "Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия",
+    tabQuick: "Быстро",
+    tabPro: "Подробно",
+    fromLabel: "От кого пришло (опц.)",
+    fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
+    urlLabel: "Ссылка (если есть)",
+    urlPh: "например: https://bank-secure.example/verify",
+    textLabel: "Текст сообщения",
+    textPh: "Вставь SMS или сообщение...",
+
+    chipUrgent: "срочно",
+    chipCode: "просит код",
+    chipLink: "подозр. ссылка",
+    chipMoney: "перевод денег",
+    chipThreat: "угроза",
+
+    btnCheck: "Проверить (AI)",
+    btnClear: "Очистить",
+    btnDemo: "Пример",
+    typing: "Печатаю пример…",
+    note: "Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.",
+
+    resTitle: "Результат",
+    resCaption: "Скор + причины + что делать безопасно",
+    riskScore: "Риск-скор",
+    emptyB: "Пока нет анализа",
+    emptyT1: "Вставь текст/ссылку слева и нажми ",
+    why: "Почему так",
+    safe: "Что делать безопасно",
+    hl: "Подсветка опасных фраз",
+
+    loadingB: "Анализируем…",
+    loadingS: "Проверяем признаки скама и фишинга",
+
+    alertNeed: "Вставь текст сообщения или ссылку.",
+    alertErr: "Ошибка анализа: "
+  },
+
+  en: {
+    title: "FraudGuard — Anti-Scam",
+    sub: "Check messages and links for scams",
+    pillAI: "AI analysis",
+    pillHotkeys: "Hotkeys: ",
+    langLabel: "Language",
+
+    checkTitle: "Check",
+    checkCaption: "Paste a message and/or link — get a score, reasons, and safe actions",
+    tabQuick: "Quick",
+    tabPro: "Detailed",
+    fromLabel: "Sender (optional)",
+    fromPh: 'e.g.: "[TEST] Support • Security"',
+    urlLabel: "Link (if any)",
+    urlPh: "e.g.: https://bank-secure.example/verify",
+    textLabel: "Message text",
+    textPh: "Paste an SMS or message...",
+
+    chipUrgent: "urgent",
+    chipCode: "asks code",
+    chipLink: "suspicious link",
+    chipMoney: "asks money",
+    chipThreat: "threat",
+
+    btnCheck: "Check (AI)",
+    btnClear: "Clear",
+    btnDemo: "Example",
+    typing: "Typing an example…",
+    note: "Never share SMS/Push codes, passwords, CVV/CVC, or PIN. Real banks don’t ask for these in messages.",
+
+    resTitle: "Result",
+    resCaption: "Score + reasons + safe next steps",
+    riskScore: "Risk score",
+    emptyB: "No analysis yet",
+    emptyT1: "Paste text/link on the left and press ",
+    why: "Why",
+    safe: "Safe actions",
+    hl: "Highlight risky phrases",
+
+    loadingB: "Analyzing…",
+    loadingS: "Checking scam & phishing signals",
+
+    alertNeed: "Paste message text or a link first.",
+    alertErr: "Analysis error: "
+  }
+};
+
+function applyLang(next){
+  state.lang = (next === "en") ? "en" : "ru";
+  const L = I18N[state.lang];
+
+  document.documentElement.lang = state.lang;
+  document.title = L.title;
+
+  // topbar
+  document.querySelector(".brand .sub").textContent = L.sub;
+  const pills = document.querySelectorAll(".badges .pill");
+  if(pills[0]) pills[0].innerHTML = `<span class="dot"></span>${L.pillAI}`;
+  if(pills[1]) pills[1].innerHTML = `${L.pillHotkeys}<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span>`;
+  const langLabel = document.getElementById("langLabel");
+  if(langLabel) langLabel.textContent = L.langLabel;
+
+  // left card
+  document.querySelector("#leftCard .title").textContent = L.checkTitle;
+  document.querySelector("#leftCard .caption").textContent = L.checkCaption;
+
+  document.getElementById("tabQuick").textContent = L.tabQuick;
+  document.getElementById("tabPro").textContent = L.tabPro;
+
+  const labels = document.querySelectorAll("#leftCard .label");
+  // order: from (pro), url, text
+  if(labels[0]) labels[0].textContent = L.fromLabel;
+  if(labels[1]) labels[1].textContent = L.urlLabel;
+  if(labels[2]) labels[2].textContent = L.textLabel;
+
+  const from = document.getElementById("from");
+  if(from) from.placeholder = L.fromPh;
+  const url = document.getElementById("url");
+  if(url) url.placeholder = L.urlPh;
+  const text = document.getElementById("text");
+  if(text) text.placeholder = L.textPh;
+
+  // chips
+  const chipBtns = document.querySelectorAll(".chips .chip");
+  if(chipBtns[0]) chipBtns[0].textContent = L.chipUrgent;
+  if(chipBtns[1]) chipBtns[1].textContent = L.chipCode;
+  if(chipBtns[2]) chipBtns[2].textContent = L.chipLink;
+  if(chipBtns[3]) chipBtns[3].textContent = L.chipMoney;
+  if(chipBtns[4]) chipBtns[4].textContent = L.chipThreat;
+
+  // buttons
+  document.getElementById("btnCheck").lastChild.textContent = " " + L.btnCheck;
+  document.getElementById("btnClear").lastChild.textContent = " " + L.btnClear;
+  document.getElementById("btnDemo").lastChild.textContent = " " + L.btnDemo;
+
+  // typing hint + note
+  const typing = document.querySelector("#typingHint span:last-child");
+  if(typing) typing.textContent = L.typing;
+  document.querySelector(".note div:last-child").textContent = L.note;
+
+  // right card
+  const rTitle = document.querySelector("#rightCard .title");
+  const rCap = document.querySelector("#rightCard .caption");
+  if(rTitle) rTitle.textContent = L.resTitle;
+  if(rCap) rCap.textContent = L.resCaption;
+
+  const riskCap = document.querySelector("#compactMeter .caption");
+  if(riskCap) riskCap.textContent = L.riskScore;
+
+  const emptyB = document.querySelector("#emptyState b");
+  const emptyT = document.querySelector("#emptyState .muted");
+  if(emptyB) emptyB.textContent = L.emptyB;
+  if(emptyT) emptyT.innerHTML = `${L.emptyT1}<span class="kbd">${L.btnCheck}</span>.`;
+
+  // accordion headers
+  const blkWhy = document.querySelector("#blkWhy h3");
+  const blkSafe = document.querySelector("#blkSafe h3");
+  const blkHL = document.querySelector("#blkHL h3");
+  if(blkWhy) blkWhy.textContent = L.why;
+  if(blkSafe) blkSafe.textContent = L.safe;
+  if(blkHL) blkHL.textContent = L.hl;
+
+  // loading
+  const lb = document.getElementById("loadingTitle");
+  const ls = document.getElementById("loadingSub");
+  if(lb) lb.textContent = L.loadingB;
+  if(ls) ls.textContent = L.loadingS;
+}
 
 function escapeHTML(s){
   return String(s||"").replace(/[&<>"]/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;", "\"":"&quot;" }[c]));
@@ -826,57 +1036,105 @@ document.addEventListener("keydown", (e)=>{
   }
 });
 
-/* ===== FIXED 3D Tilt ===== */
+/* ===== FIXED 3D Tilt (edge jitter + RAF + dead-zone) ===== */
 function tiltBind(el){
   if(!el) return;
 
-  const maxX = 8;
-  const maxY = 10;
+  const MAX_X = 8;
+  const MAX_Y = 10;
+  const EDGE = 10;       // px dead-zone near borders to avoid flicker
+  const LEAVE_DELAY = 80;
+  const SMOOTH = 0.16;   // lerp factor
+
   let rect = null;
   let raf = 0;
   let mx = 0, my = 0;
+
   let active = false;
+  let leaving = 0;
 
-  function apply(){
+  // current + target rotations
+  let curRX = 0, curRY = 0;
+  let tgtRX = 0, tgtRY = 0;
+
+  function measure(){ rect = el.getBoundingClientRect(); }
+
+  function render(){
     raf = 0;
-    if(!active) return;
-    if(!rect) rect = el.getBoundingClientRect();
+    if(!active && Math.abs(curRX) < 0.05 && Math.abs(curRY) < 0.05){
+      el.style.transform = `perspective(980px) rotateX(0deg) rotateY(0deg)`;
+      el.style.setProperty("--mx", "50%");
+      el.style.setProperty("--my", "50%");
+      return;
+    }
 
-    let px = (mx - rect.left) / rect.width;
-    let py = (my - rect.top) / rect.height;
-    px = clamp01(px);
-    py = clamp01(py);
+    // smooth
+    curRX += (tgtRX - curRX) * SMOOTH;
+    curRY += (tgtRY - curRY) * SMOOTH;
 
-    const rx = (0.5 - py) * maxX;
-    const ry = (px - 0.5) * maxY;
+    el.style.transform = `perspective(980px) rotateX(${curRX.toFixed(2)}deg) rotateY(${curRY.toFixed(2)}deg)`;
+    if(active && rect){
+      const px = clamp01((mx - rect.left) / rect.width);
+      const py = clamp01((my - rect.top) / rect.height);
+      el.style.setProperty("--mx", (px * 100).toFixed(2) + "%");
+      el.style.setProperty("--my", (py * 100).toFixed(2) + "%");
+    }
 
-    el.style.transform = `perspective(980px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
-    el.style.setProperty("--mx", (px * 100).toFixed(2) + "%");
-    el.style.setProperty("--my", (py * 100).toFixed(2) + "%");
+    raf = requestAnimationFrame(render);
   }
 
-  function onMove(e){
-    if(!active) return;
-    mx = e.clientX; my = e.clientY;
-    if(!raf) raf = requestAnimationFrame(apply);
+  function requestRender(){
+    if(!raf) raf = requestAnimationFrame(render);
+  }
+
+  function setTargetFromPointer(){
+    if(!rect) measure();
+    const x = mx - rect.left;
+    const y = my - rect.top;
+
+    // If pointer is very close to edge, gently relax instead of flipping states.
+    const near = (x < EDGE || y < EDGE || x > rect.width - EDGE || y > rect.height - EDGE);
+    if(near){
+      tgtRX *= 0.92;
+      tgtRY *= 0.92;
+      return;
+    }
+
+    const px = clamp01(x / rect.width);
+    const py = clamp01(y / rect.height);
+
+    tgtRX = (0.5 - py) * MAX_X;
+    tgtRY = (px - 0.5) * MAX_Y;
   }
 
   el.addEventListener("pointerenter", (e)=>{
+    clearTimeout(leaving);
     active = true;
-    rect = el.getBoundingClientRect();
+    measure();
     mx = e.clientX; my = e.clientY;
-    if(!raf) raf = requestAnimationFrame(apply);
+    setTargetFromPointer();
+    requestRender();
   });
 
-  el.addEventListener("pointermove", onMove);
+  el.addEventListener("pointermove", (e)=>{
+    if(!active) return;
+    mx = e.clientX; my = e.clientY;
+    setTargetFromPointer();
+    requestRender();
+  }, {passive:true});
 
   el.addEventListener("pointerleave", ()=>{
-    active = false;
-    rect = null;
-    el.style.transform = `perspective(980px) rotateX(0deg) rotateY(0deg)`;
-    el.style.setProperty("--mx", "50%");
-    el.style.setProperty("--my", "50%");
+    // debounce leave so it doesn't toggle rapidly on the border
+    clearTimeout(leaving);
+    leaving = setTimeout(()=>{
+      active = false;
+      rect = null;
+      tgtRX = 0; tgtRY = 0;
+      requestRender();
+    }, LEAVE_DELAY);
   });
+
+  window.addEventListener("resize", ()=>{ if(active) measure(); }, {passive:true});
 }
 tiltBind($("leftCard"));
 tiltBind($("rightCard"));
@@ -1016,16 +1274,14 @@ async function runAiCheck(){
   const text = $("text").value.trim();
 
   if(!text && !url){
-    alert("Вставь текст сообщения или ссылку.");
+    alert(I18N[state.lang].alertNeed);
     return;
   }
 
-  $("loading").style.display = "block";
+  $("loading").classList.add("show");
   setScan(true);
   $("btnCheck").disabled = true;
   await new Promise(requestAnimationFrame);
-
-const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
   try{
     const r = await fetch(API_URL, {
@@ -1042,10 +1298,10 @@ const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
     if(!r.ok) throw new Error(data.details || data.error || "API error");
     render(data);
   }catch(e){
-    alert("Ошибка анализа: " + (e.message || "API error"));
+    alert(I18N[state.lang].alertErr + (e.message || "API error"));
   }finally{
     setScan(false);
-    $("loading").style.display = "none";
+    $("loading").classList.remove("show");
     $("btnCheck").disabled = false;
   }
 }
@@ -1157,6 +1413,24 @@ $("btnDemo").onclick = async ()=>{
     $("text").focus();
   }
 };
+
+/* ===== Language switch ===== */
+(function initLang(){
+  const sel = document.getElementById("lang");
+  const saved = localStorage.getItem("fg_lang");
+  const initial = saved || (navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en";
+  const start = (saved === "en" || saved === "ru") ? saved : "ru";
+  applyLang(start);
+  if(sel){
+    sel.value = start;
+    sel.addEventListener("change", ()=>{
+      const v = sel.value === "en" ? "en" : "ru";
+      localStorage.setItem("fg_lang", v);
+      applyLang(v);
+    });
+  }
+})();
+
 </script>
 
 </body>
