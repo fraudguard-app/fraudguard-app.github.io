@@ -126,10 +126,14 @@ body{
 .langSel{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 12px; border-radius:999px;
-  border:1px solid var(--line); background: rgba(255,255,255,.05);
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.05);
   font-size:12px; backdrop-filter: blur(10px);
   animation: fadeIn .7s var(--spring) both;
+  transition: transform .18s var(--spring), filter .18s ease, border-color .18s ease;
 }
+.langSel:hover{ transform: translateY(-1px); filter: brightness(1.06); border-color: rgba(255,255,255,.18); }
+
 .langSel select{
   background: transparent;
   border:0;
@@ -137,9 +141,25 @@ body{
   outline:none;
   cursor:pointer;
   appearance:none;
-  padding-right: 4px;
+  padding-right: 18px; /* место под стрелку */
+  font-weight: 900;
 }
-.langSel:hover{ filter: brightness(1.05); }
+
+/* стрелка */
+.langSel{
+  position: relative;
+}
+.langSel::after{
+  content:"▾";
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform: translateY(-50%);
+  color: rgba(231,238,255,.70);
+  pointer-events:none;
+  font-size: 12px;
+}
+
 
 /* grid */
 .grid{ display:grid; grid-template-columns: 1.05fr .85fr; gap:18px; align-items:start; }
@@ -587,17 +607,6 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 <div class="badges">
   <span class="pill"><span class="dot"></span>AI-анализ</span>
   <span class="pill">Горячие клавиши: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
-
-  <!-- language in topbar -->
-  <div class="langSel" title="Language">
-    <span id="langLabelTop">Язык</span>
-    <select id="langTop" aria-label="Language">
-      <option value="ru">RU</option>
-      <option value="en">EN</option>
-    </select>
-  </div>
-</div>
-
 
   <div class="grid">
 
