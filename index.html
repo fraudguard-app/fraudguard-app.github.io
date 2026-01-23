@@ -11,6 +11,43 @@
 <meta name="theme-color" content="#070c18">
 
 <style>
+
+/* ===== FINAL CENTER FIX ===== */
+
+/* центрируем шапку */
+.topbar{
+  max-width: 980px !important;
+  margin: 0 auto 16px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  justify-content: center !important; /* ← ВОТ ЭТО */
+}
+
+/* бренд не уезжает влево */
+.brand{
+  margin-left: 0 !important;
+  justify-content: center !important; /* ← И ЭТО */
+}
+
+/* основной контейнер остаётся grid-совместимым */
+.wrap{
+  max-width: 980px !important;
+  margin: 0 auto !important;
+  padding: 24px 16px 40px !important;
+}
+
+/* сетка остаётся grid, но по центру */
+.grid{
+  max-width: 980px !important;
+  margin: 0 auto !important;
+}
+
+/* карточки не липнут к краям */
+.card{
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 :root{
   --bg0:#04060f;
   --bg2:#0b1220;
