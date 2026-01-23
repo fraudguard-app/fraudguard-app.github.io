@@ -773,7 +773,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 <script>
 /* ✅ FIX 2: вот здесь мы используем Cloudflare Worker */
-const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev";
+const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
 
@@ -812,7 +812,7 @@ const I18N = {
 
     resTitle: "Результат",
     resCaption: "Скор + причины + что делать безопасно",
-    riskScore: "Риск-скор",
+    riskScore: "Скам-Риск",
     emptyB: "Пока нет анализа",
     emptyT1: "Вставь текст/ссылку слева и нажми ",
     why: "Почему так",
@@ -1238,7 +1238,7 @@ initAccordion();
 function render(data){
   $("emptyState").style.display = "none";
 
-  const score = Number(data.risk_score)||0;
+  const score = Number(data.scam_score || data.risk_score || 0);
   const color = riskColor(score);
 
   $("scoreBox").innerHTML = ringHTML(score, color);
