@@ -1024,7 +1024,8 @@ async function runAiCheck(){
   setScan(true);
   $("btnCheck").disabled = true;
 
-  const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
+const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
+
   try{
     const r = await fetch(API_URL, {
       method:"POST",
