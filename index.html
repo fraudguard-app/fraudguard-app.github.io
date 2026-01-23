@@ -1238,31 +1238,89 @@ initAccordion();
 function render(data){
   $("emptyState").style.display = "none";
 
-  const score = Number(data.scam_score || data.risk_score || 0);
+  // ===== СКОРЫ =====
+  const scam = Number(data.scam_score || 0);
+  const danger = Number(data.danger_score || 0);
+  const score = Number(data.risk_score || Math.max(scam, danger) || 0);
+
   const color = riskColor(score);
 
+  // ===== КРУГ =====
   $("scoreBox").innerHTML = ringHTML(score, color);
   $("scoreText").textContent = score + " / 100";
 
-  $("catText").textContent = data.category || "—";
+  // ===== КАТЕГОРИЯ (НЕ ВЕРИМ ВОРКЕРУ СЛЕПО) =====
+  let category = "низкий";
+  if (score >= 70) category = "высокий";
+  else if (score >= 35) category = "средний";
+
+  $("catText").textContent = category;
   $("categoryTag").querySelector(".miniDot").style.background = color;
 
+  // ===== ПОЛОСА =====
   $("barFill").style.width = score + "%";
   $("barFill").style.background = color;
 
-  const reasons = data.reasons || [];
+  // ===== ПРИЧИНЫ =====
+  const reasons = Array.isArray(data.reasons) ? data.reasons : [];
   $("reasons").innerHTML = reasons.length
     ? `<div class="reasons-grid">${
-        reasons.map(r=>`
+        reasons.map(r => `
           <div class="reason">
             <div class="ico">${iconFor(r)}</div>
             <div class="txt">
               ${escapeHTML(r)}
-              <div class="sub">Проверь через официальный канал (приложение/сайт вручную)</div>
+              <div class="sub">${
+                r.toLowerCase().includes("банк") ||
+                r.toLowerCase().includes("ссылка") ||
+                r.toLowerCase().includes("домен")
+                  ? "Проверь через официальный канал (приложение/сайт вручную)"
+                  : "Опасный признак"
+              }</div>
             </div>
-          </div>`).join("")
+          </div>
+        `).join("")
       }</div>`
     : `<div style="color:var(--muted2)">—</div>`;
+
+  // ===== ЧТО ДЕЛАТЬ =====
+  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
+  $("safe").innerHTML = safe.length
+    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
+    : `<div style="color:var(--muted2)">—</div>`;
+
+  // ===== ПОДСВЕТКА =====
+  const text = $("text").value || "";
+  let out = escapeHTML(text);
+
+  const phrases = Array.isArray(data.highlight_phrases)
+    ? data.highlight_phrases
+    : [];
+
+  for (const p of phrases){
+    if(!p) continue;
+    const re = new RegExp(
+      p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),
+      "gi"
+    );
+    out = out.replace(re, m => `<mark>${escapeHTML(m)}</mark>`);
+  }
+
+  $("highlight").innerHTML = out || "—";
+
+  // ===== АККОРДЕОН =====
+  ["blkWhy","blkSafe","blkHL"].forEach(id=>{
+    const b = $(id);
+    if(b && b.classList.contains("open")){
+      const wrap = b.querySelector(".accWrap");
+      const inner = b.querySelector(".accInner");
+      if(wrap && inner){
+        wrap.style.height = (inner.scrollHeight + 14) + "px";
+      }
+    }
+  });
+}
+
 
   const safe = data.safe_actions || [];
   $("safe").innerHTML = safe.length
@@ -1286,7 +1344,6 @@ function render(data){
       if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
     }
   });
-}
 
 /* ✅ API call (Cloudflare) */
 async function fetchWithTimeout(url, opts={}, timeout=9000){
