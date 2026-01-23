@@ -1,1436 +1,450 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FraudGuard — Anti-Scam</title>
+  <meta charset="utf-8">
+  <title>FraudGuard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- ✅ FIX 1: относительные пути + реальные файлы (GitHub Pages не любит /favicon.png если файла нет) -->
-<link rel="icon" href="./favicon.ico?v=10007">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10007">
-<meta name="theme-color" content="#070c18">
+  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<style>
-:root{
-  --bg0:#04060f;
-  --bg2:#0b1220;
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111823;
+      --text: #eaf2ff;
+      --muted: #9bb0c7;
+      --brand: #4ef2c2;
+      --bad: #ff5b6e;
+      --warn: #ffd166;
+      --ok: #4ef2c2;
+      --radius: 18px;
+      --ease: cubic-bezier(.2,.9,.2,1);
+    }
 
-  --text:#eef3ff;
-  --muted:#a9b7d8;
-  --muted2:#7f95be;
+    * { box-sizing: border-box; }
 
-  --line:rgba(255,255,255,.10);
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(900px 500px at 20% 10%, rgba(78,242,194,.12), transparent 60%), var(--bg);
+      color: var(--text);
+    }
 
-  --good:#2ee59d;
-  --warn:#ffcc66;
-  --bad:#ff5c7a;
-  --accent:#6aa6ff;
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(12px);
+      background: rgba(11,15,20,.7);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      z-index: 50;
+    }
 
-  --shadow: 0 22px 100px rgba(0,0,0,.48);
-  --shadow2: 0 14px 70px rgba(0,0,0,.30);
-  --r2:26px;
+    .nav {
+      max-width: 1100px;
+      margin: auto;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-  --spring: cubic-bezier(.16,1,.3,1);
-}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  color:var(--text);
-  background: linear-gradient(180deg, var(--bg0), var(--bg2));
-  overflow-x:hidden;
-}
-::selection{background:rgba(106,166,255,.35)}
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+    }
 
-@media (prefers-reduced-motion: reduce){
-  *{ animation:none !important; transition:none !important; }
-}
+    .brandName { font-weight: 900; }
 
-/* ===== Animated background ===== */
-.bg{
-  position:fixed; inset:0; z-index:-4;
-  background:
-    radial-gradient(1200px 700px at 12% 8%, rgba(106,166,255,.22), transparent 60%),
-    radial-gradient(900px 620px at 84% 14%, rgba(46,229,157,.12), transparent 60%),
-    radial-gradient(1100px 760px at 45% 95%, rgba(255,92,122,.10), transparent 60%),
-    linear-gradient(180deg, var(--bg0), var(--bg2));
-}
-.orbs{
-  position:fixed; inset:0; z-index:-3; pointer-events:none;
-  filter: blur(28px);
-  opacity:.55;
-}
-.orb{
-  position:absolute;
-  width: 420px; height: 420px; border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, rgba(106,166,255,.30), transparent 62%);
-  animation: float1 12s var(--spring) infinite;
-}
-.orb:nth-child(2){
-  width: 520px; height: 520px;
-  left: 68%; top: 8%;
-  background: radial-gradient(circle at 30% 30%, rgba(46,229,157,.22), transparent 65%);
-  animation: float2 15s var(--spring) infinite;
-}
-.orb:nth-child(3){
-  width: 560px; height: 560px;
-  left: 18%; top: 70%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,92,122,.16), transparent 65%);
-  animation: float3 17s var(--spring) infinite;
-}
-@keyframes float1{ 0%,100%{transform:translate(6%,6%) scale(1)} 50%{transform:translate(12%,-4%) scale(1.05)}}
-@keyframes float2{ 0%,100%{transform:translate(-6%,2%) scale(1.02)} 50%{transform:translate(-10%,8%) scale(1.08)}}
-@keyframes float3{ 0%,100%{transform:translate(4%,-4%) scale(1)} 50%{transform:translate(-6%,-10%) scale(1.07)}}
+    .pill {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      color: var(--muted);
+    }
 
-.noise{
-  position:fixed; inset:0; z-index:-2; pointer-events:none;
-  opacity:.07;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-}
+    .navRight {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
 
-.wrap{ max-width: 1220px; margin: 0 auto; padding: 24px 18px 34px; position:relative; z-index:1; }
+    .select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      padding: 6px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.04);
+    }
 
-/* topbar */
-.topbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
-.brand{ display:flex; align-items:center; gap:12px; }
-.logo{
-  width:46px; height:46px; border-radius:16px;
-  background: linear-gradient(135deg, rgba(106,166,255,1), rgba(46,229,157,1));
-  display:grid; place-items:center;
-  color:#061023; font-weight:950;
-  box-shadow: 0 16px 70px rgba(0,0,0,.34);
-  animation: popLogo .7s var(--spring) both;
-}
-@keyframes popLogo{ from{transform:translateY(8px) scale(.92);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-.brand h1{ margin:0; font-size:16px; letter-spacing:.2px; line-height:1.1; }
-.brand .sub{ margin-top:2px; font-size:12px; color: var(--muted2); }
+    .select select {
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
 
-.badges{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-.pill{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 12px; border-radius:999px;
-  border:1px solid var(--line); background: rgba(255,255,255,.05);
-  font-size:12px; backdrop-filter: blur(10px);
-  animation: fadeIn .7s var(--spring) both;
-}
-.pill:nth-child(2){ animation-delay:.06s; }
-@keyframes fadeIn{ from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.pill .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); box-shadow: 0 0 0 6px rgba(106,166,255,.10); }
-.pill .kbd{ padding:2px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); font-size:12px; }
+    .btn {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform .2s var(--ease), border-color .2s var(--ease);
+    }
 
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(78,242,194,.5);
+    }
 
-/* language switch */
-.langSel{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 12px; border-radius:999px;
-  border:1px solid var(--line); background: rgba(255,255,255,.05);
-  font-size:12px; backdrop-filter: blur(10px);
-  animation: fadeIn .7s var(--spring) both;
-}
-.langSel select{
-  background: transparent;
-  border:0;
-  color: var(--text);
-  outline:none;
-  cursor:pointer;
-  appearance:none;
-  padding-right: 4px;
-}
-.langSel:hover{ filter: brightness(1.05); }
+    .btnPrimary {
+      background: linear-gradient(135deg, rgba(78,242,194,.18), rgba(106,168,255,.12));
+      border-color: rgba(78,242,194,.45);
+    }
 
-/* grid */
-.grid{ display:grid; grid-template-columns: 1.05fr .85fr; gap:18px; align-items:start; }
-@media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px 16px 60px;
+    }
 
-/* ===== Cards ===== */
-.card{
-  --mx: 50%;
-  --my: 50%;
-  border-radius: var(--r2);
-  border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.028));
-  box-shadow: var(--shadow);
-  padding: 18px;
-  backdrop-filter: blur(14px);
-  position:relative; overflow:hidden;
-  transform-style: preserve-3d;
-  transform: perspective(980px) rotateX(0deg) rotateY(0deg);
-  transition: box-shadow .25s ease, transform .18s ease;
-  animation: cardIn .75s var(--spring) both;
-  contain: layout paint;
-}
-#leftCard{ animation-delay:.05s; }
-#rightCard{ animation-delay:.11s; }
-@keyframes cardIn{ from{opacity:0;transform:translateY(16px) scale(.985)} to{opacity:1;transform:translateY(0) scale(1)} }
-.card:hover{ box-shadow: 0 26px 120px rgba(0,0,0,.52); }
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
 
-.card::before{
-  content:"";
-  position:absolute; inset:-1px;
-  pointer-events:none;
-  background:
-    radial-gradient(900px 260px at 18% 0%, rgba(106,166,255,.12), transparent 62%),
-    radial-gradient(900px 260px at 82% 0%, rgba(46,229,157,.10), transparent 62%);
-  opacity: .85;
-}
-.card > *{ position:relative; transform: translateZ(0.01px); }
+    h1 {
+      margin: 10px 0 0;
+      font-size: 34px;
+      line-height: 1.1;
+    }
 
-.card.tilt::after{
-  content:"";
-  position:absolute; inset:-1px;
-  pointer-events:none;
-  border-radius: inherit;
-  background: radial-gradient(520px 320px at var(--mx) var(--my),
-    rgba(255,255,255,.012),
-    rgba(106,166,255,.008) 25%,
-    rgba(46,229,157,.006) 45%,
-    transparent 66%);
-  opacity:0;
-  transition: opacity .18s ease;
-  mix-blend-mode: screen;
-}
-.card.tilt:hover::after{ opacity:.10; }
+    .lead {
+      color: var(--muted);
+      margin-top: 10px;
+      max-width: 60ch;
+    }
 
-.depth-1{ transform: translateZ(16px); }
-.depth-2{ transform: translateZ(24px); }
+    .scan {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
 
-.header-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:12px; }
-.title{ font-weight:950; font-size:16px; letter-spacing:.2px; }
-.caption{ font-size:12px; color: var(--muted2); margin-top:4px; }
+    .scan input {
+      flex: 1;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10,14,20,.6);
+      color: var(--text);
+      padding: 12px 14px;
+      outline: none;
+    }
 
-/* ===== Tabs (animated) ===== */
-.tabs{
-  --i: 0;
-  position:relative;
-  display:flex;
-  gap:6px;
-  padding:6px;
-  border-radius:16px;
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.04);
-  overflow:hidden;
-  transform: translateZ(24px);
-}
-.tab-ind{
-  position:absolute; inset:6px;
-  width: calc(50% - 3px);
-  border-radius: 12px;
-  background: rgba(255,255,255,.09);
-  border:1px solid rgba(255,255,255,.14);
-  transform: translateX(calc(var(--i) * (100% + 6px)));
-  transition: transform .48s var(--spring);
-  box-shadow: 0 12px 32px rgba(0,0,0,.22);
-}
-.tab{
-  position:relative;
-  flex:1;
-  padding: 8px 10px;
-  border-radius:12px;
-  border:1px solid transparent;
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  cursor:pointer;
-  transition: transform .18s var(--spring), color .18s ease, filter .18s ease;
-  z-index:1;
-}
-.tab:hover{ transform: translateY(-1px); filter: brightness(1.06); }
-.tab.active{ color: var(--text); }
+    .scan input:focus {
+      border-color: rgba(78,242,194,.6);
+    }
 
-/* pro fields */
-.proWrap{
-  overflow:hidden;
-  max-height: 0px;
-  opacity: 0;
-  transform: translateY(-8px);
-  filter: blur(6px);
-  transition: max-height .55s var(--spring), opacity .35s ease, transform .55s var(--spring), filter .35s ease;
-}
-.proWrap.show{
-  max-height: 120px;
-  opacity: 1;
-  transform: translateY(0);
-  filter: blur(0);
-}
+    .result {
+      margin-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 16px;
+    }
 
-/* inputs */
-.label{ font-size:12px; color: var(--muted2); margin: 12px 0 6px; }
-input, textarea{
-  width:100%;
-  background: rgba(8,12,22,.62);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius: 16px;
-  padding: 12px 12px;
-  color: var(--text);
-  outline:none;
-  transition: box-shadow .2s var(--spring), border-color .2s ease, transform .18s var(--spring), filter .18s ease;
-}
-textarea{ min-height: 158px; resize: vertical; line-height: 1.45; }
-input::placeholder, textarea::placeholder{ color: rgba(159,177,209,.62); }
-input:focus, textarea:focus{
-  border-color: rgba(106,166,255,.55);
-  box-shadow: 0 0 0 4px rgba(106,166,255,.12), 0 18px 55px rgba(0,0,0,.20);
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-}
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-/* chips */
-.chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-.chip{
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  color: rgba(231,238,255,.90);
-  padding: 7px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  cursor:pointer;
-  transition: transform .18s var(--spring), box-shadow .2s ease, filter .2s ease;
-}
-.chip:hover{ transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow2); filter: brightness(1.06); }
-.chip:active{ transform: translateY(0) scale(.985); }
+    .badge i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--warn);
+    }
 
-/* buttons + icons + shine + ripple */
-.actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
-.btn{
-  position:relative;
-  display:inline-flex; align-items:center; justify-content:center;
-  gap:10px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  padding: 10px 14px;
-  border-radius: 16px;
-  cursor:pointer;
-  transition: transform .18s var(--spring), box-shadow .22s ease, filter .18s ease;
-  overflow:hidden;
-  user-select:none;
-}
-.btn:hover{ transform: translateY(-2px); box-shadow: 0 14px 55px rgba(0,0,0,.28); filter: brightness(1.06); }
-.btn:active{ transform: translateY(0) scale(.985); }
-.btn:disabled{ opacity:.6; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+    .badge.low i { background: var(--ok); }
+    .badge.medium i { background: var(--warn); }
+    .badge.high i { background: var(--bad); }
 
-.btn::before{
-  content:"";
-  position:absolute; inset:-30% -60%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
-  transform: translateX(-60%) rotate(10deg);
-  opacity:0;
-}
-.btn:hover::before{
-  opacity:1;
-  animation: sheen 1.2s ease-in-out infinite;
-}
-@keyframes sheen{
-  0%{ transform: translateX(-65%) rotate(10deg); }
-  100%{ transform: translateX(65%) rotate(10deg); }
-}
+    .reasons {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
 
-.btn .ic{
-  width:18px; height:18px; display:inline-block;
-  filter: drop-shadow(0 6px 20px rgba(0,0,0,.25));
-}
-.btn.primary{
-  border:none;
-  background: linear-gradient(135deg, var(--accent), var(--good));
-  color:#061023;
-  font-weight: 950;
-}
-.btn.ghost{ background: rgba(0,0,0,.22); }
+    .reason {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
 
-.ripple{
-  position:absolute;
-  border-radius:999px;
-  transform: scale(0);
-  opacity: .6;
-  pointer-events:none;
-  background: rgba(255,255,255,.22);
-  animation: ripple .55s ease-out forwards;
-}
-@keyframes ripple{
-  to{ transform: scale(1); opacity:0; }
-}
+    footer {
+      margin-top: 30px;
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-/* typing hint */
-.typingHint{
-  display:none;
-  margin-top:10px;
-  font-size:12px;
-  color: rgba(231,238,255,.80);
-  gap:8px;
-  align-items:center;
-}
-.typingHint.show{ display:flex; }
-.blinkDot{
-  width:10px;height:10px;border-radius:50%;
-  background: rgba(106,166,255,.55);
-  box-shadow: 0 0 0 6px rgba(106,166,255,.10);
-  animation: blink 1s ease-in-out infinite;
-}
-@keyframes blink{ 0%,100%{transform:scale(.9);opacity:.6} 50%{transform:scale(1.1);opacity:1} }
+    .toastWrap {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      display: grid;
+      gap: 10px;
+      z-index: 100;
+    }
 
-/* note */
-.note{
-  display:flex; gap:10px; align-items:flex-start;
-  margin-top: 14px; padding: 12px;
-  border-radius: 18px;
-  border:1px solid rgba(255,204,102,.16);
-  background: rgba(255,204,102,.06);
-  color: rgba(255,232,190,.95);
-  font-size: 12px; line-height: 1.4;
-  transition: transform .2s var(--spring), filter .2s ease;
-}
-.card:hover .note{ transform: translateY(-1px); filter: brightness(1.03); }
-.note .ico{ width:18px; height:18px; border-radius:8px; display:grid; place-items:center; background: rgba(255,204,102,.12); }
+    .toast {
+      background: rgba(20,26,36,.9);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: var(--text);
+      box-shadow: 0 18px 60px rgba(0,0,0,.5);
+      animation: toastIn .35s var(--ease) forwards;
+    }
 
-/* right sticky */
-.right-wrap{ position: sticky; top: 14px; }
-@media (max-width: 980px){ .right-wrap{position: static} }
-
-.tag{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:7px 12px; border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.05);
-  font-size:12px;
-  transition: transform .18s var(--spring);
-}
-.card:hover .tag{ transform: translateY(-1px); }
-.tag .miniDot{ width:8px; height:8px; border-radius:999px; background: rgba(255,255,255,.35); }
-
-.meter{
-  display:flex; align-items:center; gap:14px;
-  padding: 14px;
-  border-radius: 18px;
-  border:1px solid rgba(255,255,255,.14);
-  background: linear-gradient(180deg, rgba(0,0,0,.16), rgba(255,255,255,.02));
-  animation: fadeIn .45s var(--spring) both;
-}
-.ring{ width:78px; height:78px; display:grid; place-items:center; position:relative; flex:0 0 auto; }
-.ring svg{ transform: rotate(-90deg); }
-.ring .num{ position:absolute; inset:0; display:grid; place-items:center; font-weight:950; font-size:18px; }
-.bar{
-  height:10px; border-radius:999px; overflow:hidden;
-  background: rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12);
-  margin-top: 8px;
-}
-.bar > div{ height:100%; width:0%; transition: width .45s var(--spring); }
-
-/* accordion */
-.block{
-  margin-top: 14px;
-  border-radius: 18px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.14);
-  overflow:hidden;
-  transition: transform .2s var(--spring), box-shadow .2s ease;
-}
-.block:hover{ transform: translateY(-1px); box-shadow: 0 18px 60px rgba(0,0,0,.22); }
-.blockHead{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding: 12px 14px;
-  cursor:pointer; user-select:none;
-}
-.blockHead h3{ margin:0; font-size: 13px; font-weight: 950; }
-
-.chev{
-  width:40px; height:40px; border-radius: 16px;
-  display:grid; place-items:center;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  transition: transform .35s var(--spring), background .22s ease;
-}
-.block:hover .chev{ background: rgba(255,255,255,.06); }
-.block.open .chev{ transform: rotate(180deg); }
-
-.accWrap{ height: 0px; overflow:hidden; }
-.accInner{
-  padding: 0 14px 14px;
-  opacity: 0;
-  transform: translateY(-8px) scale(.99);
-  filter: blur(6px);
-  transition: opacity .22s ease, transform .35s var(--spring), filter .22s ease;
-  transform-origin: top;
-}
-.block.open .accInner{
-  opacity:1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-}
-
-/* reasons cards */
-.reasons-grid{ display:grid; gap:10px; margin-top: 6px; }
-.reason{
-  display:flex; gap:10px;
-  padding: 12px;
-  border-radius: 16px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.03);
-  transition: transform .2s var(--spring), filter .2s ease;
-}
-.reason:hover{ transform: translateY(-1px); filter: brightness(1.04); }
-.reason .ico{
-  width:38px; height:38px;
-  border-radius: 16px;
-  display:grid; place-items:center;
-  background: linear-gradient(135deg, rgba(106,166,255,.12), rgba(46,229,157,.10));
-  border:1px solid rgba(255,255,255,.12);
-  flex:0 0 auto;
-}
-.reason .txt{ font-size:13px; line-height:1.4; }
-.reason .sub{ font-size:12px; color: var(--muted2); margin-top:2px; }
-
-ul{ margin:0; padding-left:18px; }
-li{ margin: 6px 0; line-height: 1.45; color: rgba(231,238,255,.92); }
-
-/* highlight */
-.hl{
-  white-space: pre-wrap;
-  line-height: 1.45;
-  border:1px dashed rgba(255,255,255,.18);
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(255,255,255,.04);
-  position:relative;
-  overflow:hidden;
-}
-.hl::after{
-  content:"";
-  position:absolute; top:-50%; left:-60%;
-  width:40%; height:200%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
-  transform: rotate(12deg);
-  opacity:0;
-}
-.hl.scan::after{ opacity:1; animation: scan 1.1s ease-in-out infinite; }
-@keyframes scan { 0%{transform:translateX(-120%)} 100%{transform:translateX(120%)} }
-mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
-
-/* empty state */
-.empty-state{
-  margin-top: 14px;
-  display:grid; gap:10px;
-  padding: 14px;
-  border-radius: 18px;
-  border:1px dashed rgba(255,255,255,.18);
-  background: rgba(255,255,255,.03);
-  animation: fadeIn .45s var(--spring) both;
-}
-.empty-state b{ font-size:13px; }
-.empty-state .muted{ color: var(--muted2); font-size:12px; line-height:1.4; }
-.kbd{
-  display:inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.25);
-  font-size: 12px;
-  color: var(--text);
-}
-
-/* loading overlay */
-#loading{
-  position:fixed; inset:0;
-  display:grid;
-  place-items:center;
-  padding:18px;
-  background: rgba(2,6,14,.72);
-  backdrop-filter: blur(10px);
-  z-index: 9999;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .22s ease;
-}
-#loading.show{ opacity:1; pointer-events:auto; }
-.loading-box{
-  width: min(560px, 92vw);
-  background: rgba(15,27,51,.95);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius: 22px;
-  padding: 18px;
-  box-shadow: var(--shadow);
-  animation: pop .35s var(--spring) both;
-}
-@keyframes pop{ from{transform:translateY(10px) scale(.98);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-.spinner{
-  width:34px; height:34px; border-radius:50%;
-  border: 3px solid rgba(255,255,255,.18);
-  border-top-color: var(--accent);
-  animation: spin .9s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+    @keyframes toastIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
 </head>
 
 <body>
-<div class="bg"></div>
-<div class="orbs">
-  <div class="orb" style="left:6%; top:8%"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
-</div>
-<div class="noise"></div>
 
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">FG</div>
+<header>
+  <div class="nav">
+    <a class="brand" href="#">
+      <img src="apple-touch-icon.png">
       <div>
-        <h1>FraudGuard</h1>
-        <div class="sub">Проверка сообщений и ссылок на мошенничество</div>
+        <div class="brandName">FraudGuard</div>
+        <div class="pill" id="navPill">Анти-скам проверка</div>
       </div>
-    </div>
+    </a>
 
-    <div class="badges">
-      <span class="pill"><span class="dot"></span>AI-анализ</span>
-      <span class="pill">Горячие клавиши: <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
-    </div>
-  </div>
-
-  <div class="grid">
-
-    <div class="card tilt" id="leftCard">
-      <div class="header-row depth-1">
-        <div>
-          <div class="title">Проверка</div>
-          <div class="caption">Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия</div>
-        </div>
-
-        <div class="tabs depth-2" id="modeTabs">
-          <div class="tab-ind" aria-hidden="true"></div>
-          <button class="tab active" id="tabQuick" type="button">Быстро</button>
-          <button class="tab" id="tabPro" type="button">Подробно</button>
-        </div>
-      </div>
-
-      <div id="proWrap" class="proWrap depth-1" aria-hidden="true">
-        <div class="label">От кого пришло (опц.)</div>
-        <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
-      </div>
-
-      <div class="depth-1">
-        <div class="label">Ссылка (если есть)</div>
-        <input id="url" placeholder="например: https://bank-secure.example/verify">
-      </div>
-
-      <div class="depth-1">
-        <div class="label">Текст сообщения</div>
-        <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
-      </div>
-
-      <div class="chips depth-1">
-        <button class="chip" type="button" data-chip="СРОЧНО: подтвердите личность (тестовый пример)">срочно</button>
-        <button class="chip" type="button" data-chip="Запрашивают код из SMS (тестовый пример)">просит код</button>
-        <button class="chip" type="button" data-chip="Просят перейти по ссылке (тестовый пример)">подозр. ссылка</button>
-        <button class="chip" type="button" data-chip="Просят перевод денег (тестовый пример)">перевод денег</button>
-        <button class="chip" type="button" data-chip="Угрожают блокировкой (тестовый пример)">угроза</button>
-      </div>
-
-      <div class="actions depth-1">
-        <button class="btn primary" id="btnCheck" type="button">
-          <span class="ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
-              <path d="M12 3l8 4v6c0 5-3.2 8.4-8 9-4.8-.6-8-4-8-9V7l8-4z" stroke="#071223" stroke-width="2"/>
-              <path d="M8.5 12.2l2.2 2.3 4.8-5" stroke="#071223" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          Проверить (AI)
-        </button>
-
-        <button class="btn ghost" id="btnClear" type="button">
-          <span class="ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
-              <path d="M6 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M9 7V5h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M8 7l1 14h6l1-14" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          Очистить
-        </button>
-
-        <button class="btn" id="btnDemo" type="button">
-          <span class="ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
-              <path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="2" />
-              <path d="M8 10h8M8 14h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </span>
-          Пример
-        </button>
-      </div>
-
-      <div class="typingHint depth-1" id="typingHint">
-        <span class="blinkDot"></span>
-        <span>Печатаю пример…</span>
-      </div>
-
-      <div class="note depth-1">
-        <div class="ico">⚠️</div>
-        <div>Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.</div>
-      </div>
-    </div>
-
-    <div class="right-wrap">
-      <div class="card tilt" id="rightCard">
-        <div class="header-row depth-1">
-          <div>
-            <div class="title">Результат</div>
-            <div class="caption">Скор + причины + что делать безопасно</div>
-          </div>
-          <span class="tag depth-2" id="categoryTag"><span class="miniDot"></span><span id="catText">—</span></span>
-        </div>
-
-        <div class="meter depth-1" id="compactMeter">
-          <div id="scoreBox">0</div>
-          <div style="flex:1">
-            <div class="caption">Risk score</div>
-            <div style="font-weight:950; font-size:16px" id="scoreText">0 / 100</div>
-            <div class="bar"><div id="barFill"></div></div>
-          </div>
-        </div>
-
-        <div id="emptyState" class="empty-state depth-1">
-          <b>Пока нет анализа</b>
-          <div class="muted">Вставь текст/ссылку слева и нажми <span class="kbd">Проверить (AI)</span>.</div>
-        </div>
-
-        <div class="block open depth-1" id="blkWhy">
-          <div class="blockHead" data-acc="blkWhy">
-            <h3>Почему так</h3>
-            <div class="chev">⌃</div>
-          </div>
-          <div class="accWrap"><div class="accInner">
-            <div id="reasons" style="color:var(--muted2)">—</div>
-          </div></div>
-        </div>
-
-        <div class="block open depth-1" id="blkSafe">
-          <div class="blockHead" data-acc="blkSafe">
-            <h3>Что делать безопасно</h3>
-            <div class="chev">⌃</div>
-          </div>
-          <div class="accWrap"><div class="accInner">
-            <div id="safe" style="color:var(--muted2)">—</div>
-          </div></div>
-        </div>
-
-        <div class="block open depth-1" id="blkHL">
-          <div class="blockHead" data-acc="blkHL">
-            <h3>Подсветка опасных фраз</h3>
-            <div class="chev">⌃</div>
-          </div>
-          <div class="accWrap"><div class="accInner">
-            <div id="highlight" class="hl">—</div>
-          </div></div>
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div id="loading">
-  <div class="loading-box">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="spinner"></div>
-        <div>
-          <div style="font-weight:950" id="loadingTitle">Анализируем…</div>
-          <div class="caption" id="loadingSub">Проверяем признаки скама и фишинга</div>
-        </div>
-      </div>
-
-      <div class="langSel" title="Language">
+    <div class="navRight">
+      <div class="select">
         <span id="langLabel">Язык</span>
-        <select id="lang" aria-label="Language">
-          <option value="ru" selected>RU</option>
+        <select id="langSelect">
+          <option value="ru">RU</option>
           <option value="en">EN</option>
         </select>
       </div>
+
+      <button class="btn btnPrimary" id="scanBtnTop">Проверить</button>
+    </div>
   </div>
-</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="tag" id="heroTag">Безопасность сделок за 10 секунд</div>
+    <h1 id="heroTitle">Проверь ссылку, аккаунт или кошелёк — до того как отправишь деньги</h1>
+    <p class="lead" id="heroLead">
+      FraudGuard показывает риск и объясняет, что именно выглядит подозрительно.
+    </p>
+
+    <div class="scan">
+      <input id="scanInput" placeholder="Вставь ссылку / ник / адрес кошелька…">
+      <button class="btn btnPrimary" id="scanBtn">Проверить</button>
+    </div>
+
+    <div class="result">
+      <b id="resultTitle">Результат проверки</b>
+      <div style="margin-top:8px">
+        <span class="badge medium" id="riskBadge">
+          <i></i>
+          <span id="riskText">Ожидание ввода</span>
+        </span>
+      </div>
+
+      <div class="reasons" id="reasons"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span id="footerLeft"></span>
+    <span id="footerRight"></span>
+  </footer>
+</main>
+
+<div class="toastWrap" id="toasts"></div>
 
 <script>
-/* ✅ FIX 2: вот здесь мы используем Cloudflare Worker */
-const API_URL = "https://fraudguard-app.guideyahofc.workers.dev/analyze";
+  const WORKER_URL = "https://fraudguard-app.guideyeahofc.workers.dev";
 
-const $ = id => document.getElementById(id);
+  const state = {
+    lang: "ru"
+  };
 
-const state = { lang: "ru" };
+  const I18N = {
+    ru: {
+      navPill: "Анти-скам проверка",
+      langLabel: "Язык",
+      heroTag: "Безопасность сделок за 10 секунд",
+      heroTitle: "Проверь ссылку, аккаунт или кошелёк — до того как отправишь деньги",
+      heroLead: "FraudGuard показывает риск и объясняет, что именно выглядит подозрительно.",
+      scanPlaceholder: "Вставь ссылку / ник / адрес кошелька…",
+      scanBtn: "Проверить",
+      resultTitle: "Результат проверки",
+      riskWaiting: "Ожидание ввода",
+      footerLeft: "© {year} FraudGuard. Сделано для безопасности.",
+      footerRight: "Совет: если сомневаешься — не плати.",
+      toastNoInput: "Нечего проверять",
+      toastNoInputSub: "Сначала вставь ссылку/ник/кошелёк.",
+      toastError: "Ошибка анализа",
+      toastErrorSub: "Не удалось связаться с сервером."
+    },
+    en: {
+      navPill: "Anti-scam checker",
+      langLabel: "Language",
+      heroTag: "Deal safety in 10 seconds",
+      heroTitle: "Check a link, account, or wallet — before you pay",
+      heroLead: "FraudGuard shows risk and explains what looks suspicious.",
+      scanPlaceholder: "Paste link / username / wallet…",
+      scanBtn: "Check",
+      resultTitle: "Check result",
+      riskWaiting: "Waiting for input",
+      footerLeft: "© {year} FraudGuard. Built for safety.",
+      footerRight: "Tip: if you’re unsure — don’t pay.",
+      toastNoInput: "Nothing to check",
+      toastNoInputSub: "Paste a link/username/wallet first.",
+      toastError: "Analysis error",
+      toastErrorSub: "Could not reach server."
+    }
+  };
 
-const I18N = {
-  ru: {
-    title: "FraudGuard — Anti-Scam",
-    sub: "Проверка сообщений и ссылок на мошенничество",
-    pillAI: "AI-анализ",
-    pillHotkeys: "Горячие клавиши: ",
-    langLabel: "Язык",
-
-    checkTitle: "Проверка",
-    checkCaption: "Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия",
-    tabQuick: "Быстро",
-    tabPro: "Подробно",
-    fromLabel: "От кого пришло (опц.)",
-    fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
-    urlLabel: "Ссылка (если есть)",
-    urlPh: "например: https://bank-secure.example/verify",
-    textLabel: "Текст сообщения",
-    textPh: "Вставь SMS или сообщение...",
-
-    chipUrgent: "срочно",
-    chipCode: "просит код",
-    chipLink: "подозр. ссылка",
-    chipMoney: "перевод денег",
-    chipThreat: "угроза",
-
-    btnCheck: "Проверить (AI)",
-    btnClear: "Очистить",
-    btnDemo: "Пример",
-    typing: "Печатаю пример…",
-    note: "Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.",
-
-    resTitle: "Результат",
-    resCaption: "Скор + причины + что делать безопасно",
-    riskScore: "Риск-скор",
-    emptyB: "Пока нет анализа",
-    emptyT1: "Вставь текст/ссылку слева и нажми ",
-    why: "Почему так",
-    safe: "Что делать безопасно",
-    hl: "Подсветка опасных фраз",
-
-    loadingB: "Анализируем…",
-    loadingS: "Проверяем признаки скама и фишинга",
-
-    alertNeed: "Вставь текст сообщения или ссылку.",
-    alertErr: "Ошибка анализа: "
-  },
-
-  en: {
-    title: "FraudGuard — Anti-Scam",
-    sub: "Check messages and links for scams",
-    pillAI: "AI analysis",
-    pillHotkeys: "Hotkeys: ",
-    langLabel: "Language",
-
-    checkTitle: "Check",
-    checkCaption: "Paste a message and/or link — get a score, reasons, and safe actions",
-    tabQuick: "Quick",
-    tabPro: "Detailed",
-    fromLabel: "Sender (optional)",
-    fromPh: 'e.g.: "[TEST] Support • Security"',
-    urlLabel: "Link (if any)",
-    urlPh: "e.g.: https://bank-secure.example/verify",
-    textLabel: "Message text",
-    textPh: "Paste an SMS or message...",
-
-    chipUrgent: "urgent",
-    chipCode: "asks code",
-    chipLink: "suspicious link",
-    chipMoney: "asks money",
-    chipThreat: "threat",
-
-    btnCheck: "Check (AI)",
-    btnClear: "Clear",
-    btnDemo: "Example",
-    typing: "Typing an example…",
-    note: "Never share SMS/Push codes, passwords, CVV/CVC, or PIN. Real banks don’t ask for these in messages.",
-
-    resTitle: "Result",
-    resCaption: "Score + reasons + safe next steps",
-    riskScore: "Risk score",
-    emptyB: "No analysis yet",
-    emptyT1: "Paste text/link on the left and press ",
-    why: "Why",
-    safe: "Safe actions",
-    hl: "Highlight risky phrases",
-
-    loadingB: "Analyzing…",
-    loadingS: "Checking scam & phishing signals",
-
-    alertNeed: "Paste message text or a link first.",
-    alertErr: "Analysis error: "
+  function t(key, vars = {}) {
+    let s = I18N[state.lang][key] || key;
+    for (const k in vars) {
+      s = s.replaceAll(`{${k}}`, vars[k]);
+    }
+    return s;
   }
-};
 
-function applyLang(next){
-  state.lang = (next === "en") ? "en" : "ru";
-  const L = I18N[state.lang];
-
-  document.documentElement.lang = state.lang;
-  document.title = L.title;
-
-  // topbar
-  document.querySelector(".brand .sub").textContent = L.sub;
-  const pills = document.querySelectorAll(".badges .pill");
-  if(pills[0]) pills[0].innerHTML = `<span class="dot"></span>${L.pillAI}`;
-  if(pills[1]) pills[1].innerHTML = `${L.pillHotkeys}<span class="kbd">Ctrl</span> + <span class="kbd">Enter</span>`;
-  const langLabel = document.getElementById("langLabel");
-  if(langLabel) langLabel.textContent = L.langLabel;
-
-  // left card
-  document.querySelector("#leftCard .title").textContent = L.checkTitle;
-  document.querySelector("#leftCard .caption").textContent = L.checkCaption;
-
-  document.getElementById("tabQuick").textContent = L.tabQuick;
-  document.getElementById("tabPro").textContent = L.tabPro;
-
-  const labels = document.querySelectorAll("#leftCard .label");
-  // order: from (pro), url, text
-  if(labels[0]) labels[0].textContent = L.fromLabel;
-  if(labels[1]) labels[1].textContent = L.urlLabel;
-  if(labels[2]) labels[2].textContent = L.textLabel;
-
-  const from = document.getElementById("from");
-  if(from) from.placeholder = L.fromPh;
-  const url = document.getElementById("url");
-  if(url) url.placeholder = L.urlPh;
-  const text = document.getElementById("text");
-  if(text) text.placeholder = L.textPh;
-
-  // chips
-  const chipBtns = document.querySelectorAll(".chips .chip");
-  if(chipBtns[0]) chipBtns[0].textContent = L.chipUrgent;
-  if(chipBtns[1]) chipBtns[1].textContent = L.chipCode;
-  if(chipBtns[2]) chipBtns[2].textContent = L.chipLink;
-  if(chipBtns[3]) chipBtns[3].textContent = L.chipMoney;
-  if(chipBtns[4]) chipBtns[4].textContent = L.chipThreat;
-
-  // buttons
-  document.getElementById("btnCheck").lastChild.textContent = " " + L.btnCheck;
-  document.getElementById("btnClear").lastChild.textContent = " " + L.btnClear;
-  document.getElementById("btnDemo").lastChild.textContent = " " + L.btnDemo;
-
-  // typing hint + note
-  const typing = document.querySelector("#typingHint span:last-child");
-  if(typing) typing.textContent = L.typing;
-  document.querySelector(".note div:last-child").textContent = L.note;
-
-  // right card
-  const rTitle = document.querySelector("#rightCard .title");
-  const rCap = document.querySelector("#rightCard .caption");
-  if(rTitle) rTitle.textContent = L.resTitle;
-  if(rCap) rCap.textContent = L.resCaption;
-
-  const riskCap = document.querySelector("#compactMeter .caption");
-  if(riskCap) riskCap.textContent = L.riskScore;
-
-  const emptyB = document.querySelector("#emptyState b");
-  const emptyT = document.querySelector("#emptyState .muted");
-  if(emptyB) emptyB.textContent = L.emptyB;
-  if(emptyT) emptyT.innerHTML = `${L.emptyT1}<span class="kbd">${L.btnCheck}</span>.`;
-
-  // accordion headers
-  const blkWhy = document.querySelector("#blkWhy h3");
-  const blkSafe = document.querySelector("#blkSafe h3");
-  const blkHL = document.querySelector("#blkHL h3");
-  if(blkWhy) blkWhy.textContent = L.why;
-  if(blkSafe) blkSafe.textContent = L.safe;
-  if(blkHL) blkHL.textContent = L.hl;
-
-  // loading
-  const lb = document.getElementById("loadingTitle");
-  const ls = document.getElementById("loadingSub");
-  if(lb) lb.textContent = L.loadingB;
-  if(ls) ls.textContent = L.loadingS;
-}
-
-function escapeHTML(s){
-  return String(s||"").replace(/[&<>"]/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;", "\"":"&quot;" }[c]));
-}
-function clamp01(x){ return Math.max(0, Math.min(1, x)); }
-
-function riskColor(score){
-  const s = Number(score)||0;
-  if(s < 20) return "var(--good)";
-  if(s < 50) return "var(--warn)";
-  return "var(--bad)";
-}
-
-function ringHTML(score, color){
-  const r = 31;
-  const c = 2 * Math.PI * r;
-  const p = Math.max(0, Math.min(100, Number(score)||0));
-  const dash = (c * (p/100)).toFixed(2);
-  return `
-  <div class="ring">
-    <svg width="78" height="78" viewBox="0 0 78 78">
-      <circle cx="39" cy="39" r="${r}" stroke="rgba(255,255,255,.10)" stroke-width="8" fill="none"></circle>
-      <circle cx="39" cy="39" r="${r}" stroke="${color}" stroke-width="8" fill="none"
-        stroke-linecap="round" stroke-dasharray="${dash} ${c.toFixed(2)}"></circle>
-    </svg>
-    <div class="num">${p}</div>
-  </div>`;
-}
-
-function setScan(on){
-  $("highlight").classList.toggle("scan", !!on);
-}
-
-function iconFor(reason){
-  const s = (reason||"").toLowerCase();
-  if(s.includes("код") || s.includes("парол") || s.includes("sms") || s.includes("смс")) return "🔑";
-  if(s.includes("ссылка") || s.includes("домен") || s.includes("url")) return "🔗";
-  if(s.includes("сроч") || s.includes("немед") || s.includes("в течение")) return "⏱️";
-  if(s.includes("перев") || s.includes("оплат") || s.includes("деньг")) return "💸";
-  if(s.includes("инвест") || s.includes("доход") || s.includes("крипт")) return "📈";
-  if(s.includes("угроз") || s.includes("шантаж") || s.includes("вымог")) return "🧨";
-  return "⚠️";
-}
-
-/* ===== Ripple on buttons ===== */
-function addRipple(e){
-  const btn = e.currentTarget;
-  const rect = btn.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height) * 1.1;
-  const x = e.clientX - rect.left - size/2;
-  const y = e.clientY - rect.top - size/2;
-
-  const d = document.createElement("span");
-  d.className = "ripple";
-  d.style.width = d.style.height = size + "px";
-  d.style.left = x + "px";
-  d.style.top = y + "px";
-  btn.appendChild(d);
-  setTimeout(()=>d.remove(), 650);
-}
-["btnCheck","btnClear","btnDemo"].forEach(id=>{
-  const el = $(id);
-  if(el) el.addEventListener("pointerdown", addRipple);
-});
-
-/* ===== Tabs mode switch ===== */
-let mode = "quick";
-function setMode(next){
-  mode = next;
-  const isPro = mode === "pro";
-  $("tabQuick").classList.toggle("active", !isPro);
-  $("tabPro").classList.toggle("active", isPro);
-  $("modeTabs").style.setProperty("--i", isPro ? 1 : 0);
-
-  const wrap = $("proWrap");
-  wrap.classList.toggle("show", isPro);
-  wrap.setAttribute("aria-hidden", String(!isPro));
-}
-$("tabQuick").onclick = ()=> setMode("quick");
-$("tabPro").onclick = ()=> setMode("pro");
-
-/* Chips */
-document.addEventListener("click", (e)=>{
-  const chip = e.target.closest("[data-chip]");
-  if(!chip) return;
-  const add = chip.getAttribute("data-chip");
-  const ta = $("text");
-  const v = ta.value.trim();
-  ta.value = (v ? v + "\n" : "") + add;
-  ta.focus();
-});
-
-/* Ctrl+Enter */
-document.addEventListener("keydown", (e)=>{
-  if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
-    e.preventDefault();
-    runAiCheck();
+  function applyLang() {
+    document.getElementById("navPill").textContent = t("navPill");
+    document.getElementById("langLabel").textContent = t("langLabel");
+    document.getElementById("heroTag").textContent = t("heroTag");
+    document.getElementById("heroTitle").textContent = t("heroTitle");
+    document.getElementById("heroLead").textContent = t("heroLead");
+    document.getElementById("scanInput").placeholder = t("scanPlaceholder");
+    document.getElementById("scanBtn").textContent = t("scanBtn");
+    document.getElementById("scanBtnTop").textContent = t("scanBtn");
+    document.getElementById("resultTitle").textContent = t("resultTitle");
+    document.getElementById("riskText").textContent = t("riskWaiting");
+    document.getElementById("footerLeft").textContent =
+      t("footerLeft", { year: new Date().getFullYear() });
+    document.getElementById("footerRight").textContent = t("footerRight");
   }
-});
 
-/* ===== FIXED 3D Tilt (edge jitter + RAF + dead-zone) ===== */
-function tiltBind(el){
-  if(!el) return;
+  document.getElementById("langSelect").addEventListener("change", e => {
+    state.lang = e.target.value;
+    localStorage.setItem("lang", state.lang);
+    applyLang();
+  });
 
-  const MAX_X = 8;
-  const MAX_Y = 10;
-  const EDGE = 10;       // px dead-zone near borders to avoid flicker
-  const LEAVE_DELAY = 80;
-  const SMOOTH = 0.16;   // lerp factor
+  state.lang = localStorage.getItem("lang") || "ru";
+  document.getElementById("langSelect").value = state.lang;
+  applyLang();
 
-  let rect = null;
-  let raf = 0;
-  let mx = 0, my = 0;
+  function showToast(title, sub) {
+    const wrap = document.getElementById("toasts");
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.innerHTML = `<b>${title}</b><div style="color:#9bb0c7;font-size:13px;margin-top:4px">${sub}</div>`;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
 
-  let active = false;
-  let leaving = 0;
+  async function analyzeText(text) {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
 
-  // current + target rotations
-  let curRX = 0, curRY = 0;
-  let tgtRX = 0, tgtRY = 0;
+    if (!res.ok) throw new Error("HTTP " + res.status);
 
-  function measure(){ rect = el.getBoundingClientRect(); }
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Worker error");
 
-  function render(){
-    raf = 0;
-    if(!active && Math.abs(curRX) < 0.05 && Math.abs(curRY) < 0.05){
-      el.style.transform = `perspective(980px) rotateX(0deg) rotateY(0deg)`;
-      el.style.setProperty("--mx", "50%");
-      el.style.setProperty("--my", "50%");
+    return data;
+  }
+
+  async function runAnalysis() {
+    const input = document.getElementById("scanInput");
+    const text = input.value.trim();
+
+    if (!text) {
+      showToast(t("toastNoInput"), t("toastNoInputSub"));
       return;
     }
 
-    // smooth
-    curRX += (tgtRX - curRX) * SMOOTH;
-    curRY += (tgtRY - curRY) * SMOOTH;
+    const reasonsEl = document.getElementById("reasons");
+    reasonsEl.innerHTML = "";
+    document.getElementById("riskText").textContent = "…";
 
-    el.style.transform = `perspective(980px) rotateX(${curRX.toFixed(2)}deg) rotateY(${curRY.toFixed(2)}deg)`;
-    if(active && rect){
-      const px = clamp01((mx - rect.left) / rect.width);
-      const py = clamp01((my - rect.top) / rect.height);
-      el.style.setProperty("--mx", (px * 100).toFixed(2) + "%");
-      el.style.setProperty("--my", (py * 100).toFixed(2) + "%");
+    try {
+      const data = await analyzeText(text);
+
+      const badge = document.getElementById("riskBadge");
+      badge.className = "badge " + data.risk;
+
+      document.getElementById("riskText").textContent =
+        data.risk === "high" ? "Высокий риск" :
+        data.risk === "medium" ? "Средний риск" :
+        "Низкий риск";
+
+      data.reasons.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "reason";
+        div.textContent = r;
+        reasonsEl.appendChild(div);
+      });
+
+    } catch (e) {
+      console.error(e);
+      showToast(t("toastError"), t("toastErrorSub"));
+      document.getElementById("riskText").textContent = t("riskWaiting");
     }
-
-    raf = requestAnimationFrame(render);
   }
 
-  function requestRender(){
-    if(!raf) raf = requestAnimationFrame(render);
-  }
-
-  function setTargetFromPointer(){
-    if(!rect) measure();
-    const x = mx - rect.left;
-    const y = my - rect.top;
-
-    // If pointer is very close to edge, gently relax instead of flipping states.
-    const near = (x < EDGE || y < EDGE || x > rect.width - EDGE || y > rect.height - EDGE);
-    if(near){
-      tgtRX *= 0.92;
-      tgtRY *= 0.92;
-      return;
-    }
-
-    const px = clamp01(x / rect.width);
-    const py = clamp01(y / rect.height);
-
-    tgtRX = (0.5 - py) * MAX_X;
-    tgtRY = (px - 0.5) * MAX_Y;
-  }
-
-  el.addEventListener("pointerenter", (e)=>{
-    clearTimeout(leaving);
-    active = true;
-    measure();
-    mx = e.clientX; my = e.clientY;
-    setTargetFromPointer();
-    requestRender();
-  });
-
-  el.addEventListener("pointermove", (e)=>{
-    if(!active) return;
-    mx = e.clientX; my = e.clientY;
-    setTargetFromPointer();
-    requestRender();
-  }, {passive:true});
-
-  el.addEventListener("pointerleave", ()=>{
-    // debounce leave so it doesn't toggle rapidly on the border
-    clearTimeout(leaving);
-    leaving = setTimeout(()=>{
-      active = false;
-      rect = null;
-      tgtRX = 0; tgtRY = 0;
-      requestRender();
-    }, LEAVE_DELAY);
-  });
-
-  window.addEventListener("resize", ()=>{ if(active) measure(); }, {passive:true});
-}
-tiltBind($("leftCard"));
-tiltBind($("rightCard"));
-
-/* ===== Spring accordion ===== */
-function springTo(el, from, to){
-  let x = from;
-  let v = 0;
-  const stiffness = 520;
-  const damping = 34;
-  let last = performance.now();
-
-  function frame(now){
-    const t = Math.min(0.032, (now - last)/1000);
-    last = now;
-
-    const steps = Math.max(1, Math.round(t / (1/60)));
-    const h = t / steps;
-
-    for(let i=0;i<steps;i++){
-      const a = -stiffness * (x - to) - damping * v;
-      v += a * h;
-      x += v * h;
-    }
-
-    el.style.height = Math.max(0, x) + "px";
-    const done = Math.abs(x - to) < 0.6 && Math.abs(v) < 0.6;
-
-    if(!done) requestAnimationFrame(frame);
-    else el.style.height = Math.round(to) + "px";
-  }
-
-  requestAnimationFrame(frame);
-}
-
-function setAccOpen(block, open){
-  const wrap = block.querySelector(".accWrap");
-  const inner = block.querySelector(".accInner");
-  if(!wrap || !inner) return;
-
-  const current = wrap.getBoundingClientRect().height;
-  const target = open ? (inner.scrollHeight + 14) : 0;
-
-  block.classList.toggle("open", open);
-  springTo(wrap, current, target);
-}
-
-function initAccordion(){
-  const ids = ["blkWhy","blkSafe","blkHL"];
-  const blocks = ids.map(id=>$(id)).filter(Boolean);
-
-  blocks.forEach(b=>{
-    const wrap = b.querySelector(".accWrap");
-    const inner = b.querySelector(".accInner");
-    if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
-  });
-
-  document.addEventListener("click",(e)=>{
-    const head = e.target.closest("[data-acc]");
-    if(!head) return;
-    const id = head.getAttribute("data-acc");
-    const block = $(id);
-    if(!block) return;
-
-    setAccOpen(block, !block.classList.contains("open"));
-  });
-
-  window.addEventListener("resize", ()=>{
-    blocks.forEach(b=>{
-      if(b.classList.contains("open")){
-        const wrap = b.querySelector(".accWrap");
-        const inner = b.querySelector(".accInner");
-        if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
-      }
-    });
-  });
-}
-initAccordion();
-
-function render(data){
-  $("emptyState").style.display = "none";
-
-  const score = Number(data.risk_score)||0;
-  const color = riskColor(score);
-
-  $("scoreBox").innerHTML = ringHTML(score, color);
-  $("scoreText").textContent = score + " / 100";
-
-  $("catText").textContent = data.category || "—";
-  $("categoryTag").querySelector(".miniDot").style.background = color;
-
-  $("barFill").style.width = score + "%";
-  $("barFill").style.background = color;
-
-  const reasons = data.reasons || [];
-  $("reasons").innerHTML = reasons.length
-    ? `<div class="reasons-grid">${
-        reasons.map(r=>`
-          <div class="reason">
-            <div class="ico">${iconFor(r)}</div>
-            <div class="txt">
-              ${escapeHTML(r)}
-              <div class="sub">Проверь через официальный канал (приложение/сайт вручную)</div>
-            </div>
-          </div>`).join("")
-      }</div>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  const safe = data.safe_actions || [];
-  $("safe").innerHTML = safe.length
-    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  const text = $("text").value || "";
-  const badWords = ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"];
-  let out = escapeHTML(text);
-  for(const w of badWords){
-    const re = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "gi");
-    out = out.replace(re, m => `<mark>${escapeHTML(m)}</mark>`);
-  }
-  $("highlight").innerHTML = out || "—";
-
-  ["blkWhy","blkSafe","blkHL"].forEach(id=>{
-    const b = $(id);
-    if(b && b.classList.contains("open")){
-      const wrap = b.querySelector(".accWrap");
-      const inner = b.querySelector(".accInner");
-      if(wrap && inner) wrap.style.height = (inner.scrollHeight + 14) + "px";
-    }
-  });
-}
-
-/* ✅ API call (Cloudflare) */
-async function runAiCheck(){
-  const url = $("url").value.trim();
-  const from = $("from") ? $("from").value.trim() : "";
-  const text = $("text").value.trim();
-
-  if(!text && !url){
-    alert(I18N[state.lang].alertNeed);
-    return;
-  }
-
-  $("loading").classList.add("show");
-  setScan(true);
-  $("btnCheck").disabled = true;
-  await new Promise(requestAnimationFrame);
-
-  try{
-    const r = await fetch(API_URL, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({url,from,text})
-    });
-
-    const raw = await r.text();
-    let data;
-    try { data = JSON.parse(raw); }
-    catch { throw new Error("Функция вернула не-JSON: " + raw.slice(0,140)); }
-
-    if(!r.ok) throw new Error(data.details || data.error || "API error");
-    render(data);
-  }catch(e){
-    alert(I18N[state.lang].alertErr + (e.message || "API error"));
-  }finally{
-    setScan(false);
-    $("loading").classList.remove("show");
-    $("btnCheck").disabled = false;
-  }
-}
-
-/* ===== Human-like fast typing for Demo ===== */
-let typingAbort = null;
-function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-function rand(min,max){ return Math.random()*(max-min)+min; }
-
-function cancelTyping(){
-  if(typingAbort) typingAbort.aborted = true;
-  typingAbort = null;
-  $("typingHint").classList.remove("show");
-  $("btnDemo").disabled = false;
-  $("btnClear").disabled = false;
-  $("btnCheck").disabled = false;
-}
-
-async function typeInto(el, text, opts){
-  const o = Object.assign({
-    minDelay: 6, maxDelay: 18,
-    spaceDelay: [4, 10],
-    punctuationDelay: [20, 55],
-    newlineDelay: [70, 130],
-    burstEvery: [16, 30],
-    burstFactor: 0.45,
-  }, opts || {});
-
-  let burstIn = Math.floor(rand(o.burstEvery[0], o.burstEvery[1]));
-  for(let i=0;i<text.length;i++){
-    if(typingAbort?.aborted) return;
-
-    el.value += text[i];
-    el.dispatchEvent(new Event("input", {bubbles:true}));
-    el.scrollTop = el.scrollHeight;
-
-    const ch = text[i];
-    let d = rand(o.minDelay, o.maxDelay);
-    if(ch === " ") d = rand(o.spaceDelay[0], o.spaceDelay[1]);
-    if(ch === "\n") d = rand(o.newlineDelay[0], o.newlineDelay[1]);
-    if(".,:;!?".includes(ch)) d = rand(o.punctuationDelay[0], o.punctuationDelay[1]);
-
-    burstIn--;
-    if(burstIn <= 0){
-      burstIn = Math.floor(rand(o.burstEvery[0], o.burstEvery[1]));
-      d *= o.burstFactor;
-    }
-    await sleep(d);
-  }
-}
-
-async function setValueWithTyping(el, fullText){
-  el.value = "";
-  el.focus();
-  await typeInto(el, fullText);
-}
-
-/* Buttons */
-$("btnCheck").onclick = runAiCheck;
-
-$("btnClear").onclick = ()=>{
-  cancelTyping();
-  $("url").value="";
-  if($("from")) $("from").value="";
-  $("text").value="";
-
-  $("emptyState").style.display = "grid";
-  $("highlight").textContent="—";
-  $("reasons").textContent="—";
-  $("safe").textContent="—";
-  $("scoreBox").textContent="0";
-  $("scoreText").textContent="0 / 100";
-  $("catText").textContent="—";
-  $("categoryTag").querySelector(".miniDot").style.background = "rgba(255,255,255,.35)";
-  $("barFill").style.width="0%";
-};
-
-$("btnDemo").onclick = async ()=>{
-  cancelTyping();
-
-  typingAbort = {aborted:false};
-  $("btnDemo").disabled = true;
-  $("btnClear").disabled = true;
-  $("btnCheck").disabled = true;
-  $("typingHint").classList.add("show");
-
-  setMode("quick");
-
-  const demoUrl = "https://bank-secure.example/verify";
-  const demoText =
-"[ТЕСТ] СРОЧНО подтвердите личность.\n" +
-"[ТЕСТ] Запрашивают код из SMS.\n" +
-"[ТЕСТ] Просят перейти по ссылке.";
-
-  $("url").value = "";
-  $("url").focus();
-  await typeInto($("url"), demoUrl, {minDelay:3, maxDelay:10, punctuationDelay:[12,30]});
-  await sleep(120);
-  await setValueWithTyping($("text"), demoText);
-
-  await sleep(120);
-
-  if(!typingAbort?.aborted){
-    $("typingHint").classList.remove("show");
-    $("btnDemo").disabled = false;
-    $("btnClear").disabled = false;
-    $("btnCheck").disabled = false;
-    typingAbort = null;
-    $("text").focus();
-  }
-};
-
-/* ===== Language switch ===== */
-(function initLang(){
-  const sel = document.getElementById("lang");
-  const saved = localStorage.getItem("fg_lang");
-  const initial = saved || (navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en";
-  const start = (saved === "en" || saved === "ru") ? saved : "ru";
-  applyLang(start);
-  if(sel){
-    sel.value = start;
-    sel.addEventListener("change", ()=>{
-      const v = sel.value === "en" ? "en" : "ru";
-      localStorage.setItem("fg_lang", v);
-      applyLang(v);
-    });
-  }
-})();
-
+  document.getElementById("scanBtn").addEventListener("click", runAnalysis);
+  document.getElementById("scanBtnTop").addEventListener("click", runAnalysis);
 </script>
 
 </body>
