@@ -773,7 +773,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 <script>
 /* ✅ FIX 2: вот здесь мы используем Cloudflare Worker */
-const API_URL = "https://fraudguard-app.guideyahofc.workers.dev";
+const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev";
 
 const $ = id => document.getElementById(id);
 
@@ -1289,6 +1289,19 @@ function render(data){
 }
 
 /* ✅ API call (Cloudflare) */
+async function fetchWithTimeout(url, opts={}, timeout=9000){
+  const ctrl = new AbortController();
+  const id = setTimeout(()=>ctrl.abort(), timeout);
+  try{
+    const res = await fetch(url, { ...opts, signal: ctrl.signal });
+    clearTimeout(id);
+    return res;
+  }catch(e){
+    clearTimeout(id);
+    throw e;
+  }
+}
+
 async function runAiCheck(){
   const url = $("url").value.trim();
   const from = $("from") ? $("from").value.trim() : "";
@@ -1305,11 +1318,22 @@ async function runAiCheck(){
   await new Promise(requestAnimationFrame);
 
   try{
-    const r = await fetch(API_URL, {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({url,from,text})
-    });
+let r;
+try{
+  r = await fetchWithTimeout(API_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ url, from, text })
+  }, 9000);
+}catch(e){
+  // retry 1 раз
+  r = await fetchWithTimeout(API_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ url, from, text })
+  }, 9000);
+}
+
 
     const raw = await r.text();
     let data;
