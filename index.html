@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FraudGuard — Anti-Scam</title>
 
-<link rel="icon" href="./favicon.ico?v=10007">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10007">
+<link rel="icon" href="./favicon.ico?v=10008">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10008">
 <meta name="theme-color" content="#070c18">
 
 <style>
@@ -31,10 +31,12 @@
 
   --spring: cubic-bezier(.16,1,.3,1);
 
-  /* UI UPGRADE */
   --glass: rgba(255,255,255,.06);
   --glass2: rgba(255,255,255,.035);
   --stroke: rgba(255,255,255,.12);
+
+  --tabsRad: 20px;
+  --tabsPad: 8px;
 }
 
 *{box-sizing:border-box}
@@ -53,42 +55,29 @@ body{
   *{ animation:none !important; transition:none !important; }
 }
 
-/* ===== Animated background ===== */
-.bg{
-  position:fixed; inset:0; z-index:-4;
+/* ===== Fluid background (moving) ===== */
+.fluid{
+  position:fixed; inset:-8%;
+  z-index:-6;
+  pointer-events:none;
+  opacity:.70;
+  filter: blur(8px) saturate(1.15);
+  transform: translateZ(0);
+}
+.fluid svg{ width:100%; height:100%; display:block; }
+.fluid .vignette{
+  position:absolute; inset:0;
   background:
-    radial-gradient(1200px 700px at 12% 8%, rgba(106,166,255,.22), transparent 60%),
-    radial-gradient(900px 620px at 84% 14%, rgba(46,229,157,.12), transparent 60%),
+    radial-gradient(900px 520px at 15% 10%, rgba(106,166,255,.18), transparent 60%),
+    radial-gradient(900px 520px at 85% 12%, rgba(46,229,157,.12), transparent 62%),
     radial-gradient(1100px 760px at 45% 95%, rgba(255,92,122,.10), transparent 60%),
-    linear-gradient(180deg, var(--bg0), var(--bg2));
+    radial-gradient(1200px 900px at 50% 50%, transparent 45%, rgba(0,0,0,.55) 85%),
+    linear-gradient(180deg, rgba(4,6,15,.85), rgba(11,18,32,.90));
+  mix-blend-mode: overlay;
+  pointer-events:none;
 }
-.orbs{
-  position:fixed; inset:0; z-index:-3; pointer-events:none;
-  filter: blur(28px);
-  opacity:.55;
-}
-.orb{
-  position:absolute;
-  width: 420px; height: 420px; border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, rgba(106,166,255,.30), transparent 62%);
-  animation: float1 12s var(--spring) infinite;
-}
-.orb:nth-child(2){
-  width: 520px; height: 520px;
-  left: 68%; top: 8%;
-  background: radial-gradient(circle at 30% 30%, rgba(46,229,157,.22), transparent 65%);
-  animation: float2 15s var(--spring) infinite;
-}
-.orb:nth-child(3){
-  width: 560px; height: 560px;
-  left: 18%; top: 70%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,92,122,.16), transparent 65%);
-  animation: float3 17s var(--spring) infinite;
-}
-@keyframes float1{ 0%,100%{transform:translate(6%,6%) scale(1)} 50%{transform:translate(12%,-4%) scale(1.05)}}
-@keyframes float2{ 0%,100%{transform:translate(-6%,2%) scale(1.02)} 50%{transform:translate(-10%,8%) scale(1.08)}}
-@keyframes float3{ 0%,100%{transform:translate(4%,-4%) scale(1)} 50%{transform:translate(-6%,-10%) scale(1.07)}}
 
+/* subtle noise */
 .noise{
   position:fixed; inset:0; z-index:-2; pointer-events:none;
   opacity:.07;
@@ -144,7 +133,7 @@ body{
 .pill .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); box-shadow: 0 0 0 6px rgba(106,166,255,.10); }
 .pill .kbd{ padding:2px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); font-size:12px; }
 
-/* language switch (TOPBAR) */
+/* language switch */
 .langSel{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 12px; border-radius:999px;
@@ -233,65 +222,113 @@ body{
 .title{ font-weight:950; font-size:18px; letter-spacing:.2px; }
 .caption{ font-size:12.5px; color: var(--muted2); margin-top:4px; line-height:1.35; }
 
-/* Tabs (FIXED LOOK) */
+/* ===== Tabs (PREMIUM + FIXED “слипание”) ===== */
 .tabs{
   --i: 0;
   position:relative;
   display:flex;
-  gap:6px;
-  padding:6px;
-  border-radius:18px;
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.04);
+  gap:10px;
+  padding: var(--tabsPad);
+  border-radius: var(--tabsRad);
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
   overflow:hidden;
   transform: translateZ(24px);
   align-items:stretch;
-  min-height:44px;
+  min-height:48px;
+  box-shadow: 0 12px 50px rgba(0,0,0,.22);
+  isolation:isolate;
+}
+.tabs::before{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(900px 240px at 18% 0%, rgba(106,166,255,.10), transparent 64%),
+    radial-gradient(900px 240px at 82% 0%, rgba(46,229,157,.08), transparent 64%);
+  opacity:.9;
+  z-index:0;
 }
 .tab-ind{
-  position:absolute; inset:6px;
-  width: calc(50% - 3px);
-  border-radius: 14px;
+  position:absolute;
+  left: var(--tabsPad);
+  top: var(--tabsPad);
+  bottom: var(--tabsPad);
+  width: calc(50% - (var(--tabsPad) * .5) - 5px);
+  border-radius: calc(var(--tabsRad) - 6px);
   background: rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.14);
-  transform: translateX(calc(var(--i) * (100% + 6px)));
-  transition: transform .48s var(--spring), filter .2s ease;
-  box-shadow: 0 12px 34px rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.16);
+  transform: translateX(calc(var(--i) * (100% + 10px)));
+  transition: transform .62s var(--spring);
+  box-shadow: 0 16px 40px rgba(0,0,0,.28);
+  z-index:1;
+  overflow:hidden;
+}
+.tab-ind::after{
+  content:"";
+  position:absolute; inset:-30% -40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
+  transform: translateX(-70%) rotate(10deg);
+  opacity:.8;
+  animation: tabsSheen 1.25s ease-in-out infinite;
+}
+@keyframes tabsSheen{
+  0%{ transform: translateX(-70%) rotate(10deg); opacity:.25; }
+  55%{ opacity:.55; }
+  100%{ transform: translateX(70%) rotate(10deg); opacity:.25; }
 }
 .tab{
   position:relative;
   flex:1;
-  padding: 10px 12px;
-  border-radius:14px;
+  padding: 11px 12px;
+  border-radius: calc(var(--tabsRad) - 6px);
   border:1px solid transparent;
   background: transparent;
-  color: var(--muted);
+  color: rgba(231,238,255,.72);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 950;
   cursor:pointer;
   white-space: nowrap;
   display:flex;
   align-items:center;
   justify-content:center;
-  transition: transform .18s var(--spring), color .18s ease, filter .18s ease;
-  z-index:1;
+  transition: transform .22s var(--spring), color .22s ease, filter .22s ease;
+  z-index:2;
 }
-.tab:hover{ transform: translateY(-1px); filter: brightness(1.06); }
-.tab.active{ color: var(--text); text-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.tab:hover{ transform: translateY(-1px) scale(1.01); filter: brightness(1.07); }
+.tab:active{ transform: translateY(0) scale(.99); }
+.tab.active{
+  color: var(--text);
+  text-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* “классная” анимация контента при переключении */
+.modeAnim{
+  position:relative;
+}
+.modeAnim.swap{
+  animation: modeSwap .62s var(--spring);
+}
+@keyframes modeSwap{
+  0%{ transform: translateY(0) scale(1); filter: blur(0); }
+  40%{ transform: translateY(-4px) scale(.994); filter: blur(.6px); }
+  100%{ transform: translateY(0) scale(1); filter: blur(0); }
+}
 
 /* pro fields */
 .proWrap{
   overflow:hidden;
   max-height: 0px;
   opacity: 0;
-  transform: translateY(-8px);
-  filter: blur(6px);
-  transition: max-height .55s var(--spring), opacity .35s ease, transform .55s var(--spring), filter .35s ease;
+  transform: translateY(-10px) scale(.985);
+  filter: blur(8px);
+  transition: max-height .62s var(--spring), opacity .40s ease, transform .62s var(--spring), filter .40s ease;
+  will-change: max-height, transform, opacity, filter;
 }
 .proWrap.show{
-  max-height: 120px;
+  max-height: 140px;
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
   filter: blur(0);
 }
 
@@ -316,6 +353,25 @@ input:focus, textarea:focus{
   filter: brightness(1.02);
 }
 
+/* helper row */
+.helperRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:8px;
+  color: var(--muted2);
+  font-size: 12px;
+}
+.counter{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+}
+.counter b{ color: rgba(231,238,255,.92); font-weight:950; }
+
 /* chips */
 .chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
 .chip{
@@ -330,22 +386,6 @@ input:focus, textarea:focus{
 }
 .chip:hover{ transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow2); filter: brightness(1.06); }
 .chip:active{ transform: translateY(0) scale(.985); }
-
-/* mini icon buttons */
-.miniBtn{
-  width:44px;
-  height:44px;
-  padding:0;
-  border-radius:16px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-}
-.miniBtn svg{ width:18px; height:18px; }
-.miniBtn:hover{ transform: translateY(-2px); box-shadow: 0 14px 55px rgba(0,0,0,.28); filter: brightness(1.06); }
-.miniBtn:active{ transform: translateY(0) scale(.985); }
 
 /* toast */
 #toast{
@@ -449,9 +489,7 @@ input:focus, textarea:focus{
   background: rgba(255,255,255,.22);
   animation: ripple .55s ease-out forwards;
 }
-@keyframes ripple{
-  to{ transform: scale(1); opacity:0; }
-}
+@keyframes ripple{ to{ transform: scale(1); opacity:0; } }
 
 /* note */
 .note{
@@ -493,13 +531,14 @@ input:focus, textarea:focus{
 .ring{ width:78px; height:78px; display:grid; place-items:center; position:relative; flex:0 0 auto; }
 .ring svg{ transform: rotate(-90deg); }
 .ring .num{ position:absolute; inset:0; display:grid; place-items:center; font-weight:950; font-size:18px; }
+
 .bar{
   height:10px; border-radius:999px; overflow:hidden;
   background: rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.12);
   margin-top: 8px;
 }
-.bar > div{ height:100%; width:0%; transition: width .45s var(--spring); }
+.bar > div{ height:100%; width:0%; transition: width .10s linear; }
 
 /* accordion */
 .block{
@@ -613,7 +652,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   color: var(--text);
 }
 
-/* loading overlay */
+/* ===== Loading overlay (BAR instead of spinner) ===== */
 #loading{
   position:fixed; inset:0;
   display:grid;
@@ -627,23 +666,77 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   transition: opacity .22s ease;
 }
 #loading.show{ opacity:1; pointer-events:auto; }
+
 .loading-box{
-  width: min(560px, 92vw);
-  background: rgba(15,27,51,.95);
+  width: min(620px, 92vw);
+  background: rgba(15,27,51,.92);
   border:1px solid rgba(255,255,255,.14);
   border-radius: 22px;
-  padding: 18px;
+  padding: 18px 18px 16px;
   box-shadow: var(--shadow);
   animation: pop .35s var(--spring) both;
+  position:relative;
+  overflow:hidden;
 }
 @keyframes pop{ from{transform:translateY(10px) scale(.98);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-.spinner{
-  width:34px; height:34px; border-radius:50%;
-  border: 3px solid rgba(255,255,255,.18);
-  border-top-color: var(--accent);
-  animation: spin .9s linear infinite;
+
+.loading-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{
+  font-weight:950;
+}
+.loading-sub{
+  margin-top:4px;
+  color: var(--muted2);
+  font-size:12.5px;
+  line-height:1.35;
+}
+.loading-pct{
+  font-weight:950;
+  font-size: 13px;
+  color: rgba(231,238,255,.90);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  white-space:nowrap;
+}
+
+.loading-bar{
+  margin-top: 14px;
+  height: 12px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  overflow:hidden;
+  position:relative;
+}
+.loading-fill{
+  height:100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(106,166,255,.95), rgba(46,229,157,.95));
+  transition: width .22s var(--spring);
+  position:relative;
+}
+.loading-fill::after{
+  content:"";
+  position:absolute; inset:-30% -40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+  transform: translateX(-70%) rotate(12deg);
+  opacity:.85;
+  animation: loadSheen 1.05s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes loadSheen{
+  0%{ transform: translateX(-70%) rotate(12deg); opacity:.25; }
+  55%{ opacity:.55; }
+  100%{ transform: translateX(70%) rotate(12deg); opacity:.25; }
+}
 
 /* show logo ONLY in topbar (kills left duplicate if exists) */
 .logo{ display:none !important; }
@@ -651,12 +744,47 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 </style>
 </head>
 <body>
-<div class="bg"></div>
-<div class="orbs">
-  <div class="orb" style="left:6%; top:8%"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
+
+<!-- Fluid background -->
+<div class="fluid" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
+    <defs>
+      <filter id="turb">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="8" result="noise">
+          <animate attributeName="baseFrequency" dur="10s" values="0.010;0.016;0.012" repeatCount="indefinite"/>
+          <animate attributeName="seed" dur="14s" values="8;12;8" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="42" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="0.4"/>
+      </filter>
+
+      <radialGradient id="g1" cx="30%" cy="25%" r="70%">
+        <stop offset="0%" stop-color="rgba(106,166,255,.55)"/>
+        <stop offset="55%" stop-color="rgba(106,166,255,.12)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </radialGradient>
+      <radialGradient id="g2" cx="70%" cy="28%" r="70%">
+        <stop offset="0%" stop-color="rgba(46,229,157,.45)"/>
+        <stop offset="60%" stop-color="rgba(46,229,157,.10)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </radialGradient>
+      <radialGradient id="g3" cx="50%" cy="80%" r="80%">
+        <stop offset="0%" stop-color="rgba(255,92,122,.30)"/>
+        <stop offset="65%" stop-color="rgba(255,92,122,.08)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </radialGradient>
+    </defs>
+
+    <g filter="url(#turb)" opacity="0.95">
+      <rect x="-100" y="-100" width="1400" height="1000" fill="rgba(6,10,20,1)"/>
+      <ellipse cx="260" cy="220" rx="520" ry="360" fill="url(#g1)"/>
+      <ellipse cx="920" cy="240" rx="560" ry="380" fill="url(#g2)"/>
+      <ellipse cx="620" cy="690" rx="760" ry="460" fill="url(#g3)"/>
+    </g>
+  </svg>
+  <div class="vignette"></div>
 </div>
+
 <div class="noise"></div>
 
 <div class="wrap">
@@ -698,19 +826,26 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
         </div>
       </div>
 
-      <div id="proWrap" class="proWrap depth-1" aria-hidden="true">
-        <div class="label" id="fromLabel">От кого пришло (опц.)</div>
-        <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
-      </div>
+      <div class="modeAnim" id="modeAnim">
+        <div id="proWrap" class="proWrap depth-1" aria-hidden="true">
+          <div class="label" id="fromLabel">От кого пришло (опц.)</div>
+          <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
+        </div>
 
-      <div class="depth-1">
-        <div class="label" id="urlLabel">Ссылка (если есть)</div>
-        <input id="url" placeholder="например: https://bank-secure.example/verify">
-      </div>
+        <div class="depth-1">
+          <div class="label" id="urlLabel">Ссылка (если есть)</div>
+          <input id="url" placeholder="например: https://bank-secure.example/verify">
+        </div>
 
-      <div class="depth-1">
-        <div class="label" id="textLabel">Текст сообщения</div>
-        <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
+        <div class="depth-1">
+          <div class="label" id="textLabel">Текст сообщения</div>
+          <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
+
+          <div class="helperRow">
+            <span id="smartPasteHint">💡 Вставляй текст — ссылку вытащим автоматически</span>
+            <span class="counter"><span id="cntLabel">Символы:</span> <b id="charCount">0</b></span>
+          </div>
+        </div>
       </div>
 
       <div class="chips depth-1">
@@ -767,21 +902,22 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
             <div class="title" id="resTitle">Результат</div>
             <div class="caption" id="resCaption">Скор + причины + что делать безопасно</div>
           </div>
-
-          <button class="btn miniBtn depth-2" id="btnCopy" type="button" title="Копировать отчет" aria-label="Copy report">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M9 9h10v10H9V9z" stroke="currentColor" stroke-width="2"/>
-              <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-
           <span class="tag depth-2" id="categoryTag">
             <span class="miniDot"></span><span id="catText">—</span>
           </span>
         </div>
 
         <div class="meter depth-1" id="compactMeter">
-          <div id="scoreBox">0</div>
+          <div id="scoreBox">
+            <div class="ring">
+              <svg width="78" height="78" viewBox="0 0 78 78">
+                <circle id="ringBg" cx="39" cy="39" r="31" stroke="rgba(255,255,255,.10)" stroke-width="8" fill="none"></circle>
+                <circle id="ringFg" cx="39" cy="39" r="31" stroke="var(--accent)" stroke-width="8" fill="none"
+                  stroke-linecap="round" stroke-dasharray="0 194.78"></circle>
+              </svg>
+              <div class="num" id="ringNum">0</div>
+            </div>
+          </div>
           <div style="flex:1">
             <div class="caption" id="riskCaption">Риск-скор</div>
             <div style="font-weight:950; font-size:16px" id="scoreText">0 / 100</div>
@@ -829,16 +965,25 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   </div>
 </div>
 
-<div id="loading">
+<div id="loading" aria-hidden="true">
   <div class="loading-box">
-    <div style="display:flex;gap:12px;align-items:center">
-      <div class="spinner"></div>
+    <div class="loading-top">
       <div>
-        <div style="font-weight:950" id="loadingTitle">Анализируем…</div>
-        <div class="caption" id="loadingSub">Проверяем признаки скама и фишинга</div>
+        <div class="loading-title" id="loadingTitle">Анализируем…</div>
+        <div class="loading-sub" id="loadingSub">Проверяем признаки скама и фишинга</div>
       </div>
+      <div class="loading-pct"><span id="loadingPct">0</span>%</div>
+    </div>
+
+    <div class="loading-bar" aria-hidden="true">
+      <div class="loading-fill" id="loadingFill"></div>
     </div>
   </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite">
+  <div class="t" id="toastTxt">—</div>
+  <div class="x" id="toastClose" aria-label="Close">✕</div>
 </div>
 
 <script>
@@ -866,6 +1011,9 @@ const I18N = {
     textLabel: "Текст сообщения",
     textPh: "Вставь SMS или сообщение...",
 
+    smartPaste: "💡 Вставляй текст — ссылку вытащим автоматически",
+    cntLabel: "Символы:",
+
     chipUrgent: "срочно",
     chipCode: "просит код",
     chipLink: "подозр. ссылка",
@@ -890,7 +1038,10 @@ const I18N = {
     loadingS: "Проверяем признаки скама и фишинга",
 
     alertNeed: "Вставь текст сообщения или ссылку.",
-    alertErr: "Ошибка анализа: "
+    alertErr: "Ошибка анализа: ",
+    toastCleared: "Очищено",
+    toastExample: "Пример вставлен",
+    toastLinkExtracted: "Ссылка найдена и вынесена в поле «Ссылка»"
   },
   en: {
     sub: "Check messages and links for scams",
@@ -908,6 +1059,9 @@ const I18N = {
     urlPh: "e.g.: https://bank-secure.example/verify",
     textLabel: "Message text",
     textPh: "Paste an SMS or message...",
+
+    smartPaste: "💡 Paste text — we’ll extract the link automatically",
+    cntLabel: "Chars:",
 
     chipUrgent: "urgent",
     chipCode: "asks code",
@@ -933,7 +1087,10 @@ const I18N = {
     loadingS: "Checking scam & phishing signals",
 
     alertNeed: "Paste message text or a link first.",
-    alertErr: "Analysis error: "
+    alertErr: "Analysis error: ",
+    toastCleared: "Cleared",
+    toastExample: "Example inserted",
+    toastLinkExtracted: "Link extracted into the URL field"
   }
 };
 
@@ -966,6 +1123,9 @@ function applyLang(next){
   $("textLabel").textContent = L.textLabel;
   $("text").placeholder = L.textPh;
 
+  $("smartPasteHint").textContent = L.smartPaste;
+  $("cntLabel").textContent = L.cntLabel;
+
   $("chipUrgent").textContent = L.chipUrgent;
   $("chipCode").textContent = L.chipCode;
   $("chipLink").textContent = L.chipLink;
@@ -981,7 +1141,6 @@ function applyLang(next){
   $("resTitle").textContent = L.resTitle;
   $("resCaption").textContent = L.resCaption;
   $("riskCaption").textContent = L.riskScore;
-  if($("btnCopy")) $("btnCopy").title = (state.lang==="ru" ? "Копировать отчёт" : "Copy report");
 
   $("emptyB").textContent = L.emptyB;
   $("emptyT").innerHTML = `${L.emptyT1}<span class="kbd">${L.btnCheck}</span>.`;
@@ -1006,36 +1165,18 @@ function riskColor(score){
   return "var(--bad)";
 }
 
-function ringHTML(score, color){
-  const r = 31;
-  const c = 2 * Math.PI * r;
-  const p = Math.max(0, Math.min(100, Number(score)||0));
-  const dash = (c * (p/100)).toFixed(2);
-  return `
-  <div class="ring">
-    <svg width="78" height="78" viewBox="0 0 78 78">
-      <circle cx="39" cy="39" r="${r}" stroke="rgba(255,255,255,.10)" stroke-width="8" fill="none"></circle>
-      <circle cx="39" cy="39" r="${r}" stroke="${color}" stroke-width="8" fill="none"
-        stroke-linecap="round" stroke-dasharray="${dash} ${c.toFixed(2)}"></circle>
-    </svg>
-    <div class="num">${p}</div>
-  </div>`;
+/* ===== Toast ===== */
+let toastTimer = 0;
+function showToast(msg){
+  const t = $("toast");
+  const txt = $("toastTxt");
+  if(!t || !txt) return;
+  txt.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove("show"), 2400);
 }
-
-function setScan(on){
-  $("highlight").classList.toggle("scan", !!on);
-}
-
-function iconFor(reason){
-  const s = (reason||"").toLowerCase();
-  if(s.includes("код") || s.includes("парол") || s.includes("sms") || s.includes("смс")) return "🔑";
-  if(s.includes("ссылка") || s.includes("домен") || s.includes("url")) return "🔗";
-  if(s.includes("сроч") || s.includes("немед") || s.includes("в течение")) return "⏱️";
-  if(s.includes("перев") || s.includes("оплат") || s.includes("деньг")) return "💸";
-  if(s.includes("инвест") || s.includes("доход") || s.includes("крипт")) return "📈";
-  if(s.includes("угроз") || s.includes("шантаж") || s.includes("вымог")) return "🧨";
-  return "⚠️";
-}
+$("toastClose")?.addEventListener("click", ()=> $("toast")?.classList.remove("show"));
 
 /* Ripple */
 function addRipple(e){
@@ -1053,16 +1194,17 @@ function addRipple(e){
   btn.appendChild(d);
   setTimeout(()=>d.remove(), 650);
 }
-["btnCheck","btnClear","btnDemo","btnCopy"].forEach(id=>{
+["btnCheck","btnClear","btnDemo","tabQuick","tabPro"].forEach(id=>{
   const el = $(id);
   if(el) el.addEventListener("pointerdown", addRipple);
 });
 
-/* Tabs */
+/* ===== Tabs with “premium switch animation” ===== */
 let mode = "quick";
 function setMode(next){
   mode = next;
   const isPro = mode === "pro";
+
   $("tabQuick").classList.toggle("active", !isPro);
   $("tabPro").classList.toggle("active", isPro);
   $("modeTabs").style.setProperty("--i", isPro ? 1 : 0);
@@ -1070,11 +1212,17 @@ function setMode(next){
   const wrap = $("proWrap");
   wrap.classList.toggle("show", isPro);
   wrap.setAttribute("aria-hidden", String(!isPro));
+
+  // cool swap animation
+  const anim = $("modeAnim");
+  anim.classList.remove("swap");
+  void anim.offsetWidth;
+  anim.classList.add("swap");
 }
 $("tabQuick").onclick = ()=> setMode("quick");
 $("tabPro").onclick = ()=> setMode("pro");
 
-/* Chips */
+/* ===== Chips ===== */
 document.addEventListener("click", (e)=>{
   const chip = e.target.closest("[data-chip]");
   if(!chip) return;
@@ -1083,6 +1231,7 @@ document.addEventListener("click", (e)=>{
   const v = ta.value.trim();
   ta.value = (v ? v + "\n" : "") + add;
   ta.focus();
+  updateCharCount();
 });
 
 /* Ctrl+Enter */
@@ -1262,7 +1411,7 @@ function initAccordion(){
 }
 initAccordion();
 
-/* timeout wrapper */
+/* ===== Timeout wrapper ===== */
 async function fetchWithTimeout(url, opts={}, timeout=9000){
   const ctrl = new AbortController();
   const id = setTimeout(()=>ctrl.abort(), timeout);
@@ -1276,27 +1425,180 @@ async function fetchWithTimeout(url, opts={}, timeout=9000){
   }
 }
 
+/* ===== Risk spring animation ===== */
+const riskAnim = (() => {
+  const fg = $("ringFg");
+  const num = $("ringNum");
+  const bar = $("barFill");
+  const scoreText = $("scoreText");
+
+  const r = 31;
+  const C = 2 * Math.PI * r;
+
+  let cur = 0;
+  let vel = 0;
+  let target = 0;
+  let raf = 0;
+
+  function setUI(val){
+    const p = Math.max(0, Math.min(100, val));
+    const dash = (C * (p/100));
+
+    if(fg) fg.setAttribute("stroke-dasharray", `${dash.toFixed(2)} ${C.toFixed(2)}`);
+    if(num) num.textContent = String(Math.round(p));
+    if(scoreText) scoreText.textContent = `${Math.round(p)} / 100`;
+    if(bar){
+      bar.style.width = `${p.toFixed(1)}%`;
+    }
+  }
+
+  function tick(){
+    raf = 0;
+
+    const stiffness = 360;
+    const damping = 28;
+    const dt = 1/60;
+
+    // spring integrate
+    const a = -stiffness * (cur - target) - damping * vel;
+    vel += a * dt;
+    cur += vel * dt;
+
+    setUI(cur);
+
+    const done = Math.abs(cur - target) < 0.08 && Math.abs(vel) < 0.08;
+    if(!done) raf = requestAnimationFrame(tick);
+    else {
+      cur = target;
+      vel = 0;
+      setUI(cur);
+    }
+  }
+
+  function animateTo(next){
+    target = Math.max(0, Math.min(100, Number(next)||0));
+    if(!raf) raf = requestAnimationFrame(tick);
+  }
+
+  function reset(){
+    cur = 0; vel = 0; target = 0;
+    setUI(0);
+  }
+
+  return { animateTo, reset, setColor: (color)=>{ if(fg) fg.setAttribute("stroke", color); if(bar) bar.style.background = color; } };
+})();
+
+/* ===== Scan highlight ===== */
+function setScan(on){
+  $("highlight").classList.toggle("scan", !!on);
+}
+
+function iconFor(reason){
+  const s = (reason||"").toLowerCase();
+  if(s.includes("код") || s.includes("парол") || s.includes("sms") || s.includes("смс")) return "🔑";
+  if(s.includes("ссылка") || s.includes("домен") || s.includes("url")) return "🔗";
+  if(s.includes("сроч") || s.includes("немед") || s.includes("в течение")) return "⏱️";
+  if(s.includes("перев") || s.includes("оплат") || s.includes("деньг")) return "💸";
+  if(s.includes("инвест") || s.includes("доход") || s.includes("крипт")) return "📈";
+  if(s.includes("угроз") || s.includes("шантаж") || s.includes("вымог")) return "🧨";
+  return "⚠️";
+}
+
+/* ===== Smart paste: extract URL from message ===== */
+function extractFirstUrl(s){
+  const m = String(s||"").match(/\bhttps?:\/\/[^\s<>"')]+/i);
+  return m ? m[0] : "";
+}
+let urlToastLock = 0;
+function smartExtractUrlFromText(){
+  const text = $("text").value || "";
+  const found = extractFirstUrl(text);
+  if(found && !$("url").value.trim()){
+    $("url").value = found;
+    const now = Date.now();
+    if(now - urlToastLock > 1400){
+      urlToastLock = now;
+      showToast(I18N[state.lang].toastLinkExtracted);
+    }
+  }
+}
+
+/* ===== char counter ===== */
+function updateCharCount(){
+  const n = ($("text").value || "").length;
+  $("charCount").textContent = String(n);
+}
+$("text").addEventListener("input", ()=>{
+  updateCharCount();
+  smartExtractUrlFromText();
+});
+$("text").addEventListener("paste", ()=> setTimeout(()=>{
+  updateCharCount();
+  smartExtractUrlFromText();
+}, 0));
+updateCharCount();
+
+/* ===== Loading bar driver ===== */
+let loadRAF = 0;
+let loadStart = 0;
+let loadPct = 0;
+function loadingStart(){
+  $("loading").classList.add("show");
+  $("loading").setAttribute("aria-hidden","false");
+  loadStart = performance.now();
+  loadPct = 0;
+  $("loadingPct").textContent = "0";
+  $("loadingFill").style.width = "0%";
+
+  const tick = (t)=>{
+    const dt = t - loadStart;
+    // fake smooth progress: quickly rises, slows near 92%
+    const cap = 92;
+    const next = cap * (1 - Math.exp(-dt / 900));
+    loadPct = Math.max(loadPct, next);
+    $("loadingPct").textContent = String(Math.round(loadPct));
+    $("loadingFill").style.width = `${loadPct.toFixed(1)}%`;
+    loadRAF = requestAnimationFrame(tick);
+  };
+  loadRAF = requestAnimationFrame(tick);
+}
+function loadingFinish(){
+  cancelAnimationFrame(loadRAF);
+  loadRAF = 0;
+
+  // snap to 100 smoothly
+  $("loadingFill").style.width = "100%";
+  $("loadingPct").textContent = "100";
+
+  setTimeout(()=>{
+    $("loading").classList.remove("show");
+    $("loading").setAttribute("aria-hidden","true");
+    // reset немного позже, чтобы не моргало
+    setTimeout(()=>{
+      $("loadingFill").style.width = "0%";
+      $("loadingPct").textContent = "0";
+    }, 250);
+  }, 220);
+}
+
 /* ===== RENDER (AI -> UI) ===== */
 function render(data){
   if(!data) return;
 
   $("emptyState").style.display = "none";
 
-  // score = MAX(scam_score, danger_score) чтобы не было "опасно" при 0
   const scam = Number(data.scam_score ?? data.risk_score ?? 0);
   const danger = Number(data.danger_score ?? 0);
   const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
   const color = riskColor(score);
 
-  $("scoreBox").innerHTML = ringHTML(score, color);
-  $("scoreText").textContent = score + " / 100";
+  // animate risk (spring)
+  riskAnim.setColor(color);
+  riskAnim.animateTo(score);
 
   const cat = data.category || (score < 20 ? (state.lang==="ru"?"низкий":"low") : score < 50 ? (state.lang==="ru"?"средний":"medium") : (state.lang==="ru"?"высокий":"high"));
   $("catText").textContent = cat;
   $("categoryTag").querySelector(".miniDot").style.background = color;
-
-  $("barFill").style.width = score + "%";
-  $("barFill").style.background = color;
 
   const reasons = Array.isArray(data.reasons) ? data.reasons : [];
   $("reasons").innerHTML = reasons.length
@@ -1317,7 +1619,7 @@ function render(data){
     ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
     : `<div style="color:var(--muted2)">—</div>`;
 
-  // подсветка (UX): локально, но синхронизируем с AI-логикой (берём слова из причин + базовый список)
+  // highlight risky words
   const text = $("text").value || "";
   const base = (state.lang==="ru")
     ? ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"]
@@ -1360,13 +1662,11 @@ async function runAiCheck(){
     return;
   }
 
-  $("loading").classList.add("show");
+  loadingStart();
   setScan(true);
   $("btnCheck").disabled = true;
-  await new Promise(requestAnimationFrame);
 
   try{
-    // 1st try
     let r;
     try{
       r = await fetchWithTimeout(API_URL, {
@@ -1375,7 +1675,6 @@ async function runAiCheck(){
         body:JSON.stringify({url,from,text})
       }, 9000);
     }catch(e){
-      // retry once
       r = await fetchWithTimeout(API_URL, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
@@ -1397,60 +1696,18 @@ async function runAiCheck(){
     alert(I18N[state.lang].alertErr + (e.message || "API error"));
   }finally{
     setScan(false);
-    $("loading").classList.remove("show");
+    loadingFinish();
     $("btnCheck").disabled = false;
   }
 }
 
-/* ===== Toast ===== */
-let toastTimer = 0;
-function showToast(msg){
-  const t = $("toast");
-  const txt = $("toastTxt");
-  if(!t || !txt) return;
-  txt.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> t.classList.remove("show"), 2400);
-}
-$("toastClose")?.addEventListener("click", ()=> $("toast")?.classList.remove("show"));
-
-/* ===== Clipboard: copy report ===== */
-function buildReportText(){
-  const score = $("scoreText")?.textContent?.trim() || "—";
-  const cat = $("catText")?.textContent?.trim() || "—";
-  const url = $("url")?.value?.trim() || "";
-  const from = $("from")?.value?.trim() || "";
-  const text = $("text")?.value?.trim() || "";
-  const reasons = $("reasons")?.innerText?.trim() || "—";
-  const safe = $("safe")?.innerText?.trim() || "—";
-
-  const head = state.lang==="ru"
-    ? `FraudGuard — отчет\nРиск: ${score}\nКатегория: ${cat}`
-    : `FraudGuard — report\nRisk: ${score}\nCategory: ${cat}`;
-
-  return [
-    head,
-    url ? ((state.lang==="ru"?"Ссылка: ":"URL: ") + url) : "",
-    from ? ((state.lang==="ru"?"От кого: ":"From: ") + from) : "",
-    text ? ((state.lang==="ru"?"Текст:\n":"Text:\n") + text) : "",
-    (state.lang==="ru"?"Причины:\n":"Reasons:\n") + reasons,
-    (state.lang==="ru"?"Безопасные действия:\n":"Safe actions:\n") + safe,
-  ].filter(Boolean).join("\n\n");
+/* Smooth scroll to result after AI check */
+async function runAiCheckAndScroll(){
+  await runAiCheck();
+  $("rightCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
 }
 
-async function copyReport(){
-  try{
-    const report = buildReportText();
-    await navigator.clipboard.writeText(report);
-    showToast(state.lang==="ru" ? "Отчёт скопирован" : "Report copied");
-  }catch(e){
-    showToast(state.lang==="ru" ? "Не удалось скопировать" : "Copy failed");
-  }
-}
-$("btnCopy")?.addEventListener("click", copyReport);
-
-/* ===== Typewriter (for Demo) ===== */
+/* ===== Typewriter for Demo (печатает ВЕЗДЕ: from + url + text) ===== */
 const demoType = (() => {
   let token = 0;
   let running = false;
@@ -1465,6 +1722,8 @@ const demoType = (() => {
     if($("from")) $("from").value = last.from;
     $("url").value = last.url;
     $("text").value = last.text;
+    updateCharCount();
+    smartExtractUrlFromText();
     $("text").focus();
     try{ $("text").setSelectionRange($("text").value.length, $("text").value.length); }catch(_){}
   }
@@ -1525,10 +1784,8 @@ const demoType = (() => {
 
     last = { from: example.from, url: example.url, text: example.text };
 
-    // переключаем в "Подробно"
+    // 1) переключить в "Подробно"
     setMode("pro");
-    $("proWrap")?.classList.add("show");
-
     $("leftCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
 
     if(my !== token){ running=false; return; }
@@ -1539,6 +1796,8 @@ const demoType = (() => {
     if(my !== token){ running=false; return; }
     await typeField($("text"), example.text, { cps: 66, jitter: 0.26 });
 
+    updateCharCount();
+    smartExtractUrlFromText();
     running = false;
   }
 
@@ -1577,50 +1836,41 @@ const DEMOS = [
 ];
 let demoIdx = 0;
 
-/* Smooth scroll to result after AI check */
-async function runAiCheckAndScroll(){
-  await runAiCheck();
-  $("rightCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
-}
-
 /* Buttons */
 $("btnCheck").onclick = runAiCheckAndScroll;
 
 $("btnClear").onclick = ()=>{
-  // отменяем печать, если шла
-  if(typeof demoType !== "undefined" && demoType?.cancel) demoType.cancel();
+  demoType.cancel();
 
   $("url").value="";
   if($("from")) $("from").value="";
   $("text").value="";
+  updateCharCount();
 
   $("emptyState").style.display = "grid";
   $("highlight").textContent="—";
   $("reasons").textContent="—";
   $("safe").textContent="—";
-  $("scoreBox").textContent="0";
-  $("scoreText").textContent="0 / 100";
+
+  riskAnim.reset();
+
   $("catText").textContent="—";
   $("categoryTag").querySelector(".miniDot").style.background = "rgba(255,255,255,.35)";
   $("barFill").style.width="0%";
-  showToast(state.lang==="ru" ? "Очищено" : "Cleared");
+
+  showToast(I18N[state.lang].toastCleared);
 };
 
 $("btnDemo").onclick = async ()=>{
-  // если печатает — второй клик мгновенно завершает
   if(demoType.isRunning()){
     demoType.finishInstant();
-    showToast(state.lang==="ru" ? "Пример вставлен" : "Example inserted");
+    showToast(I18N[state.lang].toastExample);
     return;
   }
-
   const ex = DEMOS[demoIdx % DEMOS.length];
   demoIdx++;
-
   await demoType.run(ex);
-  showToast(state.lang==="ru"
-    ? ("Пример: " + (ex.key==="bank"?"банк":ex.key==="delivery"?"доставка":"инвестиции"))
-    : ("Example: " + ex.key));
+  showToast(I18N[state.lang].toastExample);
 };
 
 /* Language init */
@@ -1639,10 +1889,5 @@ $("btnDemo").onclick = async ()=>{
   }
 })();
 </script>
-
-<div id="toast" role="status" aria-live="polite">
-  <div class="t" id="toastTxt">—</div>
-  <div class="x" id="toastClose" aria-label="Close">✕</div>
-</div>
 </body>
 </html>
