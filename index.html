@@ -855,6 +855,64 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   /* Лёгкая оптимизация отрисовки */
   .card{ contain: layout paint; }
 }
+
+/* ===== MOBILE UI FIX: tabs are реально нажимаемы и норм выглядят ===== */
+@media (pointer: coarse), (max-width: 900px){
+
+  /* таб-индикатор не должен блокировать клики */
+  .tab-ind{
+    pointer-events: none !important;
+  }
+
+  /* контейнер табов — больше и удобнее */
+  .tabs{
+    gap: 8px !important;
+    padding: 10px !important;
+    min-height: 56px !important;
+    border-radius: 22px !important;
+  }
+
+  /* сами кнопки */
+  .tab{
+    min-height: 52px !important;
+    font-size: 15px !important;
+    letter-spacing: .2px !important;
+    border-radius: 18px !important;
+    padding: 12px 10px !important;
+    touch-action: manipulation;
+  }
+
+  /* чтобы активная была максимально читаемой */
+  .tab.active{
+    filter: brightness(1.06);
+  }
+
+  /* гарантируем что они всегда поверх и кликаются */
+  #modeTabs{
+    position: relative;
+    z-index: 5;
+  }
+  #modeTabs .tab{
+    position: relative;
+    z-index: 6;
+  }
+
+  /* на очень маленьких экранах — делаем компактнее и без слипания */
+  @media (max-width: 390px){
+    .tabs{
+      gap: 6px !important;
+      padding: 8px !important;
+      min-height: 54px !important;
+    }
+    .tab{
+      font-size: 14px !important;
+      min-height: 50px !important;
+      padding: 11px 8px !important;
+    }
+  }
+}
+
+
 </style>
 </head>
 <body>
