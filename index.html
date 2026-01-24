@@ -248,7 +248,20 @@ body{
 /* ===== Tabs (FIXED, no “слипание”) ===== */
 .tabs{
   --i: 0;
-  --step: calc((100% - (var(--tabsPad)*2) - var(--tabsGap)) / 2 + var(--tabsGap));
+
+  /* увеличенная длина frame */
+  width: 360px;
+  min-width: 360px;
+
+  --tabsRad: 24px;
+  --tabsPad: 12px;
+  --tabsGap: 14px;
+
+  --step: calc(
+    (100% - (var(--tabsPad) * 2) - var(--tabsGap)) / 2
+    + var(--tabsGap)
+  );
+
   position:relative;
   display:flex;
   gap: var(--tabsGap);
@@ -259,69 +272,10 @@ body{
   overflow:hidden;
   transform: translateZ(24px);
   align-items:stretch;
-  min-height:48px;
+  min-height:52px;
   box-shadow: 0 12px 50px rgba(0,0,0,.22);
   isolation:isolate;
 }
-.tabs::before{
-  content:"";
-  position:absolute; inset:0;
-  pointer-events:none;
-  background:
-    radial-gradient(900px 240px at 18% 0%, rgba(106,166,255,.10), transparent 64%),
-    radial-gradient(900px 240px at 82% 0%, rgba(46,229,157,.08), transparent 64%);
-  opacity:.9;
-  z-index:0;
-}
-.tab-ind{
-  position:absolute;
-  left: var(--tabsPad);
-  top: var(--tabsPad);
-  bottom: var(--tabsPad);
-  width: calc((100% - (var(--tabsPad)*2) - var(--tabsGap)) / 2);
-  border-radius: calc(var(--tabsRad) - 7px);
-  background: rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.16);
-  transform: translateX(calc(var(--i) * var(--step)));
-  transition: transform .62s var(--spring);
-  box-shadow: 0 16px 40px rgba(0,0,0,.28);
-  z-index:1;
-  overflow:hidden;
-}
-.tab-ind::after{
-  content:"";
-  position:absolute; inset:-30% -40%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
-  transform: translateX(-70%) rotate(10deg);
-  opacity:.85;
-  animation: tabsSheen 1.25s ease-in-out infinite;
-}
-@keyframes tabsSheen{
-  0%{ transform: translateX(-70%) rotate(10deg); opacity:.22; }
-  55%{ opacity:.55; }
-  100%{ transform: translateX(70%) rotate(10deg); opacity:.22; }
-}
-.tab{
-  position:relative;
-  flex:1;
-  padding: 11px 12px;
-  border-radius: calc(var(--tabsRad) - 7px);
-  border:1px solid transparent;
-  background: transparent;
-  color: rgba(231,238,255,.72);
-  font-size: 13px;
-  font-weight: 950;
-  cursor:pointer;
-  white-space: nowrap;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition: transform .22s var(--spring), color .22s ease, filter .22s ease;
-  z-index:2;
-}
-.tab:hover{ transform: translateY(-1px) scale(1.01); filter: brightness(1.08); }
-.tab:active{ transform: translateY(0) scale(.99); }
-.tab.active{ color: var(--text); text-shadow: 0 10px 30px rgba(0,0,0,.35); }
 
 /* ===== “Scroll-like” switch animation (inside card only) ===== */
 .modeViewport{
