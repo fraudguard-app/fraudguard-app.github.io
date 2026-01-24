@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FraudGuard — Anti-Scam</title>
 
-<link rel="icon" href="./favicon.ico?v=10008">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10008">
+<link rel="icon" href="./favicon.ico?v=10009">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png?v=10009">
 <meta name="theme-color" content="#070c18">
 
 <style>
@@ -35,8 +35,10 @@
   --glass2: rgba(255,255,255,.035);
   --stroke: rgba(255,255,255,.12);
 
-  --tabsRad: 20px;
-  --tabsPad: 8px;
+  /* tabs geometry (fix “слипание”) */
+  --tabsRad: 22px;
+  --tabsPad: 10px;
+  --tabsGap: 10px;
 }
 
 *{box-sizing:border-box}
@@ -55,26 +57,49 @@ body{
   *{ animation:none !important; transition:none !important; }
 }
 
-/* ===== Fluid background (moving) ===== */
-.fluid{
-  position:fixed; inset:-8%;
+/* ===== Animated Fluid Background (multi-layer) ===== */
+.fluidWrap{
+  position:fixed; inset:-10%;
   z-index:-6;
   pointer-events:none;
-  opacity:.70;
-  filter: blur(8px) saturate(1.15);
   transform: translateZ(0);
+  overflow:hidden;
 }
-.fluid svg{ width:100%; height:100%; display:block; }
-.fluid .vignette{
+.fluidWrap .vignette{
   position:absolute; inset:0;
   background:
-    radial-gradient(900px 520px at 15% 10%, rgba(106,166,255,.18), transparent 60%),
-    radial-gradient(900px 520px at 85% 12%, rgba(46,229,157,.12), transparent 62%),
-    radial-gradient(1100px 760px at 45% 95%, rgba(255,92,122,.10), transparent 60%),
-    radial-gradient(1200px 900px at 50% 50%, transparent 45%, rgba(0,0,0,.55) 85%),
-    linear-gradient(180deg, rgba(4,6,15,.85), rgba(11,18,32,.90));
+    radial-gradient(1200px 900px at 50% 50%, transparent 45%, rgba(0,0,0,.62) 86%),
+    radial-gradient(900px 520px at 15% 10%, rgba(106,166,255,.20), transparent 60%),
+    radial-gradient(900px 520px at 85% 12%, rgba(46,229,157,.14), transparent 62%),
+    radial-gradient(1100px 760px at 45% 95%, rgba(255,92,122,.12), transparent 60%),
+    linear-gradient(180deg, rgba(4,6,15,.88), rgba(11,18,32,.92));
   mix-blend-mode: overlay;
   pointer-events:none;
+}
+
+.fluidLayer{
+  position:absolute; inset:-5%;
+  opacity:.55;
+  filter: blur(10px) saturate(1.18) contrast(1.06);
+  transform: translateZ(0);
+}
+.fluidLayer svg{ width:100%; height:100%; display:block; }
+
+.fluidLayer.one{ opacity:.62; filter: blur(14px) saturate(1.25); animation: drift1 16s var(--spring) infinite; }
+.fluidLayer.two{ opacity:.52; filter: blur(18px) saturate(1.18); animation: drift2 19s var(--spring) infinite; mix-blend-mode: screen; }
+.fluidLayer.three{ opacity:.42; filter: blur(22px) saturate(1.10); animation: drift3 22s var(--spring) infinite; mix-blend-mode: overlay; }
+
+@keyframes drift1{
+  0%,100%{ transform: translate(-1%, -2%) scale(1.03) rotate(0deg); }
+  50%{ transform: translate(2%, 2%) scale(1.08) rotate(1deg); }
+}
+@keyframes drift2{
+  0%,100%{ transform: translate(2%, 1%) scale(1.04) rotate(0deg); }
+  50%{ transform: translate(-2%, -2%) scale(1.10) rotate(-1deg); }
+}
+@keyframes drift3{
+  0%,100%{ transform: translate(-2%, 2%) scale(1.02) rotate(0deg); }
+  50%{ transform: translate(2%, -2%) scale(1.07) rotate(.8deg); }
 }
 
 /* subtle noise */
@@ -101,7 +126,6 @@ body{
   justify-content:space-between;
   gap:14px;
   margin-bottom:16px;
-
   max-width:1240px;
   margin-left:auto;
   margin-right:auto;
@@ -133,7 +157,6 @@ body{
 .pill .dot{ width:8px; height:8px; border-radius:999px; background: var(--accent); box-shadow: 0 0 0 6px rgba(106,166,255,.10); }
 .pill .kbd{ padding:2px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); font-size:12px; }
 
-/* language switch */
 .langSel{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 12px; border-radius:999px;
@@ -179,14 +202,14 @@ body{
   position:relative; overflow:hidden;
   transform-style: preserve-3d;
   transform: perspective(980px) rotateX(0deg) rotateY(0deg);
-  transition: box-shadow .25s ease, transform .18s ease;
+  transition: box-shadow .25s ease, transform .18s ease, filter .25s ease;
   animation: cardIn .75s var(--spring) both;
   contain: layout paint;
 }
 #leftCard{ animation-delay:.05s; }
 #rightCard{ animation-delay:.11s; }
 @keyframes cardIn{ from{opacity:0;transform:translateY(16px) scale(.985)} to{opacity:1;transform:translateY(0) scale(1)} }
-.card:hover{ box-shadow: 0 34px 140px rgba(0,0,0,.62); }
+.card:hover{ box-shadow: 0 34px 140px rgba(0,0,0,.62); filter: brightness(1.02); }
 
 .card::before{
   content:"";
@@ -222,12 +245,13 @@ body{
 .title{ font-weight:950; font-size:18px; letter-spacing:.2px; }
 .caption{ font-size:12.5px; color: var(--muted2); margin-top:4px; line-height:1.35; }
 
-/* ===== Tabs (PREMIUM + FIXED “слипание”) ===== */
+/* ===== Tabs (FIXED, no “слипание”) ===== */
 .tabs{
   --i: 0;
+  --step: calc((100% - (var(--tabsPad)*2) - var(--tabsGap)) / 2 + var(--tabsGap));
   position:relative;
   display:flex;
-  gap:10px;
+  gap: var(--tabsGap);
   padding: var(--tabsPad);
   border-radius: var(--tabsRad);
   border:1px solid rgba(255,255,255,.12);
@@ -254,11 +278,11 @@ body{
   left: var(--tabsPad);
   top: var(--tabsPad);
   bottom: var(--tabsPad);
-  width: calc(50% - (var(--tabsPad) * .5) - 5px);
-  border-radius: calc(var(--tabsRad) - 6px);
+  width: calc((100% - (var(--tabsPad)*2) - var(--tabsGap)) / 2);
+  border-radius: calc(var(--tabsRad) - 7px);
   background: rgba(255,255,255,.10);
   border:1px solid rgba(255,255,255,.16);
-  transform: translateX(calc(var(--i) * (100% + 10px)));
+  transform: translateX(calc(var(--i) * var(--step)));
   transition: transform .62s var(--spring);
   box-shadow: 0 16px 40px rgba(0,0,0,.28);
   z-index:1;
@@ -269,19 +293,19 @@ body{
   position:absolute; inset:-30% -40%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.16), transparent);
   transform: translateX(-70%) rotate(10deg);
-  opacity:.8;
+  opacity:.85;
   animation: tabsSheen 1.25s ease-in-out infinite;
 }
 @keyframes tabsSheen{
-  0%{ transform: translateX(-70%) rotate(10deg); opacity:.25; }
+  0%{ transform: translateX(-70%) rotate(10deg); opacity:.22; }
   55%{ opacity:.55; }
-  100%{ transform: translateX(70%) rotate(10deg); opacity:.25; }
+  100%{ transform: translateX(70%) rotate(10deg); opacity:.22; }
 }
 .tab{
   position:relative;
   flex:1;
   padding: 11px 12px;
-  border-radius: calc(var(--tabsRad) - 6px);
+  border-radius: calc(var(--tabsRad) - 7px);
   border:1px solid transparent;
   background: transparent;
   color: rgba(231,238,255,.72);
@@ -295,24 +319,49 @@ body{
   transition: transform .22s var(--spring), color .22s ease, filter .22s ease;
   z-index:2;
 }
-.tab:hover{ transform: translateY(-1px) scale(1.01); filter: brightness(1.07); }
+.tab:hover{ transform: translateY(-1px) scale(1.01); filter: brightness(1.08); }
 .tab:active{ transform: translateY(0) scale(.99); }
-.tab.active{
-  color: var(--text);
-  text-shadow: 0 10px 30px rgba(0,0,0,.35);
-}
+.tab.active{ color: var(--text); text-shadow: 0 10px 30px rgba(0,0,0,.35); }
 
-/* “классная” анимация контента при переключении */
+/* ===== “Scroll-like” switch animation (inside card only) ===== */
+.modeViewport{
+  position:relative;
+  overflow:hidden;
+  border-radius: 18px;
+}
+.modeFx{
+  position:absolute; inset:-30% -30%;
+  pointer-events:none;
+  opacity:0;
+  background:
+    linear-gradient(180deg, transparent, rgba(255,255,255,.07), transparent),
+    radial-gradient(520px 240px at 40% 30%, rgba(106,166,255,.09), transparent 68%),
+    radial-gradient(520px 240px at 70% 70%, rgba(46,229,157,.07), transparent 68%);
+  transform: translateY(0);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+}
+.modeViewport.switching .modeFx{
+  opacity: 1;
+  animation: modeFx 680ms var(--spring) both;
+}
+@keyframes modeFx{
+  0%{ transform: translateY(10px); opacity:.0; }
+  40%{ transform: translateY(-14px); opacity:.55; }
+  100%{ transform: translateY(0); opacity:.0; }
+}
 .modeAnim{
   position:relative;
+  will-change: transform, filter, opacity;
 }
-.modeAnim.swap{
-  animation: modeSwap .62s var(--spring);
+.modeViewport.switching .modeAnim{
+  animation: modeScroll 680ms var(--spring) both;
 }
-@keyframes modeSwap{
-  0%{ transform: translateY(0) scale(1); filter: blur(0); }
-  40%{ transform: translateY(-4px) scale(.994); filter: blur(.6px); }
-  100%{ transform: translateY(0) scale(1); filter: blur(0); }
+@keyframes modeScroll{
+  0%{ transform: translateY(0); filter: blur(0); opacity:1; }
+  32%{ transform: translateY(-16px); filter: blur(1.2px); opacity:.95; }
+  65%{ transform: translateY(8px); filter: blur(.4px); opacity:1; }
+  100%{ transform: translateY(0); filter: blur(0); opacity:1; }
 }
 
 /* pro fields */
@@ -350,10 +399,9 @@ input:focus, textarea:focus{
   border-color: rgba(106,166,255,.65);
   box-shadow: 0 0 0 4px rgba(106,166,255,.12), 0 18px 55px rgba(0,0,0,.20);
   transform: translateY(-1px);
-  filter: brightness(1.02);
+  filter: brightness(1.03);
 }
 
-/* helper row */
 .helperRow{
   display:flex;
   align-items:center;
@@ -369,7 +417,9 @@ input:focus, textarea:focus{
   border-radius:999px;
   border:1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.04);
+  transition: transform .2s var(--spring), filter .2s ease;
 }
+.counter:hover{ transform: translateY(-1px); filter: brightness(1.06); }
 .counter b{ color: rgba(231,238,255,.92); font-weight:950; }
 
 /* chips */
@@ -386,50 +436,6 @@ input:focus, textarea:focus{
 }
 .chip:hover{ transform: translateY(-2px) scale(1.02); box-shadow: var(--shadow2); filter: brightness(1.06); }
 .chip:active{ transform: translateY(0) scale(.985); }
-
-/* toast */
-#toast{
-  position:fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%) translateY(14px);
-  min-width: min(520px, 92vw);
-  max-width: min(720px, 92vw);
-  padding: 12px 14px;
-  border-radius: 18px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(10,16,30,.72);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 22px 90px rgba(0,0,0,.55);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .22s ease, transform .32s var(--spring);
-  z-index: 10000;
-}
-#toast.show{
-  opacity:1;
-  pointer-events:auto;
-  transform: translateX(-50%) translateY(0);
-}
-#toast .t{
-  font-size:13px;
-  color: rgba(231,238,255,.92);
-  line-height:1.35;
-}
-#toast .x{
-  width:40px;height:40px;
-  border-radius:14px;
-  display:grid;place-items:center;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  cursor:pointer;
-  user-select:none;
-}
-#toast .x:hover{ filter: brightness(1.06); }
 
 /* buttons + ripple */
 .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
@@ -547,9 +553,9 @@ input:focus, textarea:focus{
   border:1px solid rgba(255,255,255,.12);
   background: rgba(0,0,0,.14);
   overflow:hidden;
-  transition: transform .2s var(--spring), box-shadow .2s ease;
+  transition: transform .2s var(--spring), box-shadow .2s ease, filter .2s ease;
 }
-.block:hover{ transform: translateY(-1px); box-shadow: 0 18px 60px rgba(0,0,0,.22); }
+.block:hover{ transform: translateY(-1px); box-shadow: 0 18px 60px rgba(0,0,0,.22); filter: brightness(1.02); }
 .blockHead{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   padding: 12px 14px;
@@ -592,7 +598,7 @@ input:focus, textarea:focus{
   background: rgba(255,255,255,.04);
   transition: transform .2s var(--spring), filter .2s ease;
 }
-.reason:hover{ transform: translateY(-1px); filter: brightness(1.04); }
+.reason:hover{ transform: translateY(-1px); filter: brightness(1.05); }
 .reason .ico{
   width:38px; height:38px;
   border-radius: 18px;
@@ -652,7 +658,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   color: var(--text);
 }
 
-/* ===== Loading overlay (BAR instead of spinner) ===== */
+/* ===== Loading overlay (BAR) ===== */
 #loading{
   position:fixed; inset:0;
   display:grid;
@@ -666,7 +672,6 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   transition: opacity .22s ease;
 }
 #loading.show{ opacity:1; pointer-events:auto; }
-
 .loading-box{
   width: min(620px, 92vw);
   background: rgba(15,27,51,.92);
@@ -679,22 +684,9 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   overflow:hidden;
 }
 @keyframes pop{ from{transform:translateY(10px) scale(.98);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-
-.loading-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:14px;
-}
-.loading-title{
-  font-weight:950;
-}
-.loading-sub{
-  margin-top:4px;
-  color: var(--muted2);
-  font-size:12.5px;
-  line-height:1.35;
-}
+.loading-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+.loading-title{ font-weight:950; }
+.loading-sub{ margin-top:4px; color: var(--muted2); font-size:12.5px; line-height:1.35; }
 .loading-pct{
   font-weight:950;
   font-size: 13px;
@@ -705,7 +697,6 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   background: rgba(255,255,255,.05);
   white-space:nowrap;
 }
-
 .loading-bar{
   margin-top: 14px;
   height: 12px;
@@ -733,9 +724,9 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   mix-blend-mode: screen;
 }
 @keyframes loadSheen{
-  0%{ transform: translateX(-70%) rotate(12deg); opacity:.25; }
+  0%{ transform: translateX(-70%) rotate(12deg); opacity:.20; }
   55%{ opacity:.55; }
-  100%{ transform: translateX(70%) rotate(12deg); opacity:.25; }
+  100%{ transform: translateX(70%) rotate(12deg); opacity:.20; }
 }
 
 /* show logo ONLY in topbar (kills left duplicate if exists) */
@@ -743,45 +734,90 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 .topbar .logo{ display:grid !important; }
 </style>
 </head>
+
 <body>
 
-<!-- Fluid background -->
-<div class="fluid" aria-hidden="true">
-  <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
-    <defs>
-      <filter id="turb">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="8" result="noise">
-          <animate attributeName="baseFrequency" dur="10s" values="0.010;0.016;0.012" repeatCount="indefinite"/>
-          <animate attributeName="seed" dur="14s" values="8;12;8" repeatCount="indefinite"/>
-        </feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="42" xChannelSelector="R" yChannelSelector="G"/>
-        <feGaussianBlur stdDeviation="0.4"/>
-      </filter>
+<!-- Animated fluid background -->
+<div class="fluidWrap" aria-hidden="true">
+  <div class="fluidLayer one">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
+      <defs>
+        <filter id="t1">
+          <feTurbulence type="fractalNoise" baseFrequency="0.010" numOctaves="2" seed="7" result="n">
+            <animate attributeName="baseFrequency" dur="9s" values="0.009;0.015;0.010" repeatCount="indefinite"/>
+            <animate attributeName="seed" dur="12s" values="7;13;7" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="46" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <radialGradient id="a1" cx="28%" cy="24%" r="70%">
+          <stop offset="0%" stop-color="rgba(106,166,255,.60)"/>
+          <stop offset="55%" stop-color="rgba(106,166,255,.14)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+        <radialGradient id="a2" cx="72%" cy="28%" r="70%">
+          <stop offset="0%" stop-color="rgba(46,229,157,.50)"/>
+          <stop offset="60%" stop-color="rgba(46,229,157,.12)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+      <g filter="url(#t1)" opacity="0.95">
+        <rect x="-100" y="-100" width="1400" height="1000" fill="rgba(6,10,20,1)"/>
+        <ellipse cx="280" cy="220" rx="560" ry="380" fill="url(#a1)"/>
+        <ellipse cx="920" cy="250" rx="600" ry="400" fill="url(#a2)"/>
+      </g>
+    </svg>
+  </div>
 
-      <radialGradient id="g1" cx="30%" cy="25%" r="70%">
-        <stop offset="0%" stop-color="rgba(106,166,255,.55)"/>
-        <stop offset="55%" stop-color="rgba(106,166,255,.12)"/>
-        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-      <radialGradient id="g2" cx="70%" cy="28%" r="70%">
-        <stop offset="0%" stop-color="rgba(46,229,157,.45)"/>
-        <stop offset="60%" stop-color="rgba(46,229,157,.10)"/>
-        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-      <radialGradient id="g3" cx="50%" cy="80%" r="80%">
-        <stop offset="0%" stop-color="rgba(255,92,122,.30)"/>
-        <stop offset="65%" stop-color="rgba(255,92,122,.08)"/>
-        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-    </defs>
+  <div class="fluidLayer two">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
+      <defs>
+        <filter id="t2">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="11" result="n">
+            <animate attributeName="baseFrequency" dur="11s" values="0.010;0.017;0.012" repeatCount="indefinite"/>
+            <animate attributeName="seed" dur="14s" values="11;18;11" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="58" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <radialGradient id="b1" cx="50%" cy="82%" r="78%">
+          <stop offset="0%" stop-color="rgba(255,92,122,.34)"/>
+          <stop offset="65%" stop-color="rgba(255,92,122,.10)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+      <g filter="url(#t2)" opacity="0.92">
+        <ellipse cx="600" cy="690" rx="820" ry="520" fill="url(#b1)"/>
+      </g>
+    </svg>
+  </div>
 
-    <g filter="url(#turb)" opacity="0.95">
-      <rect x="-100" y="-100" width="1400" height="1000" fill="rgba(6,10,20,1)"/>
-      <ellipse cx="260" cy="220" rx="520" ry="360" fill="url(#g1)"/>
-      <ellipse cx="920" cy="240" rx="560" ry="380" fill="url(#g2)"/>
-      <ellipse cx="620" cy="690" rx="760" ry="460" fill="url(#g3)"/>
-    </g>
-  </svg>
+  <div class="fluidLayer three">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
+      <defs>
+        <filter id="t3">
+          <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="2" seed="3" result="n">
+            <animate attributeName="baseFrequency" dur="13s" values="0.007;0.013;0.008" repeatCount="indefinite"/>
+            <animate attributeName="seed" dur="18s" values="3;9;3" repeatCount="indefinite"/>
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="34" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <radialGradient id="c1" cx="18%" cy="70%" r="70%">
+          <stop offset="0%" stop-color="rgba(106,166,255,.24)"/>
+          <stop offset="70%" stop-color="rgba(106,166,255,.06)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+        <radialGradient id="c2" cx="86%" cy="62%" r="70%">
+          <stop offset="0%" stop-color="rgba(46,229,157,.20)"/>
+          <stop offset="70%" stop-color="rgba(46,229,157,.05)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+      </defs>
+      <g filter="url(#t3)" opacity="0.92">
+        <ellipse cx="260" cy="560" rx="640" ry="420" fill="url(#c1)"/>
+        <ellipse cx="980" cy="520" rx="640" ry="420" fill="url(#c2)"/>
+      </g>
+    </svg>
+  </div>
+
   <div class="vignette"></div>
 </div>
 
@@ -826,24 +862,28 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
         </div>
       </div>
 
-      <div class="modeAnim" id="modeAnim">
-        <div id="proWrap" class="proWrap depth-1" aria-hidden="true">
-          <div class="label" id="fromLabel">От кого пришло (опц.)</div>
-          <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
-        </div>
+      <div class="modeViewport depth-1" id="modeViewport">
+        <div class="modeFx" aria-hidden="true"></div>
 
-        <div class="depth-1">
-          <div class="label" id="urlLabel">Ссылка (если есть)</div>
-          <input id="url" placeholder="например: https://bank-secure.example/verify">
-        </div>
+        <div class="modeAnim" id="modeAnim">
+          <div id="proWrap" class="proWrap" aria-hidden="true">
+            <div class="label" id="fromLabel">От кого пришло (опц.)</div>
+            <input id="from" placeholder='например: "[ТЕСТ] Служба поддержки • Безопасность"'>
+          </div>
 
-        <div class="depth-1">
-          <div class="label" id="textLabel">Текст сообщения</div>
-          <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
+          <div>
+            <div class="label" id="urlLabel">Ссылка (если есть)</div>
+            <input id="url" placeholder="например: https://bank-secure.example/verify">
+          </div>
 
-          <div class="helperRow">
-            <span id="smartPasteHint">💡 Вставляй текст — ссылку вытащим автоматически</span>
-            <span class="counter"><span id="cntLabel">Символы:</span> <b id="charCount">0</b></span>
+          <div>
+            <div class="label" id="textLabel">Текст сообщения</div>
+            <textarea id="text" placeholder="Вставь SMS или сообщение..."></textarea>
+
+            <div class="helperRow">
+              <span id="smartPasteHint">💡 Вставляй текст — ссылку вытащим автоматически</span>
+              <span class="counter"><span id="cntLabel">Символы:</span> <b id="charCount">0</b></span>
+            </div>
           </div>
         </div>
       </div>
@@ -911,7 +951,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
           <div id="scoreBox">
             <div class="ring">
               <svg width="78" height="78" viewBox="0 0 78 78">
-                <circle id="ringBg" cx="39" cy="39" r="31" stroke="rgba(255,255,255,.10)" stroke-width="8" fill="none"></circle>
+                <circle cx="39" cy="39" r="31" stroke="rgba(255,255,255,.10)" stroke-width="8" fill="none"></circle>
                 <circle id="ringFg" cx="39" cy="39" r="31" stroke="var(--accent)" stroke-width="8" fill="none"
                   stroke-linecap="round" stroke-dasharray="0 194.78"></circle>
               </svg>
@@ -981,13 +1021,8 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   </div>
 </div>
 
-<div id="toast" role="status" aria-live="polite">
-  <div class="t" id="toastTxt">—</div>
-  <div class="x" id="toastClose" aria-label="Close">✕</div>
-</div>
-
 <script>
-/* Cloudflare Worker endpoint (ВАЖНО: /analyze, а не корень) */
+/* Cloudflare Worker endpoint */
 const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
@@ -1038,10 +1073,7 @@ const I18N = {
     loadingS: "Проверяем признаки скама и фишинга",
 
     alertNeed: "Вставь текст сообщения или ссылку.",
-    alertErr: "Ошибка анализа: ",
-    toastCleared: "Очищено",
-    toastExample: "Пример вставлен",
-    toastLinkExtracted: "Ссылка найдена и вынесена в поле «Ссылка»"
+    alertErr: "Ошибка анализа: "
   },
   en: {
     sub: "Check messages and links for scams",
@@ -1087,10 +1119,7 @@ const I18N = {
     loadingS: "Checking scam & phishing signals",
 
     alertNeed: "Paste message text or a link first.",
-    alertErr: "Analysis error: ",
-    toastCleared: "Cleared",
-    toastExample: "Example inserted",
-    toastLinkExtracted: "Link extracted into the URL field"
+    alertErr: "Analysis error: "
   }
 };
 
@@ -1105,7 +1134,6 @@ function applyLang(next){
 
   $("pillAI").textContent = L.pillAI;
   $("pillHot").textContent = L.pillHotkeys;
-
   $("langLabel").textContent = L.langLabel;
 
   $("checkTitle").textContent = L.checkTitle;
@@ -1165,19 +1193,6 @@ function riskColor(score){
   return "var(--bad)";
 }
 
-/* ===== Toast ===== */
-let toastTimer = 0;
-function showToast(msg){
-  const t = $("toast");
-  const txt = $("toastTxt");
-  if(!t || !txt) return;
-  txt.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> t.classList.remove("show"), 2400);
-}
-$("toastClose")?.addEventListener("click", ()=> $("toast")?.classList.remove("show"));
-
 /* Ripple */
 function addRipple(e){
   const btn = e.currentTarget;
@@ -1199,8 +1214,15 @@ function addRipple(e){
   if(el) el.addEventListener("pointerdown", addRipple);
 });
 
-/* ===== Tabs with “premium switch animation” ===== */
+/* ===== Tabs + “scroll-like” switch animation (NO page scroll) ===== */
 let mode = "quick";
+function switchFx(){
+  const vp = $("modeViewport");
+  vp.classList.add("switching");
+  clearTimeout(vp.__t);
+  vp.__t = setTimeout(()=>vp.classList.remove("switching"), 720);
+}
+
 function setMode(next){
   mode = next;
   const isPro = mode === "pro";
@@ -1209,16 +1231,15 @@ function setMode(next){
   $("tabPro").classList.toggle("active", isPro);
   $("modeTabs").style.setProperty("--i", isPro ? 1 : 0);
 
+  // effect first (looks like scroll/page switch)
+  switchFx();
+
+  // then show/hide pro field
   const wrap = $("proWrap");
   wrap.classList.toggle("show", isPro);
   wrap.setAttribute("aria-hidden", String(!isPro));
-
-  // cool swap animation
-  const anim = $("modeAnim");
-  anim.classList.remove("swap");
-  void anim.offsetWidth;
-  anim.classList.add("swap");
 }
+
 $("tabQuick").onclick = ()=> setMode("quick");
 $("tabPro").onclick = ()=> setMode("pro");
 
@@ -1234,11 +1255,11 @@ document.addEventListener("click", (e)=>{
   updateCharCount();
 });
 
-/* Ctrl+Enter */
+/* Ctrl+Enter (NO auto scroll) */
 document.addEventListener("keydown", (e)=>{
   if((e.ctrlKey || e.metaKey) && e.key === "Enter"){
     e.preventDefault();
-    runAiCheckAndScroll();
+    runAiCheck();
   }
 });
 
@@ -1447,19 +1468,15 @@ const riskAnim = (() => {
     if(fg) fg.setAttribute("stroke-dasharray", `${dash.toFixed(2)} ${C.toFixed(2)}`);
     if(num) num.textContent = String(Math.round(p));
     if(scoreText) scoreText.textContent = `${Math.round(p)} / 100`;
-    if(bar){
-      bar.style.width = `${p.toFixed(1)}%`;
-    }
+    if(bar) bar.style.width = `${p.toFixed(1)}%`;
   }
 
   function tick(){
     raf = 0;
-
     const stiffness = 360;
     const damping = 28;
     const dt = 1/60;
 
-    // spring integrate
     const a = -stiffness * (cur - target) - damping * vel;
     vel += a * dt;
     cur += vel * dt;
@@ -1468,11 +1485,7 @@ const riskAnim = (() => {
 
     const done = Math.abs(cur - target) < 0.08 && Math.abs(vel) < 0.08;
     if(!done) raf = requestAnimationFrame(tick);
-    else {
-      cur = target;
-      vel = 0;
-      setUI(cur);
-    }
+    else { cur = target; vel = 0; setUI(cur); }
   }
 
   function animateTo(next){
@@ -1485,7 +1498,14 @@ const riskAnim = (() => {
     setUI(0);
   }
 
-  return { animateTo, reset, setColor: (color)=>{ if(fg) fg.setAttribute("stroke", color); if(bar) bar.style.background = color; } };
+  return {
+    animateTo,
+    reset,
+    setColor: (color)=>{
+      if(fg) fg.setAttribute("stroke", color);
+      if(bar) bar.style.background = color;
+    }
+  };
 })();
 
 /* ===== Scan highlight ===== */
@@ -1504,22 +1524,16 @@ function iconFor(reason){
   return "⚠️";
 }
 
-/* ===== Smart paste: extract URL from message ===== */
+/* ===== Smart paste: extract URL from message (NO popups) ===== */
 function extractFirstUrl(s){
   const m = String(s||"").match(/\bhttps?:\/\/[^\s<>"')]+/i);
   return m ? m[0] : "";
 }
-let urlToastLock = 0;
 function smartExtractUrlFromText(){
   const text = $("text").value || "";
   const found = extractFirstUrl(text);
   if(found && !$("url").value.trim()){
     $("url").value = found;
-    const now = Date.now();
-    if(now - urlToastLock > 1400){
-      urlToastLock = now;
-      showToast(I18N[state.lang].toastLinkExtracted);
-    }
   }
 }
 
@@ -1552,7 +1566,6 @@ function loadingStart(){
 
   const tick = (t)=>{
     const dt = t - loadStart;
-    // fake smooth progress: quickly rises, slows near 92%
     const cap = 92;
     const next = cap * (1 - Math.exp(-dt / 900));
     loadPct = Math.max(loadPct, next);
@@ -1566,14 +1579,12 @@ function loadingFinish(){
   cancelAnimationFrame(loadRAF);
   loadRAF = 0;
 
-  // snap to 100 smoothly
   $("loadingFill").style.width = "100%";
   $("loadingPct").textContent = "100";
 
   setTimeout(()=>{
     $("loading").classList.remove("show");
     $("loading").setAttribute("aria-hidden","true");
-    // reset немного позже, чтобы не моргало
     setTimeout(()=>{
       $("loadingFill").style.width = "0%";
       $("loadingPct").textContent = "0";
@@ -1592,7 +1603,6 @@ function render(data){
   const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
   const color = riskColor(score);
 
-  // animate risk (spring)
   riskAnim.setColor(color);
   riskAnim.animateTo(score);
 
@@ -1619,7 +1629,6 @@ function render(data){
     ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
     : `<div style="color:var(--muted2)">—</div>`;
 
-  // highlight risky words
   const text = $("text").value || "";
   const base = (state.lang==="ru")
     ? ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"]
@@ -1651,7 +1660,7 @@ function render(data){
   });
 }
 
-/* ===== API call ===== */
+/* ===== API call (NO auto scroll) ===== */
 async function runAiCheck(){
   const url = $("url").value.trim();
   const from = $("from") ? $("from").value.trim() : "";
@@ -1701,13 +1710,7 @@ async function runAiCheck(){
   }
 }
 
-/* Smooth scroll to result after AI check */
-async function runAiCheckAndScroll(){
-  await runAiCheck();
-  $("rightCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
-}
-
-/* ===== Typewriter for Demo (печатает ВЕЗДЕ: from + url + text) ===== */
+/* ===== Typewriter for Demo (NO auto page scroll) ===== */
 const demoType = (() => {
   let token = 0;
   let running = false;
@@ -1737,7 +1740,6 @@ const demoType = (() => {
 
     el.value = "";
     el.focus();
-    try{ el.setSelectionRange(0,0); }catch(_){}
 
     let i = 0;
     let lastT = performance.now();
@@ -1781,15 +1783,12 @@ const demoType = (() => {
   async function run(example){
     running = true;
     const my = ++token;
-
     last = { from: example.from, url: example.url, text: example.text };
 
-    // 1) переключить в "Подробно"
+    // Переключаем в "Подробно" (без прокрутки страницы)
     setMode("pro");
-    $("leftCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
 
     if(my !== token){ running=false; return; }
-
     await typeField($("from"), example.from, { cps: 60, jitter: 0.24 });
     if(my !== token){ running=false; return; }
     await typeField($("url"), example.url, { cps: 62, jitter: 0.22 });
@@ -1804,10 +1803,9 @@ const demoType = (() => {
   return { cancel, isRunning, finishInstant, run };
 })();
 
-/* Demo examples (циклично) */
+/* Demo examples */
 const DEMOS = [
   {
-    key:"bank",
     from: "[ТЕСТ] Служба безопасности банка • Защита",
     url: "https://bank-secure.example/verify",
     text:
@@ -1816,7 +1814,6 @@ const DEMOS = [
 "[ТЕСТ] Никому не сообщайте, но введите код из SMS для подтверждения."
   },
   {
-    key:"delivery",
     from: "[ТЕСТ] Доставка • Подтверждение адреса",
     url: "https://delivery-track.example/update",
     text:
@@ -1825,7 +1822,6 @@ const DEMOS = [
 "[ТЕСТ] Если не оплатить в течение 2 часов — отправление вернётся."
   },
   {
-    key:"invest",
     from: "[ТЕСТ] Инвестиции • Персональный менеджер",
     url: "https://profit-invest.example/start",
     text:
@@ -1836,14 +1832,13 @@ const DEMOS = [
 ];
 let demoIdx = 0;
 
-/* Buttons */
-$("btnCheck").onclick = runAiCheckAndScroll;
+/* Buttons (NO auto scroll) */
+$("btnCheck").onclick = runAiCheck;
 
 $("btnClear").onclick = ()=>{
   demoType.cancel();
-
   $("url").value="";
-  if($("from")) $("from").value="";
+  $("from").value="";
   $("text").value="";
   updateCharCount();
 
@@ -1857,20 +1852,16 @@ $("btnClear").onclick = ()=>{
   $("catText").textContent="—";
   $("categoryTag").querySelector(".miniDot").style.background = "rgba(255,255,255,.35)";
   $("barFill").style.width="0%";
-
-  showToast(I18N[state.lang].toastCleared);
 };
 
 $("btnDemo").onclick = async ()=>{
   if(demoType.isRunning()){
     demoType.finishInstant();
-    showToast(I18N[state.lang].toastExample);
     return;
   }
   const ex = DEMOS[demoIdx % DEMOS.length];
   demoIdx++;
   await demoType.run(ex);
-  showToast(I18N[state.lang].toastExample);
 };
 
 /* Language init */
