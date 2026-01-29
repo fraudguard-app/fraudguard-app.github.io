@@ -1745,6 +1745,61 @@ function dataUrlBytes(dataUrl){
   return Math.floor(b64.length * 0.75);
 }
 
+/* ===== FIX: image progress functions ===== */
+
+let imgProgRAF = 0;
+let imgProgTarget = 0;
+
+function imgProgSet(pct){
+  const box = $("imgProg");
+  const fill = $("imgProgFill");
+  const txt = $("imgProgPct");
+  if(!box || !fill || !txt) return;
+
+  const p = Math.max(0, Math.min(100, pct));
+  imgProgTarget = p;
+
+  if(!imgProgRAF){
+    const tick = ()=>{
+      const cur = parseFloat(fill.style.width) || 0;
+      const next = cur + (imgProgTarget - cur) * 0.25;
+      fill.style.width = next + "%";
+      txt.textContent = Math.round(next);
+      if(Math.abs(imgProgTarget - next) < 0.5){
+        fill.style.width = imgProgTarget + "%";
+        txt.textContent = Math.round(imgProgTarget);
+        imgProgRAF = 0;
+        return;
+      }
+      imgProgRAF = requestAnimationFrame(tick);
+    };
+    imgProgRAF = requestAnimationFrame(tick);
+  }
+}
+
+function imgProgShow(){
+  const box = $("imgProg");
+  if(!box) return;
+  box.classList.add("show");
+  imgProgSet(5);
+}
+
+function imgProgHide(){
+  const box = $("imgProg");
+  if(!box) return;
+  imgProgSet(100);
+  setTimeout(()=>{
+    box.classList.remove("show");
+    const fill = $("imgProgFill");
+    const txt = $("imgProgPct");
+    if(fill) fill.style.width = "0%";
+    if(txt) txt.textContent = "0";
+    imgProgTarget = 0;
+  }, 250);
+}
+
+/* ===== END FIX ===== */
+
 $("imgInput")?.addEventListener("change", async (e)=>{
   const files = Array.from(e.target.files || []);
   if(!files.length) return;
@@ -1758,10 +1813,20 @@ $("imgInput")?.addEventListener("change", async (e)=>{
   }
 
   // лёгкая “загрузка”
-  imgProgShow()
-  try{
-    for(const f of take){
-      const data = await fileToCompressedDataURL(f);
+ imgProgShow();
+try{
+  let done = 0;
+  const total = take.length;
+
+  for(const f of take){
+    // небольшой “pre-step” чтобы не стояло на месте
+    imgProgSet(10 + (done / total) * 80);
+
+    const data = await fileToCompressedDataURL(f);
+
+    done++;
+    imgProgSet(10 + (done / total) * 80);
+
       const bytes = dataUrlBytes(data);
 
       state.images.push({
