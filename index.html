@@ -1124,6 +1124,45 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 }
 .imgBox > *{ position:relative; }
 
+
+/* ===== Micro-animations everywhere (jury-friendly) ===== */
+.reveal{
+  opacity:0;
+  transform: translateY(14px) scale(.985);
+  filter: blur(10px);
+  transition: opacity .75s var(--ease), transform .75s var(--ease), filter .75s var(--ease);
+  will-change: opacity, transform, filter;
+}
+.reveal.in{
+  opacity:1;
+  transform:none;
+  filter:none;
+}
+
+.btn, .chip, .tabBtn{
+  position:relative;
+  overflow:hidden;
+}
+.ripple{
+  position:absolute;
+  border-radius:999px;
+  transform: translate(-50%,-50%) scale(0);
+  opacity:.35;
+  background: currentColor;
+  filter: blur(.2px);
+  pointer-events:none;
+  animation: ripple .55s var(--ease) forwards;
+}
+@keyframes ripple{
+  to{ transform: translate(-50%,-50%) scale(18); opacity:0; }
+}
+
+/* Touch devices: lighten heavy effects a bit */
+@media (max-width: 640px){
+  .fluid{ opacity:.58; filter: blur(30px) saturate(1.05); }
+  .noise{ opacity:.10; }
+}
+
 </style>
 </head>
 <body>
@@ -1170,7 +1209,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 <div class="noise"></div>
 
 <div class="wrap">
-  <div class="topbar">
+  <div class="topbar reveal">
     <div class="brand">
       <div class="logo">FG</div>
       <div>
@@ -1180,10 +1219,10 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
     </div>
 
     <div class="badges">
-      <span class="pill"><span class="dot"></span><span id="pillAI">AI-анализ</span></span>
+      <span class="pill"><span class="dot"></span><span id="pillAI">Интеллектуальная проверка</span></span>
       <span class="pill"><span id="pillHot">Горячие клавиши:</span> <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
 
-      <span class="langSel" title="Language">
+      <span class="langSel" id="langSel" title="Language">
         <span id="langLabel">Язык</span>
         <select id="lang" aria-label="Language">
           <option value="ru" selected>RU</option>
@@ -1194,7 +1233,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   </div>
 
   <div class="grid">
-    <div class="card tilt" id="leftCard">
+    <div class="card tilt reveal" id="leftCard">
       <div class="header-row depth-1">
         <div>
           <div class="title" id="checkTitle">Проверка</div>
@@ -1278,7 +1317,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 </div>
 
 
-      <div class="chips depth-1">
+      <div class="chips depth-1 reveal">
         <button class="chip" type="button" data-chip="СРОЧНО: подтвердите личность (тестовый пример)" id="chipUrgent">срочно</button>
         <button class="chip" type="button" data-chip="Запрашивают код из SMS (тестовый пример)" id="chipCode">просит код</button>
         <button class="chip" type="button" data-chip="Просят перейти по ссылке (тестовый пример)" id="chipLink">подозр. ссылка</button>
@@ -1294,7 +1333,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
               <path d="M8.5 12.2l2.2 2.3 4.8-5" stroke="#071223" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          <span id="btnCheckTxt">Проверить (AI)</span>
+          <span id="btnCheckTxt">Запустить проверку</span>
         </button>
 
         <button class="btn ghost" id="btnClear" type="button">
@@ -1326,7 +1365,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
     </div>
 
     <div class="right-wrap">
-      <div class="card tilt" id="rightCard">
+      <div class="card tilt reveal" id="rightCard">
         <div class="header-row depth-1">
           <div>
             <div class="title" id="resTitle">Результат</div>
@@ -1357,7 +1396,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
         <div id="emptyState" class="empty-state depth-1">
           <b id="emptyB">Пока нет анализа</b>
-          <div class="muted" id="emptyT">Вставь текст/ссылку слева и нажми <span class="kbd">Проверить (AI)</span>.</div>
+          <div class="muted" id="emptyT">Вставь текст/ссылку слева и нажми <span class="kbd">Запустить проверку</span>.</div>
         </div>
 
         <div class="block open depth-1" id="blkWhy">
@@ -1422,6 +1461,53 @@ const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 const $ = id => document.getElementById(id);
 const state = { lang: "ru", images: [] };
 
+/* ===== Motion: reveal-on-scroll + tasteful ripples ===== */
+function initReveals(){
+  const prefersReduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(prefersReduce){
+    document.querySelectorAll(".reveal").forEach(el=>el.classList.add("in"));
+    return;
+  }
+
+  const els = [...document.querySelectorAll(".reveal")];
+  if(!els.length) return;
+
+  const io = new IntersectionObserver((entries)=>{
+    for(const e of entries){
+      if(e.isIntersecting){
+        e.target.classList.add("in");
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.10, rootMargin: "80px 0px -10px 0px" });
+
+  els.forEach(el=>io.observe(el));
+}
+
+function initRipples(){
+  const prefersReduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(prefersReduce) return;
+
+  const add = (el)=>{
+    el.addEventListener("pointerdown", (ev)=>{
+      if(ev.button !== 0 && ev.pointerType === "mouse") return;
+      const rect = el.getBoundingClientRect();
+      const x = ev.clientX - rect.left;
+      const y = ev.clientY - rect.top;
+      const r = document.createElement("span");
+      r.className = "ripple";
+      r.style.left = x + "px";
+      r.style.top  = y + "px";
+      r.style.width = r.style.height = Math.max(rect.width, rect.height) + "px";
+      el.appendChild(r);
+      setTimeout(()=>r.remove(), 650);
+    }, { passive:true });
+  };
+
+  document.querySelectorAll(".btn, .chip, .tabBtn").forEach(add);
+}
+
+
 /* ===== MOBILE FLAGS (NO REMOVES) ===== */
 const FG_IS_TOUCH = matchMedia("(pointer: coarse)").matches || matchMedia("(max-width: 900px)").matches;
 
@@ -1435,106 +1521,172 @@ window.addEventListener("DOMContentLoaded", () => {
   } else {
     document.body.classList.add("fg-ready");
   }
+
+  // Entrance animations
+  if(typeof initReveals === "function") initReveals();
+  if(typeof initRipples === "function") initRipples();
 });
 
 const I18N = {
   ru: {
-    sub: "Проверка сообщений и ссылок на мошенничество",
-    pillAI: "AI-анализ",
+    // Top
+    title: "FraudGuard — Anti-Scam",
+    sub: "Профессиональная проверка сообщений, ссылок и вложений на признаки мошенничества",
+    pillAI: "Интеллектуальная проверка",
     pillHotkeys: "Горячие клавиши:",
     langLabel: "Язык",
+    langTitle: "Выбор языка",
 
+    // Check card
     checkTitle: "Проверка",
-    checkCaption: "Вставь сообщение и/или ссылку — получишь скор, причины и безопасные действия",
+    checkCaption: "Вставь текст и/или ссылку — получишь оценку риска, причины и безопасные действия",
     tabQuick: "Быстро",
     tabPro: "Подробно",
-    fromLabel: "От кого пришло (опц.)",
+
+    fromLabel: "Отправитель (необязательно)",
     fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
     urlLabel: "Ссылка (если есть)",
-    urlPh: "например: https://bank-secure.example/verify",
+    urlPh: "например: https://bank-secure.example",
     textLabel: "Текст сообщения",
-    textPh: "Вставь SMS или сообщение...",
+    textPh: "Вставь сюда сообщение…",
+    smartPaste: "Совет: можно вставить сразу и текст, и ссылку — мы разберём автоматически",
+    cntLabel: "Символов",
 
-    smartPaste: "💡 Вставляй текст — ссылку вытащим автоматически",
-    cntLabel: "Символы:",
+    // Chips
+    chipUrgent: "Срочность",
+    chipCode: "Коды/OTP",
+    chipLink: "Ссылки",
+    chipMoney: "Деньги",
+    chipThreat: "Угрозы",
 
-    chipUrgent: "срочно",
-    chipCode: "просит код",
-    chipLink: "подозр. ссылка",
-    chipMoney: "перевод денег",
-    chipThreat: "угроза",
-
-    btnCheck: "Проверить (AI)",
+    // Buttons
+    btnCheck: "Запустить проверку",
     btnClear: "Очистить",
-    btnDemo: "Пример",
-    note: "Никогда не сообщай коды из SMS/Push, пароли, CVV/CVC и PIN. Настоящий банк не просит это в сообщениях.",
+    btnDemo: "Вставить пример",
 
+    // Upload
+    imgTitle: "Вложения",
+    imgCaption: "Перетащи файлы сюда или выбери на устройстве. Мы сожмём для телефона, чтобы работало быстро.",
+    imgPick: "Выбрать файлы",
+    imgHint: "Поддержка: PNG/JPG/WEBP • До {n} файлов",
+    imgTooMany: "Слишком много файлов (лимит: {n})",
+    imgTooBig: "Суммарный размер слишком большой. Убери пару файлов и попробуй снова.",
+    imgProcessing: "Оптимизация вложений…",
+    imgReady: "Вложения готовы",
+
+    // Note
+    note: "Проверка помогает оценить риски, но не заменяет официальные каналы поддержки. Не передавай коды и данные карты.",
+
+    // Result
     resTitle: "Результат",
-    resCaption: "Скор + причины + что делать безопасно",
-    riskScore: "Риск-скор",
-    emptyB: "Пока нет анализа",
-    emptyT1: "Вставь текст/ссылку слева и нажми ",
+    resCaption: "Ниже — итог, ключевые признаки и безопасные шаги",
+    riskScore: "Оценка риска",
+    emptyB: "Пока ничего не проверено",
+    emptyT1: "Вставь сообщение и нажми ",
     why: "Почему так",
-    safe: "Что делать безопасно",
-    hl: "Подсветка опасных фраз",
+    safe: "Что сделать безопасно",
+    hl: "Найденные фрагменты",
 
-    loadingB: "Анализируем…",
-    loadingS: "Проверяем признаки скама и фишинга",
+    // Loader
+    loadingB: "Проводим проверку",
+    loadingS: "Анализируем структуру, язык, ссылки и паттерны…",
 
-    alertNeed: "Вставь текст сообщения или ссылку.",
-    alertErr: "Ошибка анализа: ",
+    // Toasts
+    toastCopied: "Скопировано",
     toastCleared: "Очищено",
-    toastExample: "Пример вставлен",
-    toastLinkExtracted: "Ссылка найдена и вынесена в поле «Ссылка»"
+    toastDemo: "Пример вставлен",
+    toastLinkExtracted: "Ссылка извлечена в поле URL",
+    toastImgDrop: "Файлы добавлены",
+    toastImgRemoved: "Удалено",
+    toastImgCleared: "Вложения очищены",
+    imgErrPrefix: "Ошибка вложений: ",
+    riskLow: "низкий",
+    riskMedium: "средний",
+    riskHigh: "высокий",
+    officialVerify: "Проверь через официальный канал (приложение/сайт вручную)",
+    jsonErrPrefix: "Функция вернула не-JSON: ",
+    toastModeQuick: "Режим: быстро",
+    toastModePro: "Режим: подробно"
   },
   en: {
-    sub: "Check messages and links for scams",
-    pillAI: "AI analysis",
+    // Top
+    title: "FraudGuard — Anti-Scam",
+    sub: "Professional checks for messages, links, and attachments for scam signals",
+    pillAI: "Smart verification",
     pillHotkeys: "Hotkeys:",
     langLabel: "Language",
+    langTitle: "Language selector",
 
+    // Check card
     checkTitle: "Check",
-    checkCaption: "Paste a message and/or link — get a score, reasons, and safe actions",
+    checkCaption: "Paste text and/or a link — get a risk score, reasons, and safe next steps",
     tabQuick: "Quick",
     tabPro: "Detailed",
+
     fromLabel: "Sender (optional)",
     fromPh: 'e.g.: "[TEST] Support • Security"',
     urlLabel: "Link (if any)",
-    urlPh: "e.g.: https://bank-secure.example/verify",
+    urlPh: "e.g.: https://bank-secure.example",
     textLabel: "Message text",
-    textPh: "Paste an SMS or message...",
+    textPh: "Paste the message here…",
+    smartPaste: "Tip: you can paste both text and a link — we'll extract automatically",
+    cntLabel: "Characters",
 
-    smartPaste: "💡 Paste text — we’ll extract the link automatically",
-    cntLabel: "Chars:",
+    // Chips
+    chipUrgent: "Urgency",
+    chipCode: "Codes/OTP",
+    chipLink: "Links",
+    chipMoney: "Money",
+    chipThreat: "Threats",
 
-    chipUrgent: "urgent",
-    chipCode: "asks code",
-    chipLink: "suspicious link",
-    chipMoney: "asks money",
-    chipThreat: "threat",
-
-    btnCheck: "Check (AI)",
+    // Buttons
+    btnCheck: "Run check",
     btnClear: "Clear",
-    btnDemo: "Example",
-    note: "Never share SMS/Push codes, passwords, CVV/CVC, or PIN. Real banks don’t ask for these in messages.",
+    btnDemo: "Paste example",
 
+    // Upload
+    imgTitle: "Attachments",
+    imgCaption: "Drag & drop files here or pick on your device. We'll optimize for phones so it stays fast.",
+    imgPick: "Choose files",
+    imgHint: "Supported: PNG/JPG/WEBP • Up to {n} files",
+    imgTooMany: "Too many files (limit: {n})",
+    imgTooBig: "Total size is too large. Remove a couple of files and try again.",
+    imgProcessing: "Optimizing attachments…",
+    imgReady: "Attachments ready",
+
+    // Note
+    note: "This check helps assess risk, but doesn't replace official support channels. Never share codes or card details.",
+
+    // Result
     resTitle: "Result",
-    resCaption: "Score + reasons + safe next steps",
+    resCaption: "Summary, key signals, and safe actions",
     riskScore: "Risk score",
-    emptyB: "No analysis yet",
-    emptyT1: "Paste text/link on the left and press ",
+    emptyB: "No checks yet",
+    emptyT1: "Paste a message and press ",
     why: "Why",
-    safe: "Safe actions",
-    hl: "Highlight risky phrases",
+    safe: "Safe next steps",
+    hl: "Detected snippets",
 
-    loadingB: "Analyzing…",
-    loadingS: "Checking scam & phishing signals",
+    // Loader
+    loadingB: "Running verification",
+    loadingS: "Analyzing language, links, and behavioral patterns…",
 
-    alertNeed: "Paste message text or a link first.",
-    alertErr: "Analysis error: ",
+    // Toasts
+    toastCopied: "Copied",
     toastCleared: "Cleared",
-    toastExample: "Example inserted",
-    toastLinkExtracted: "Link extracted into the URL field"
+    toastDemo: "Example pasted",
+    toastLinkExtracted: "Link extracted into the URL field",
+    toastImgDrop: "Files added",
+    toastImgRemoved: "Removed",
+    toastImgCleared: "Attachments cleared",
+    imgErrPrefix: "Attachment error: ",
+    riskLow: "low",
+    riskMedium: "medium",
+    riskHigh: "high",
+    officialVerify: "Verify via official channel (app/site manually)",
+    jsonErrPrefix: "Non-JSON response: ",
+    toastModeQuick: "Mode: quick",
+    toastModePro: "Mode: detailed"
   }
 };
 
@@ -1543,7 +1695,7 @@ function applyLang(next){
   const L = I18N[state.lang];
 
   document.documentElement.lang = state.lang;
-  document.title = "FraudGuard — Anti-Scam";
+  document.title = L.title;
 
   document.querySelector(".brand .sub").textContent = L.sub;
 
@@ -1551,6 +1703,7 @@ function applyLang(next){
   $("pillHot").textContent = L.pillHotkeys;
 
   $("langLabel").textContent = L.langLabel;
+  if($("langSel")) $("langSel").title = L.langTitle;
 
   $("checkTitle").textContent = L.checkTitle;
   $("checkCaption").textContent = L.checkCaption;
@@ -1580,6 +1733,13 @@ function applyLang(next){
   $("btnClearTxt").textContent = L.btnClear;
   $("btnDemoTxt").textContent = L.btnDemo;
 
+  // Attachments
+  if($("imgLabel")) $("imgLabel").textContent = (state.lang==="ru") ? `${L.imgTitle} (опц.)` : `${L.imgTitle} (optional)`;
+  if($("btnImgPickTxt")) $("btnImgPickTxt").textContent = L.imgPick;
+  if($("btnImgClearTxt")) $("btnImgClearTxt").textContent = L.btnClear;
+  if($("imgProgTxt")) $("imgProgTxt").textContent = L.imgProcessing;
+  if($("imgHint")) $("imgHint").textContent = L.imgCaption;
+
   $("noteTxt").textContent = L.note;
 
   $("resTitle").textContent = L.resTitle;
@@ -1595,6 +1755,9 @@ function applyLang(next){
 
   $("loadingTitle").textContent = L.loadingB;
   $("loadingSub").textContent = L.loadingS;
+
+  // refresh adaptive UI pieces
+  if(typeof applyImgProfile === "function") applyImgProfile();
 }
 
 function escapeHTML(s){
@@ -1666,11 +1829,12 @@ function setMode(next){
 $("tabQuick").onclick = ()=> setMode("quick");
 $("tabPro").onclick = ()=> setMode("pro");
 
-/* ===== Image Upload (mobile-friendly compression) ===== */
-const IMG_MAX_FILES = 6;          // максимум фоток
-const IMG_MAX_EDGE = 1280;        // сжимаем до 1280px по большей стороне
-const IMG_QUALITY = 0.72;         // качество jpeg/webp
-const IMG_MAX_TOTAL_BYTES = 5.2 * 1024 * 1024; // общий лимит ~5.2MB base64 payload safety
+/* ===== Image Upload (adaptive compression for phones) ===== */
+let IMG_MAX_FILES = 6;                 // will adapt by device
+let IMG_MAX_EDGE  = 1280;              // max long edge
+let IMG_QUALITY   = 0.72;              // jpeg/webp quality
+let IMG_MAX_TOTAL_BYTES = 5.2 * 1024 * 1024; // ~5.2MB base64 payload safety
+let IMG_OUT_MIME = "image/jpeg";
 
 function bytesToHuman(n){
   if(n < 1024) return n + "B";
@@ -1679,13 +1843,68 @@ function bytesToHuman(n){
 }
 
 function pickPreferredMime(){
-  // webp обычно быстрее/меньше, но на всякий случай fallback jpeg
   const c = document.createElement("canvas");
-  const ok = c.toDataURL("image/webp").startsWith("data:image/webp");
-  return ok ? "image/webp" : "image/jpeg";
+  try{
+    const ok = c.toDataURL("image/webp").startsWith("data:image/webp");
+    return ok ? "image/webp" : "image/jpeg";
+  }catch(_){
+    return "image/jpeg";
+  }
 }
 
-const IMG_OUT_MIME = pickPreferredMime();
+function computeImgProfile(){
+  const isSmall = matchMedia("(max-width: 640px)").matches;
+  const isTouch = matchMedia("(pointer: coarse)").matches;
+  const mem = navigator.deviceMemory || 4;
+  const conn = navigator.connection || null;
+  const save = !!conn?.saveData;
+  const eff = String(conn?.effectiveType || "");
+  const slow = ["slow-2g","2g","3g"].includes(eff);
+
+  // default (desktop / strong devices)
+  let p = {
+    maxFiles: 6,
+    maxEdge: 1280,
+    quality: 0.72,
+    maxTotal: 5.2 * 1024 * 1024
+  };
+
+  // phones / weak devices / save-data
+  if(isSmall || isTouch || mem <= 4 || save || slow){
+    p = {
+      maxFiles: 4,
+      maxEdge: 1024,
+      quality: 0.68,
+      maxTotal: 3.6 * 1024 * 1024
+    };
+  }
+  // very weak
+  if(mem <= 2 || (isSmall && slow)){
+    p = {
+      maxFiles: 3,
+      maxEdge: 900,
+      quality: 0.64,
+      maxTotal: 3.0 * 1024 * 1024
+    };
+  }
+  return p;
+}
+
+function applyImgProfile(){
+  const p = computeImgProfile();
+  IMG_MAX_FILES = p.maxFiles;
+  IMG_MAX_EDGE  = p.maxEdge;
+  IMG_QUALITY   = p.quality;
+  IMG_MAX_TOTAL_BYTES = p.maxTotal;
+  IMG_OUT_MIME = pickPreferredMime();
+
+  // update hint text in UI (language-aware)
+  const L = I18N[state.lang || "ru"];
+  const hint = (L.imgHint || "").replace("{n}", String(IMG_MAX_FILES));
+  const el = $("imgHint");
+  if(el) el.textContent = `${L.imgCaption} ${hint ? ("• " + hint) : ""}`;
+}
+
 
 function renderThumbs(){
   const wrap = $("thumbs");
@@ -1714,7 +1933,7 @@ document.addEventListener("click", (e)=>{
   if(Number.isFinite(idx)){
     state.images.splice(idx, 1);
     renderThumbs();
-    showToast(state.lang==="ru" ? "Фото удалено" : "Image removed");
+    showToast(I18N[state.lang].toastImgRemoved);
   }
 });
 
@@ -1729,7 +1948,7 @@ $("btnImgClear")?.addEventListener("click", ()=>{
   const inp = $("imgInput");
   if(inp) inp.value = "";
   renderThumbs();
-  showToast(state.lang==="ru" ? "Фото очищены" : "Images cleared");
+  showToast(I18N[state.lang].toastImgCleared);
 });
 
 async function fileToCompressedDataURL(file){
@@ -1802,7 +2021,7 @@ function imgProgShow(){
   const box = $("imgProg");
   const t = $("imgProgTxt");
   if(!box) return;
-  if(t) t.textContent = (state.lang==="ru" ? "Загрузка фото…" : "Loading images…");
+  if(t) t.textContent = I18N[state.lang].imgProcessing;
   box.classList.add("show");
   box.setAttribute("aria-hidden","false");
   imgProgSet(8);
@@ -1860,7 +2079,8 @@ function imgProgHide(){
       const remain = Math.max(0, IMG_MAX_COUNT - state.images.length);
       const take = files.slice(0, remain);
       if(!take.length){
-        showToast(state.lang==="ru" ? "Максимум фото: 6" : "Max images: 6");
+        const L = I18N[state.lang];
+        showToast((L.imgTooMany || "").replace("{n}", String(IMG_MAX_FILES)));
         return;
       }
       imgProgShow();
@@ -1876,19 +2096,17 @@ function imgProgHide(){
           const totalBytes = state.images.reduce((s,x)=>s+x.bytes,0);
           if(totalBytes > IMG_MAX_TOTAL_BYTES){
             state.images.pop();
-            showToast(state.lang==="ru"
-              ? "Слишком много/тяжёлые фото. Удали пару."
-              : "Too many/large images. Remove a few.");
-            break;
+            showToast(I18N[state.lang].imgTooBig);
+break;
           }
           done++;
           imgProgSet(10 + (done/total)*80);
         }
         renderThumbs();
-        showToast(state.lang==="ru" ? "Фото добавлены" : "Images added");
+        showToast(I18N[state.lang].toastImgDrop);
       }catch(err){
-        alert((state.lang==="ru" ? "Ошибка фото: " : "Image error: ") + (err.message || err));
-      }finally{
+        alert((I18N[state.lang].imgErrPrefix) + (err.message || err));
+}finally{
         imgProgHide();
       }
     })();
@@ -1904,7 +2122,8 @@ $("imgInput")?.addEventListener("change", async (e)=>{
   const take = files.slice(0, remain);
 
   if(!take.length){
-    showToast(state.lang==="ru" ? "Максимум фото: 6" : "Max images: 6");
+    const L = I18N[state.lang];
+        showToast((L.imgTooMany || "").replace("{n}", String(IMG_MAX_FILES)));
     return;
   }
 
@@ -1930,20 +2149,18 @@ $("imgInput")?.addEventListener("change", async (e)=>{
       const total = state.images.reduce((s,x)=>s+x.bytes,0);
       if(total > IMG_MAX_TOTAL_BYTES){
         state.images.pop();
-        showToast(state.lang==="ru"
-          ? "Слишком много/тяжёлые фото. Удали пару."
-          : "Too many/large images. Remove a few.");
-        break;
+        showToast(I18N[state.lang].imgTooBig);
+break;
       }
 
       done++;
       imgProgSet(10 + (done/totalN)*80);
     }
     renderThumbs();
-    showToast(state.lang==="ru" ? "Фото добавлены" : "Images added");
+    showToast(I18N[state.lang].toastImgDrop);
   }catch(err){
-    alert((state.lang==="ru" ? "Ошибка фото: " : "Image error: ") + (err.message || err));
-  }finally{
+    alert((I18N[state.lang].imgErrPrefix) + (err.message || err));
+}finally{
     imgProgHide()
   }
 });
@@ -2325,7 +2542,7 @@ function render(data){
   riskAnim.setColor(color);
   riskAnim.animateTo(score);
 
-  const cat = data.category || (score < 20 ? (state.lang==="ru"?"низкий":"low") : score < 50 ? (state.lang==="ru"?"средний":"medium") : (state.lang==="ru"?"высокий":"high"));
+  const cat = data.category || (score < 20 ? I18N[state.lang].riskLow : score < 50 ? I18N[state.lang].riskMedium : I18N[state.lang].riskHigh);
   $("catText").textContent = cat;
   $("categoryTag").querySelector(".miniDot").style.background = color;
 
@@ -2337,7 +2554,7 @@ function render(data){
             <div class="ico">${iconFor(r)}</div>
             <div class="txt">
               ${escapeHTML(r)}
-              <div class="sub">${state.lang==="ru" ? "Проверь через официальный канал (приложение/сайт вручную)" : "Verify via official channel (app/site manually)"}</div>
+              <div class="sub">${I18N[state.lang].officialVerify}</div>
             </div>
           </div>`).join("")
       }</div>`
@@ -2436,7 +2653,7 @@ if(!text && !url && !hasImgs){
     const raw = await r.text();
     let data;
     try { data = JSON.parse(raw); }
-    catch { throw new Error((state.lang==="ru"?"Функция вернула не-JSON: ":"Non-JSON response: ") + raw.slice(0,160)); }
+    catch { throw new Error(I18N[state.lang].jsonErrPrefix + raw.slice(0,160)); }
 
     if(!r.ok || data?.ok === false){
       throw new Error(data?.details || data?.error || "API error");
