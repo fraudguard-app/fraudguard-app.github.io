@@ -1197,6 +1197,30 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   .noise{ opacity:.10; }
 }
 
+
+/* ===== URL LOADING SHIMMER ===== */
+.input-loading{
+  position: relative;
+  overflow: hidden;
+}
+.input-loading::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(110deg,
+    transparent 0%,
+    rgba(255,255,255,.08) 45%,
+    rgba(255,255,255,.18) 50%,
+    rgba(255,255,255,.08) 55%,
+    transparent 100%);
+  animation: urlShimmer 1.1s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes urlShimmer{
+  from{ transform: translateX(-120%); }
+  to{ transform: translateX(120%); }
+}
+
 </style>
 </head>
 <body>
@@ -3076,6 +3100,41 @@ $("btnDemo").onclick = async ()=>{
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+})();
+
+
+// ===== BEAUTIFUL FIELD LOADING =====
+function setFieldLoading(on){
+  const ids = ["url","text","from"];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(on){
+      el.classList.add("input-loading");
+      el.setAttribute("aria-busy","true");
+    }else{
+      el.classList.remove("input-loading");
+      el.removeAttribute("aria-busy");
+    }
+  });
+}
+
+// hook into loading overlay if exists
+(function(){
+  const _show = window.showLoading;
+  const _hide = window.hideLoading;
+  if(typeof _show === "function"){
+    window.showLoading = function(){
+      setFieldLoading(true);
+      return _show.apply(this, arguments);
+    }
+  }
+  if(typeof _hide === "function"){
+    window.hideLoading = function(){
+      setFieldLoading(false);
+      return _hide.apply(this, arguments);
+    }
+  }
 })();
 
 </script>
