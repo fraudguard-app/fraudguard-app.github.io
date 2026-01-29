@@ -955,6 +955,82 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   }
 }
 
+/* ===== Image Upload UI ===== */
+.imgBox{
+  margin-top: 10px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.03);
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.imgRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.imgInput{
+  display:none; /* выбираем через кнопку */
+}
+
+.imgHint{
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted2);
+  line-height: 1.35;
+}
+
+.thumbs{
+  margin-top: 10px;
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap:10px;
+}
+
+.thumb{
+  border-radius: 16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  position:relative;
+}
+
+.thumb img{
+  width:100%;
+  height:96px;
+  object-fit: cover;
+  display:block;
+}
+
+.thumb .meta{
+  position:absolute;
+  left:8px; right:8px; bottom:8px;
+  font-size: 11px;
+  color: rgba(231,238,255,.92);
+  padding: 6px 8px;
+  border-radius: 12px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(10px);
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.thumb .x{
+  cursor:pointer;
+  user-select:none;
+  opacity:.9;
+}
+.thumb .x:hover{ opacity:1; }
+
+@media (pointer: coarse), (max-width: 900px){
+  .thumbs{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .thumb img{ height: 110px; }
+}
+
 
 </style>
 </head>
@@ -1061,6 +1137,44 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
           </div>
         </div>
       </div>
+
+      <!-- ===== Image Upload (screenshots) ===== -->
+<div class="depth-1">
+  <div class="label" id="imgLabel">Скриншоты/фото (опц.)</div>
+
+  <div class="imgBox" id="imgBox">
+    <div class="imgRow">
+      <input id="imgInput" class="imgInput" type="file" accept="image/*" multiple>
+      <button class="btn" id="btnImgPick" type="button">
+        <span class="ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
+            <path d="M4 7h4l2-2h4l2 2h4v12H4V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </span>
+        <span id="btnImgPickTxt">Добавить фото</span>
+      </button>
+
+      <button class="btn ghost" id="btnImgClear" type="button">
+        <span class="ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
+            <path d="M6 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 7V5h6v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 7l1 14h6l1-14" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span id="btnImgClearTxt">Убрать</span>
+      </button>
+    </div>
+
+    <div class="imgHint" id="imgHint">
+      Добавь скриншоты переписки/сайта. Мы сожмём их, чтобы телефон не лагал.
+    </div>
+
+    <div class="thumbs" id="thumbs" aria-live="polite"></div>
+  </div>
+</div>
+
 
       <div class="chips depth-1">
         <button class="chip" type="button" data-chip="СРОЧНО: подтвердите личность (тестовый пример)" id="chipUrgent">срочно</button>
@@ -1204,7 +1318,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
-const state = { lang: "ru" };
+const state = { lang: "ru", images: [] };
 
 /* ===== MOBILE FLAGS (NO REMOVES) ===== */
 const FG_IS_TOUCH = matchMedia("(pointer: coarse)").matches || matchMedia("(max-width: 900px)").matches;
@@ -1449,6 +1563,150 @@ function setMode(next){
 }
 $("tabQuick").onclick = ()=> setMode("quick");
 $("tabPro").onclick = ()=> setMode("pro");
+
+/* ===== Image Upload (mobile-friendly compression) ===== */
+const IMG_MAX_FILES = 6;          // максимум фоток
+const IMG_MAX_EDGE = 1280;        // сжимаем до 1280px по большей стороне
+const IMG_QUALITY = 0.72;         // качество jpeg/webp
+const IMG_MAX_TOTAL_BYTES = 5.2 * 1024 * 1024; // общий лимит ~5.2MB base64 payload safety
+
+function bytesToHuman(n){
+  if(n < 1024) return n + "B";
+  if(n < 1024*1024) return (n/1024).toFixed(1) + "KB";
+  return (n/(1024*1024)).toFixed(2) + "MB";
+}
+
+function pickPreferredMime(){
+  // webp обычно быстрее/меньше, но на всякий случай fallback jpeg
+  const c = document.createElement("canvas");
+  const ok = c.toDataURL("image/webp").startsWith("data:image/webp");
+  return ok ? "image/webp" : "image/jpeg";
+}
+
+const IMG_OUT_MIME = pickPreferredMime();
+
+function renderThumbs(){
+  const wrap = $("thumbs");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+
+  state.images.forEach((it, idx) => {
+    const div = document.createElement("div");
+    div.className = "thumb";
+    div.innerHTML = `
+      <img src="${it.data}" alt="upload ${idx+1}">
+      <div class="meta">
+        <span>${idx+1}/${state.images.length}</span>
+        <span>${bytesToHuman(it.bytes)}</span>
+        <span class="x" data-img-del="${idx}" title="Удалить">✕</span>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+document.addEventListener("click", (e)=>{
+  const del = e.target.closest("[data-img-del]");
+  if(!del) return;
+  const idx = Number(del.getAttribute("data-img-del"));
+  if(Number.isFinite(idx)){
+    state.images.splice(idx, 1);
+    renderThumbs();
+    showToast(state.lang==="ru" ? "Фото удалено" : "Image removed");
+  }
+});
+
+function openPicker(){
+  $("imgInput")?.click();
+}
+
+$("btnImgPick")?.addEventListener("click", openPicker);
+
+$("btnImgClear")?.addEventListener("click", ()=>{
+  state.images = [];
+  const inp = $("imgInput");
+  if(inp) inp.value = "";
+  renderThumbs();
+  showToast(state.lang==="ru" ? "Фото очищены" : "Images cleared");
+});
+
+async function fileToCompressedDataURL(file){
+  // читаем файл -> рисуем в canvas -> сжимаем
+  const bmp = await createImageBitmap(file).catch(()=>null);
+  if(!bmp) throw new Error("Не удалось открыть изображение");
+
+  const w = bmp.width, h = bmp.height;
+  const scale = Math.min(1, IMG_MAX_EDGE / Math.max(w,h));
+  const nw = Math.max(1, Math.round(w * scale));
+  const nh = Math.max(1, Math.round(h * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = nw;
+  canvas.height = nh;
+  const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+
+  // чуть повышаем резкость текста (скриншоты)
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bmp, 0, 0, nw, nh);
+
+  const data = canvas.toDataURL(IMG_OUT_MIME, IMG_QUALITY);
+  return data;
+}
+
+function dataUrlBytes(dataUrl){
+  // приблизительная оценка размера base64
+  const i = dataUrl.indexOf(",");
+  if(i < 0) return 0;
+  const b64 = dataUrl.slice(i+1);
+  return Math.floor(b64.length * 0.75);
+}
+
+$("imgInput")?.addEventListener("change", async (e)=>{
+  const files = Array.from(e.target.files || []);
+  if(!files.length) return;
+
+  const remain = Math.max(0, IMG_MAX_FILES - state.images.length);
+  const take = files.slice(0, remain);
+
+  if(!take.length){
+    showToast(state.lang==="ru" ? "Максимум фото: 6" : "Max images: 6");
+    return;
+  }
+
+  // лёгкая “загрузка”
+  loadingStart();
+  try{
+    for(const f of take){
+      const data = await fileToCompressedDataURL(f);
+      const bytes = dataUrlBytes(data);
+
+      state.images.push({
+        name: f.name || "image",
+        mime: IMG_OUT_MIME,
+        data,
+        bytes
+      });
+
+      // общий лимит
+      const total = state.images.reduce((s,x)=>s+x.bytes,0);
+      if(total > IMG_MAX_TOTAL_BYTES){
+        state.images.pop();
+        showToast(state.lang==="ru"
+          ? "Слишком много/тяжёлые фото. Удали пару."
+          : "Too many/large images. Remove a few.");
+        break;
+      }
+    }
+    renderThumbs();
+    showToast(state.lang==="ru" ? "Фото добавлены" : "Images added");
+  }catch(err){
+    alert((state.lang==="ru" ? "Ошибка фото: " : "Image error: ") + (err.message || err));
+  }finally{
+    loadingFinish();
+  }
+});
+
 
 /* ===== Chips ===== */
 document.addEventListener("click", (e)=>{
@@ -1902,13 +2160,33 @@ async function runAiCheck(){
       r = await fetchWithTimeout(API_URL, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({url,from,text})
+        body: JSON.stringify({
+  url,
+  from,
+  text,
+  images: state.images.map(x => ({
+    name: x.name,
+    mime: x.mime,
+    data: x.data
+  }))
+})
+
       }, 9000);
     }catch(e){
       r = await fetchWithTimeout(API_URL, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({url,from,text})
+        body: JSON.stringify({
+  url,
+  from,
+  text,
+  images: state.images.map(x => ({
+    name: x.name,
+    mime: x.mime,
+    data: x.data
+  }))
+})
+
       }, 9000);
     }
 
