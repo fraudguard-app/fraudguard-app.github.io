@@ -1812,6 +1812,9 @@ function showToast(msg){
   const t = $("toast");
   const txt = $("toastTxt");
   if(!t || !txt) return;
+  if(msg == null) return;
+  msg = String(msg);
+  if(!msg.trim()) return;
   txt.textContent = msg;
   t.classList.add("show");
   clearTimeout(toastTimer);
@@ -2831,22 +2834,33 @@ const demoType = (() => {
   }
 
   async function run(example){
+    if(running) return;
     running = true;
     const my = ++token;
 
     last = { from: example.from, url: example.url, text: example.text };
 
-    // 1) переключить в "Подробно"
-    setMode("pro");
-    $("leftCard")?.scrollIntoView({ behavior:"smooth", block:"start" });
+    // In "Быстро" sender is hidden, so start typing where the user sees it instantly.
+    const isPro = (document.body && document.body.dataset && document.body.dataset.mode === "pro");
 
-    if(my !== token){ running=false; return; }
+    if(!isPro){
+      // 1) message first (visible immediately)
+      await typeField($("text"), example.text, { cps: 72, jitter: 0.22 });
+      if(my !== token){ running=false; return; }
 
-    await typeField($("from"), example.from, { cps: 60, jitter: 0.24 });
-    if(my !== token){ running=false; return; }
-    await typeField($("url"), example.url, { cps: 62, jitter: 0.22 });
-    if(my !== token){ running=false; return; }
-    await typeField($("text"), example.text, { cps: 66, jitter: 0.26 });
+      // 2) set URL fast (no long waiting on hidden fields)
+      if(!$("url").value.trim()){
+        $("url").value = example.url;
+      }else{
+        await typeField($("url"), example.url, { cps: 74, jitter: 0.18 });
+      }
+    }else{
+      if($("from")) await typeField($("from"), example.from, { cps: 58, jitter: 0.24 });
+      if(my !== token){ running=false; return; }
+      await typeField($("url"), example.url, { cps: 62, jitter: 0.22 });
+      if(my !== token){ running=false; return; }
+      await typeField($("text"), example.text, { cps: 66, jitter: 0.26 });
+    }
 
     updateCharCount();
     smartExtractUrlFromText();
