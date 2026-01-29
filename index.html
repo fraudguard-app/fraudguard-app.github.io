@@ -403,6 +403,11 @@ body{
 
 /* fixed stray keyframe fragment */
 
+
+/* ===== HARD GUARANTEE: sender only in "Подробно" ===== */
+body[data-mode="quick"] #proWrap{ display:none !important; }
+body[data-mode="pro"]   #proWrap{ display:block !important; }
+
 /* pro fields */
 .proWrap{
   overflow:hidden;
@@ -1569,8 +1574,8 @@ const I18N = {
     // Check card
     checkTitle: "Проверка",
     checkCaption: "Вставь текст и/или ссылку — получишь оценку риска, причины и безопасные действия",
-    tabQuick: "Экспресс",
-    tabPro: "Отчёт",
+    tabQuick: "Быстро",
+    tabPro: "Подробно",
 
     fromLabel: "Отправитель (необязательно)",
     fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
@@ -1649,8 +1654,8 @@ const I18N = {
     // Check card
     checkTitle: "Check",
     checkCaption: "Paste text and/or a link — get a risk score, reasons, and safe next steps",
-    tabQuick: "Express",
-    tabPro: "Report",
+    tabQuick: "Quick",
+    tabPro: "Detailed",
 
     fromLabel: "Sender (optional)",
     fromPh: 'e.g.: "[TEST] Support • Security"',
@@ -2971,6 +2976,92 @@ $("btnDemo").onclick = async ()=>{
   tabPro   && tabPro.addEventListener("click", ()=>setMode(true));
 
   setMode(false);
+})();
+
+
+// ===== FG MODE CONTROLLER (robust override) =====
+(function(){
+  const $$ = (id)=>document.getElementById(id);
+  const tabsBox = $$("modeTabs");
+  const modeAnim = $$("modeAnim");
+  const proWrap = $$("proWrap");
+
+  function rebindButton(id){
+    const b = $$(id);
+    if(!b) return null;
+    const clone = b.cloneNode(true);
+    b.parentNode.replaceChild(clone, b);
+    return clone;
+  }
+
+  let tabQuick = rebindButton("tabQuick");
+  let tabPro   = rebindButton("tabPro");
+
+  function setTabTexts(){
+    try{
+      const langSel = $$("lang");
+      const lang = (langSel && langSel.value) || (window.state && window.state.lang) || document.documentElement.lang || "ru";
+      const dict = (window.I18N && window.I18N[lang]) ? window.I18N[lang] : (window.I18N && window.I18N.ru) || null;
+      if(dict){
+        if(tabQuick) tabQuick.textContent = dict.tabQuick || tabQuick.textContent;
+        if(tabPro)   tabPro.textContent   = dict.tabPro   || tabPro.textContent;
+      }
+    }catch(e){}
+  }
+
+  function setMode(isPro){
+    document.body.dataset.mode = isPro ? "pro" : "quick";
+
+    if(tabQuick) tabQuick.classList.toggle("active", !isPro);
+    if(tabPro)   tabPro.classList.toggle("active", isPro);
+
+    // move indicator
+    if(tabsBox) tabsBox.style.setProperty("--i", isPro ? 1 : 0);
+
+    // sender field: hard hide/show + animated open in pro
+    if(proWrap){
+      if(isPro){
+        proWrap.style.display = "block";
+        requestAnimationFrame(()=>{
+          proWrap.classList.add("show");
+          proWrap.removeAttribute("aria-hidden");
+        });
+      }else{
+        proWrap.classList.remove("show");
+        proWrap.setAttribute("aria-hidden","true");
+        proWrap.style.display = "none";
+      }
+    }
+
+    // WOW swap anim
+    if(modeAnim){
+      modeAnim.dataset.swap = isPro ? "toPro" : "toQuick";
+      modeAnim.classList.remove("swap");
+      void modeAnim.offsetWidth;
+      modeAnim.classList.add("swap");
+    }
+
+    setTabTexts();
+  }
+
+  function init(){
+    // ensure correct RU labels by default
+    setTabTexts();
+
+    // click handlers
+    tabQuick && tabQuick.addEventListener("click", ()=>setMode(false));
+    tabPro   && tabPro.addEventListener("click", ()=>setMode(true));
+
+    // react to language changes
+    const langSel = $$("lang");
+    langSel && langSel.addEventListener("change", ()=>setTabTexts());
+
+    // default = quick
+    setMode(false);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();
 
 </script>
