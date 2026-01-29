@@ -1031,6 +1031,79 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   .thumb img{ height: 110px; }
 }
 
+/* ===== Image upload progress bar (local) ===== */
+.imgProg{
+  margin-top: 8px;
+  padding: 10px 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.20);
+  display:none;
+}
+.imgProg.show{ display:block; }
+
+.imgProgTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color: rgba(231,238,255,.92);
+  font-size: 12px;
+}
+.imgProgTop span:last-child{
+  padding: 4px 8px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  font-weight: 950;
+}
+
+.imgProgBar{
+  margin-top: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.imgProgFill{
+  height:100%;
+  width:0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(106,166,255,.95), rgba(46,229,157,.95));
+  transition: width .20s var(--spring);
+  position:relative;
+}
+.imgProgFill::after{
+  content:"";
+  position:absolute; inset:-35% -45%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+  transform: translateX(-70%) rotate(12deg);
+  opacity:.85;
+  animation: imgSheen 1.05s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+@keyframes imgSheen{
+  0%{ transform: translateX(-70%) rotate(12deg); opacity:.25; }
+  55%{ opacity:.55; }
+  100%{ transform: translateX(70%) rotate(12deg); opacity:.25; }
+}
+
+/* чуть больше “вау” для коробки фото */
+.imgBox{
+  position:relative;
+  overflow:hidden;
+}
+.imgBox::before{
+  content:"";
+  position:absolute; inset:-1px;
+  pointer-events:none;
+  background:
+    radial-gradient(700px 220px at 15% 0%, rgba(106,166,255,.10), transparent 60%),
+    radial-gradient(700px 220px at 85% 0%, rgba(46,229,157,.08), transparent 60%);
+  opacity:.9;
+}
+.imgBox > *{ position:relative; }
 
 </style>
 </head>
@@ -1166,6 +1239,16 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
         <span id="btnImgClearTxt">Убрать</span>
       </button>
     </div>
+
+<div class="imgProg" id="imgProg" aria-hidden="true">
+  <div class="imgProgTop">
+    <span id="imgProgTxt">Загрузка фото…</span>
+    <span id="imgProgPct">0%</span>
+  </div>
+  <div class="imgProgBar" aria-hidden="true">
+    <div class="imgProgFill" id="imgProgFill"></div>
+  </div>
+</div>
 
     <div class="imgHint" id="imgHint">
       Добавь скриншоты переписки/сайта. Мы сожмём их, чтобы телефон не лагал.
@@ -1675,7 +1758,7 @@ $("imgInput")?.addEventListener("change", async (e)=>{
   }
 
   // лёгкая “загрузка”
-  loadingStart();
+  imgProgShow()
   try{
     for(const f of take){
       const data = await fileToCompressedDataURL(f);
@@ -1703,7 +1786,7 @@ $("imgInput")?.addEventListener("change", async (e)=>{
   }catch(err){
     alert((state.lang==="ru" ? "Ошибка фото: " : "Image error: ") + (err.message || err));
   }finally{
-    loadingFinish();
+    imgProgHide()
   }
 });
 
@@ -2145,10 +2228,12 @@ async function runAiCheck(){
   const from = $("from") ? $("from").value.trim() : "";
   const text = $("text").value.trim();
 
-  if(!text && !url){
-    alert(I18N[state.lang].alertNeed);
-    return;
-  }
+const hasImgs = state.images && state.images.length > 0;
+
+if(!text && !url && !hasImgs){
+  alert(I18N[state.lang].alertNeed);
+  return;
+}
 
   loadingStart();
   setScan(true);
