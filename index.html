@@ -364,13 +364,44 @@ body{
 /* “классная” анимация контента при переключении */
 .modeAnim{
   position:relative;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 }
+
+/* “WOW” switch: direction-aware, with depth + motion blur */
 .modeAnim.swap{
-  animation: modeSwap .62s var(--spring);
+  animation: modeSwap .74s var(--spring);
+}
+.modeAnim.swap[data-swap="toPro"]{
+  --sx: 1;
+}
+.modeAnim.swap[data-swap="toQuick"]{
+  --sx: -1;
 }
 @keyframes modeSwap{
-  0%{ transform: translateY(0) scale(1); filter: blur(0); }
-  40%{ transform: translateY(-4px) scale(.994); filter: blur(.6px); }
+  0%{
+    transform: translate3d(0,0,0) rotateY(calc(var(--sx,1) * 0deg)) rotateX(0deg) scale(1);
+    filter: blur(0px);
+    opacity: 1;
+  }
+  22%{
+    transform: translate3d(calc(var(--sx,1) * -10px), -6px, 0) rotateY(calc(var(--sx,1) * 10deg)) rotateX(2deg) scale(.992);
+    filter: blur(1.2px);
+    opacity: .98;
+  }
+  55%{
+    transform: translate3d(calc(var(--sx,1) * 12px), 2px, 0) rotateY(calc(var(--sx,1) * -6deg)) rotateX(-1deg) scale(1.002);
+    filter: blur(.5px);
+    opacity: 1;
+  }
+  100%{
+    transform: translate3d(0,0,0) rotateY(0deg) rotateX(0deg) scale(1);
+    filter: blur(0px);
+    opacity: 1;
+  }
+}
+
+40%{ transform: translateY(-4px) scale(.994); filter: blur(.6px); }
   100%{ transform: translateY(0) scale(1); filter: blur(0); }
 }
 
@@ -1242,8 +1273,8 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
         <div class="tabs depth-2" id="modeTabs">
           <div class="tab-ind" aria-hidden="true"></div>
-          <button class="tab active" id="tabQuick" type="button">Быстро</button>
-          <button class="tab" id="tabPro" type="button">Подробно</button>
+          <button class="tab active" id="tabQuick" type="button">Экспресс</button>
+          <button class="tab" id="tabPro" type="button">Отчёт</button>
         </div>
       </div>
 
@@ -1532,7 +1563,7 @@ const I18N = {
     // Top
     title: "FraudGuard — Anti-Scam",
     sub: "Профессиональная проверка сообщений, ссылок и вложений на признаки мошенничества",
-    pillAI: "Интеллектуальная проверка",
+    pillAI: "Интеллект‑проверка",
     pillHotkeys: "Горячие клавиши:",
     langLabel: "Язык",
     langTitle: "Выбор языка",
@@ -1540,8 +1571,8 @@ const I18N = {
     // Check card
     checkTitle: "Проверка",
     checkCaption: "Вставь текст и/или ссылку — получишь оценку риска, причины и безопасные действия",
-    tabQuick: "Быстро",
-    tabPro: "Подробно",
+    tabQuick: "Экспресс",
+    tabPro: "Отчёт",
 
     fromLabel: "Отправитель (необязательно)",
     fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
@@ -1620,8 +1651,8 @@ const I18N = {
     // Check card
     checkTitle: "Check",
     checkCaption: "Paste text and/or a link — get a risk score, reasons, and safe next steps",
-    tabQuick: "Quick",
-    tabPro: "Detailed",
+    tabQuick: "Express",
+    tabPro: "Report",
 
     fromLabel: "Sender (optional)",
     fromPh: 'e.g.: "[TEST] Support • Security"',
@@ -1806,12 +1837,16 @@ function addRipple(e){
   if(el) el.addEventListener("pointerdown", addRipple);
 });
 
-/* ===== Tabs with “premium switch animation” ===== */
+/* ===== Tabs — WOW переключение + свайпы (без автоскролла) ===== */
 let mode = "quick";
-function setMode(next){
-  mode = next;
-  const isPro = mode === "pro";
+let lastMode = "quick";
 
+function setMode(next, how="click"){
+  if(next === mode) return;
+  lastMode = mode;
+  mode = next;
+
+  const isPro = mode === "pro";
   $("tabQuick").classList.toggle("active", !isPro);
   $("tabPro").classList.toggle("active", isPro);
   $("modeTabs").style.setProperty("--i", isPro ? 1 : 0);
@@ -1820,15 +1855,61 @@ function setMode(next){
   wrap.classList.toggle("show", isPro);
   wrap.setAttribute("aria-hidden", String(!isPro));
 
-  // cool swap animation
+  // WOW swap animation (direction-aware)
   const anim = $("modeAnim");
   anim.classList.remove("swap");
+  anim.dataset.swap = isPro ? "toPro" : "toQuick";
   void anim.offsetWidth;
   anim.classList.add("swap");
-}
-$("tabQuick").onclick = ()=> setMode("quick");
-$("tabPro").onclick = ()=> setMode("pro");
 
+  // micro-feedback (без звука, без скролла)
+  try{
+    const btn = isPro ? $("tabPro") : $("tabQuick");
+    btn?.animate?.([
+      { transform:"translateY(0) scale(1)" },
+      { transform:"translateY(-1px) scale(1.02)" },
+      { transform:"translateY(0) scale(1)" }
+    ], { duration: 260, easing: "cubic-bezier(.2,.9,.2,1)" });
+  }catch(e){}
+}
+
+$("tabQuick").onclick = ()=> setMode("quick");
+$("tabPro").onclick  = ()=> setMode("pro");
+
+// Swipe gesture on the mode container (mobile-friendly)
+(function enableModeSwipe(){
+  const el = $("modeAnim");
+  if(!el) return;
+  let sx=0, sy=0, t0=0, tracking=false;
+
+  el.addEventListener("pointerdown", (e)=>{
+    // ignore inputs/textarea interactions
+    const tag = (e.target?.tagName || "").toLowerCase();
+    if(tag === "input" || tag === "textarea" || tag === "button" || e.target?.closest?.("button")) return;
+
+    tracking = true;
+    sx = e.clientX; sy = e.clientY;
+    t0 = performance.now();
+    el.setPointerCapture?.(e.pointerId);
+  }, {passive:true});
+
+  el.addEventListener("pointerup", (e)=>{
+    if(!tracking) return;
+    tracking=false;
+
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    const dt = Math.max(1, performance.now() - t0);
+
+    // horizontal swipe only (no auto-scroll)
+    if(Math.abs(dx) > 54 && Math.abs(dx) > Math.abs(dy)*1.35 && dt < 520){
+      if(dx < 0) setMode("pro","swipe");
+      else setMode("quick","swipe");
+    }
+  }, {passive:true});
+
+  el.addEventListener("pointercancel", ()=>{ tracking=false; }, {passive:true});
+})();
 /* ===== Image Upload (adaptive compression for phones) ===== */
 let IMG_MAX_FILES = 6;                 // will adapt by device
 let IMG_MAX_EDGE  = 1280;              // max long edge
