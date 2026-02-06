@@ -1221,6 +1221,125 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   to{ transform: translateX(120%); }
 }
 
+
+/* ===== ACCOUNT MODAL (FraudGuard) ===== */
+.accBtn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  font-size:12px;
+  cursor:pointer;
+  transition: transform .18s var(--spring), filter .18s ease;
+  user-select:none;
+}
+.accBtn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.accBtn:active{ transform: translateY(0) scale(.99); }
+.accBtn .badge{
+  padding:2px 8px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.25);
+  font-weight:950;
+  color: rgba(231,238,255,.92);
+}
+
+#accModal{
+  position:fixed; inset:0;
+  background: rgba(2,6,14,.72);
+  backdrop-filter: blur(10px);
+  display:none;
+  z-index: 10050;
+  padding:18px;
+}
+#accModal.show{ display:grid; place-items:center; }
+
+.accCard{
+  width: min(560px, 92vw);
+  border-radius: 24px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(12,18,34,.92);
+  box-shadow: 0 26px 120px rgba(0,0,0,.60);
+  overflow:hidden;
+  animation: pop .35s var(--spring) both;
+}
+.accHead{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.accTitle{ font-weight:950; }
+.accClose{
+  width:42px;height:42px;border-radius:14px;
+  display:grid;place-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  cursor:pointer; user-select:none;
+}
+.accClose:hover{ filter: brightness(1.06); }
+
+.accBody{ padding: 14px 16px 16px; }
+.accTabs{
+  display:flex; gap:8px;
+  padding: 8px;
+  border-radius: 18px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  margin-bottom: 12px;
+  position:relative;
+}
+.accTab{
+  flex:1;
+  border:0;
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor:pointer;
+  background: transparent;
+  color: rgba(231,238,255,.72);
+  font-weight: 950;
+  transition: transform .18s var(--spring), filter .18s ease, color .18s ease;
+}
+.accTab:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.accTab.active{ color: var(--text); background: rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); }
+
+.accRow{ display:grid; gap:10px; margin-top: 8px; }
+.accHelp{ margin-top:10px; color: rgba(159,177,209,.85); font-size:12px; line-height:1.4; }
+.accErr{
+  display:none;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border:1px solid rgba(255,92,122,.22);
+  background: rgba(255,92,122,.10);
+  color: rgba(255,220,228,.95);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.accErr.show{ display:block; }
+
+.accOk{
+  display:none;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border:1px solid rgba(46,229,157,.22);
+  background: rgba(46,229,157,.10);
+  color: rgba(212,255,238,.95);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.accOk.show{ display:block; }
+
+.accActions{ display:flex; gap:10px; margin-top: 12px; flex-wrap:wrap; }
+.accMini{
+  margin-top: 10px;
+  display:flex; gap:10px; align-items:center; justify-content:space-between;
+  padding: 10px 12px;
+  border-radius: 18px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+}
+.accMini b{ font-weight:950; }
+
 </style>
 </head>
 <body>
@@ -1279,6 +1398,13 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
     <div class="badges">
       <span class="pill"><span class="dot"></span><span id="pillAI">Интеллектуальная проверка</span></span>
       <span class="pill"><span id="pillHot">Горячие клавиши:</span> <span class="kbd">Ctrl</span> + <span class="kbd">Enter</span></span>
+
+      
+<button class="accBtn" id="accBtn" type="button" title="Account">
+  <span id="accBtnTxt">Аккаунт</span>
+  <span class="badge" id="accBadge">Гость</span>
+</button>
+
 
       <span class="langSel" id="langSel" title="Language">
         <span id="langLabel">Язык</span>
@@ -1492,6 +1618,73 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
   </div>
 </div>
 
+
+<!-- ===== Account Modal ===== -->
+<div id="accModal" aria-hidden="true">
+  <div class="accCard" role="dialog" aria-modal="true" aria-labelledby="accTitle">
+    <div class="accHead">
+      <div>
+        <div class="accTitle" id="accTitle">Аккаунт</div>
+        <div class="loading-sub" id="accSub" style="margin-top:2px">Вход и регистрация</div>
+      </div>
+      <div class="accClose" id="accClose" aria-label="Close">✕</div>
+    </div>
+    <div class="accBody">
+      <div class="accTabs">
+        <button class="accTab active" id="accTabLogin" type="button">Вход</button>
+        <button class="accTab" id="accTabReg" type="button">Регистрация</button>
+      </div>
+
+      <div id="accLogged" style="display:none">
+        <div class="accMini">
+          <div>
+            <div style="font-size:12px;color:rgba(159,177,209,.85)" id="accYou">Вы вошли как</div>
+            <b id="accName">—</b>
+          </div>
+          <button class="btn ghost" id="accLogout" type="button" style="min-height:40px">Выйти</button>
+        </div>
+        <div class="accHelp" id="accLoggedHelp">Сессия сохранится на этом устройстве, пока вы не выйдете.</div>
+      </div>
+
+      <form id="accForm" autocomplete="on">
+        <div class="accRow">
+          <div>
+            <div class="label" id="accEmailL">Почта</div>
+            <input id="accEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+          </div>
+
+          <div id="accNameWrap">
+            <div class="label" id="accDispL">Имя (для профиля)</div>
+            <input id="accDisp" type="text" autocomplete="nickname" placeholder="например: Gora">
+          </div>
+
+          <div>
+            <div class="label" id="accPassL">Пароль</div>
+            <input id="accPass" type="password" autocomplete="current-password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div class="accErr" id="accErr">—</div>
+        <div class="accOk" id="accOk">—</div>
+
+        <div class="accActions">
+          <button class="btn primary" id="accSubmit" type="submit">
+            <span id="accSubmitTxt">Войти</span>
+          </button>
+          <button class="btn ghost" id="accCancel" type="button">
+            <span id="accCancelTxt">Закрыть</span>
+          </button>
+        </div>
+
+        <div class="accHelp" id="accHelp">
+          Мы храним пароль в базе в защищённом виде (не как обычный текст).
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 <div id="loading" aria-hidden="true">
   <div class="loading-box">
     <div class="loading-top">
@@ -1587,163 +1780,46 @@ window.addEventListener("DOMContentLoaded", () => {
 
 const I18N = {
   ru: {
-    // Top
-    title: "FraudGuard — Anti-Scam",
-    sub: "Профессиональная проверка сообщений, ссылок и вложений на признаки мошенничества",
-    pillAI: "Интеллект‑проверка",
-    pillHotkeys: "Горячие клавиши:",
-    langLabel: "Язык",
-    langTitle: "Выбор языка",
+    // Account
+    accBtn: "Аккаунт",
+    accGuest: "Гость",
+    accLogin: "Вход",
+    accReg: "Регистрация",
+    accEmail: "Почта",
+    accDisp: "Имя (для профиля)",
+    accPass: "Пароль",
+    accSubmitLogin: "Войти",
+    accSubmitReg: "Создать аккаунт",
+    accLoggedAs: "Вы вошли как",
+    accLogout: "Выйти",
+    accNeedEmailPass: "Введите почту и пароль",
+    accCreating: "Создаём аккаунт…",
+    accSigningIn: "Входим…",
+    accSignedIn: "Вы вошли",
+    accSignedOut: "Вы вышли",
 
-    // Check card
-    checkTitle: "Проверка",
-    checkCaption: "Вставь текст и/или ссылку — получишь оценку риска, причины и безопасные действия",
-    tabQuick: "Быстро",
-    tabPro: "Подробно",
-
-    fromLabel: "Отправитель (необязательно)",
-    fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
-    urlLabel: "Ссылка (если есть)",
-    urlPh: "например: https://bank-secure.example",
-    textLabel: "Текст сообщения",
-    textPh: "Вставь сюда сообщение…",
-    smartPaste: "Совет: можно вставить сразу и текст, и ссылку — мы разберём автоматически",
-    cntLabel: "Символов",
-
-    // Chips
-    chipUrgent: "Срочность",
-    chipCode: "Коды/OTP",
-    chipLink: "Ссылки",
-    chipMoney: "Деньги",
-    chipThreat: "Угрозы",
-
-    // Buttons
-    btnCheck: "Запустить проверку",
-    btnClear: "Очистить",
-    btnDemo: "Вставить пример",
-
-    // Upload
-    imgTitle: "Вложения",
-    imgCaption: "Перетащи файлы сюда или выбери на устройстве. Мы сожмём для телефона, чтобы работало быстро.",
-    imgPick: "Выбрать файлы",
-    imgHint: "Поддержка: PNG/JPG/WEBP • До {n} файлов",
-    imgTooMany: "Слишком много файлов (лимит: {n})",
-    imgTooBig: "Суммарный размер слишком большой. Убери пару файлов и попробуй снова.",
-    imgProcessing: "Оптимизация вложений…",
-    imgReady: "Вложения готовы",
-
-    // Note
-    note: "Проверка помогает оценить риски, но не заменяет официальные каналы поддержки. Не передавай коды и данные карты.",
-
-    // Result
-    resTitle: "Результат",
-    resCaption: "Ниже — итог, ключевые признаки и безопасные шаги",
-    riskScore: "Оценка риска",
-    emptyB: "Пока ничего не проверено",
-    emptyT1: "Вставь сообщение и нажми ",
-    why: "Почему так",
-    safe: "Что сделать безопасно",
-    hl: "Найденные фрагменты",
-
-    // Loader
-    loadingB: "Проводим проверку",
-    loadingS: "Анализируем структуру, язык, ссылки и паттерны…",
-
-    // Toasts
-    toastCopied: "Скопировано",
-    toastCleared: "Очищено",
-    toastDemo: "Пример вставлен",
-    toastLinkExtracted: "Ссылка извлечена в поле URL",
-    toastImgDrop: "Файлы добавлены",
-    toastImgRemoved: "Удалено",
-    toastImgCleared: "Вложения очищены",
-    imgErrPrefix: "Ошибка вложений: ",
-    riskLow: "низкий",
-    riskMedium: "средний",
-    riskHigh: "высокий",
-    officialVerify: "Проверь через официальный канал (приложение/сайт вручную)",
-    jsonErrPrefix: "Функция вернула не-JSON: ",
-    toastModeQuick: "Режим: быстро",
     toastModePro: "Режим: подробно"
   },
+
   en: {
-    // Top
-    title: "FraudGuard — Anti-Scam",
-    sub: "Professional checks for messages, links, and attachments for scam signals",
-    pillAI: "Smart verification",
-    pillHotkeys: "Hotkeys:",
-    langLabel: "Language",
-    langTitle: "Language selector",
+    // Account
+    accBtn: "Account",
+    accGuest: "Guest",
+    accLogin: "Sign in",
+    accReg: "Create account",
+    accEmail: "Email",
+    accDisp: "Display name",
+    accPass: "Password",
+    accSubmitLogin: "Sign in",
+    accSubmitReg: "Create account",
+    accLoggedAs: "Signed in as",
+    accLogout: "Sign out",
+    accNeedEmailPass: "Enter email and password",
+    accCreating: "Creating account…",
+    accSigningIn: "Signing in…",
+    accSignedIn: "Signed in",
+    accSignedOut: "Signed out",
 
-    // Check card
-    checkTitle: "Check",
-    checkCaption: "Paste text and/or a link — get a risk score, reasons, and safe next steps",
-    tabQuick: "Quick",
-    tabPro: "Detailed",
-
-    fromLabel: "Sender (optional)",
-    fromPh: 'e.g.: "[TEST] Support • Security"',
-    urlLabel: "Link (if any)",
-    urlPh: "e.g.: https://bank-secure.example",
-    textLabel: "Message text",
-    textPh: "Paste the message here…",
-    smartPaste: "Tip: you can paste both text and a link — we'll extract automatically",
-    cntLabel: "Characters",
-
-    // Chips
-    chipUrgent: "Urgency",
-    chipCode: "Codes/OTP",
-    chipLink: "Links",
-    chipMoney: "Money",
-    chipThreat: "Threats",
-
-    // Buttons
-    btnCheck: "Run check",
-    btnClear: "Clear",
-    btnDemo: "Paste example",
-
-    // Upload
-    imgTitle: "Attachments",
-    imgCaption: "Drag & drop files here or pick on your device. We'll optimize for phones so it stays fast.",
-    imgPick: "Choose files",
-    imgHint: "Supported: PNG/JPG/WEBP • Up to {n} files",
-    imgTooMany: "Too many files (limit: {n})",
-    imgTooBig: "Total size is too large. Remove a couple of files and try again.",
-    imgProcessing: "Optimizing attachments…",
-    imgReady: "Attachments ready",
-
-    // Note
-    note: "This check helps assess risk, but doesn't replace official support channels. Never share codes or card details.",
-
-    // Result
-    resTitle: "Result",
-    resCaption: "Summary, key signals, and safe actions",
-    riskScore: "Risk score",
-    emptyB: "No checks yet",
-    emptyT1: "Paste a message and press ",
-    why: "Why",
-    safe: "Safe next steps",
-    hl: "Detected snippets",
-
-    // Loader
-    loadingB: "Running verification",
-    loadingS: "Analyzing language, links, and behavioral patterns…",
-
-    // Toasts
-    toastCopied: "Copied",
-    toastCleared: "Cleared",
-    toastDemo: "Example pasted",
-    toastLinkExtracted: "Link extracted into the URL field",
-    toastImgDrop: "Files added",
-    toastImgRemoved: "Removed",
-    toastImgCleared: "Attachments cleared",
-    imgErrPrefix: "Attachment error: ",
-    riskLow: "low",
-    riskMedium: "medium",
-    riskHigh: "high",
-    officialVerify: "Verify via official channel (app/site manually)",
-    jsonErrPrefix: "Non-JSON response: ",
-    toastModeQuick: "Mode: quick",
     toastModePro: "Mode: detailed"
   }
 };
@@ -3135,6 +3211,194 @@ function setFieldLoading(on){
       return _hide.apply(this, arguments);
     }
   }
+})();
+
+
+// ===== AUTH (Cloudflare Worker + D1) =====
+const AUTH_BASE = API_URL.replace(/\/analyze\/?$/, ""); // same worker, different routes
+const TOKEN_KEY = "fg_token_v1";
+const USER_KEY  = "fg_user_v1";
+
+function getToken(){ return localStorage.getItem(TOKEN_KEY) || ""; }
+function setToken(t){ if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); }
+function setUser(u){ if(u) localStorage.setItem(USER_KEY, JSON.stringify(u)); else localStorage.removeItem(USER_KEY); }
+function getUser(){ try{ return JSON.parse(localStorage.getItem(USER_KEY) || "null"); }catch(e){ return null; } }
+
+async function api(path, method="GET", body=null){
+  const headers = { "Content-Type":"application/json" };
+  const tok = getToken();
+  if(tok) headers["Authorization"] = "Bearer " + tok;
+  const res = await fetch(AUTH_BASE + path, { method, headers, body: body ? JSON.stringify(body) : null });
+  const ct = res.headers.get("content-type") || "";
+  const data = ct.includes("application/json") ? await res.json().catch(()=>null) : { error: await res.text().catch(()=> "") };
+  if(!res.ok){
+    const msg = (data && (data.error || data.message)) || ("HTTP " + res.status);
+    throw new Error(msg);
+  }
+  return data;
+}
+
+(function(){
+  const accBtn = $("accBtn");
+  const accBadge = $("accBadge");
+  const accModal = $("accModal");
+  const accClose = $("accClose");
+  const accCancel = $("accCancel");
+
+  const tabLogin = $("accTabLogin");
+  const tabReg = $("accTabReg");
+
+  const form = $("accForm");
+  const email = $("accEmail");
+  const pass = $("accPass");
+  const disp = $("accDisp");
+  const nameWrap = $("accNameWrap");
+
+  const err = $("accErr");
+  const ok  = $("accOk");
+
+  const submitBtn = $("accSubmit");
+  const submitTxt = $("accSubmitTxt");
+  const btnTxt = $("accBtnTxt");
+
+  const loggedBox = $("accLogged");
+  const accName = $("accName");
+  const accYou = $("accYou");
+  const accLogout = $("accLogout");
+
+  let mode = "login";
+
+  function t(key){
+    const lang = ($("lang") && $("lang").value) || (window.state && window.state.lang) || "ru";
+    const dict = (window.I18N && window.I18N[lang]) ? window.I18N[lang] : (window.I18N && window.I18N.ru);
+    return (dict && dict[key]) || key;
+  }
+
+  function hideMsg(){ err.classList.remove("show"); ok.classList.remove("show"); }
+  function showErr(m){ hideMsg(); err.textContent = m; err.classList.add("show"); }
+  function showOk(m){ hideMsg(); ok.textContent = m; ok.classList.add("show"); }
+
+  function setMode(m){
+    mode = m;
+    tabLogin.classList.toggle("active", mode==="login");
+    tabReg.classList.toggle("active", mode==="reg");
+    nameWrap.style.display = (mode==="reg") ? "block" : "none";
+    pass.setAttribute("autocomplete", mode==="reg" ? "new-password" : "current-password");
+    submitTxt.textContent = (mode==="reg") ? t("accSubmitReg") : t("accSubmitLogin");
+    hideMsg();
+  }
+
+  function open(){
+    accModal.classList.add("show");
+    accModal.setAttribute("aria-hidden","false");
+    hideMsg();
+    const u = getUser();
+    if(u){
+      loggedBox.style.display = "block";
+      form.style.display = "none";
+      accName.textContent = u.display_name || u.email || "—";
+    }else{
+      loggedBox.style.display = "none";
+      form.style.display = "block";
+      email.focus();
+    }
+  }
+  function close(){
+    accModal.classList.remove("show");
+    accModal.setAttribute("aria-hidden","true");
+  }
+
+  async function refreshMe(){
+    const tok = getToken();
+    if(!tok){
+      setUser(null);
+      accBadge.textContent = t("accGuest");
+      return;
+    }
+    try{
+      const me = await api("/auth/me", "GET");
+      setUser(me.user);
+      accBadge.textContent = me.user.display_name || me.user.email || t("accGuest");
+    }catch(e){
+      setToken("");
+      setUser(null);
+      accBadge.textContent = t("accGuest");
+    }
+  }
+
+  function syncTexts(){
+    btnTxt.textContent = t("accBtn");
+    const u = getUser();
+    accBadge.textContent = u ? (u.display_name || u.email) : t("accGuest");
+    tabLogin.textContent = t("accLogin");
+    tabReg.textContent = t("accReg");
+    $("accEmailL").textContent = t("accEmail");
+    $("accDispL").textContent = t("accDisp");
+    $("accPassL").textContent = t("accPass");
+    accYou.textContent = t("accLoggedAs");
+    accLogout.textContent = t("accLogout");
+    submitTxt.textContent = (mode==="reg") ? t("accSubmitReg") : t("accSubmitLogin");
+  }
+
+  accBtn && accBtn.addEventListener("click", open);
+  accClose && accClose.addEventListener("click", close);
+  accCancel && accCancel.addEventListener("click", close);
+  accModal && accModal.addEventListener("click", (e)=>{ if(e.target===accModal) close(); });
+  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && accModal.classList.contains("show")) close(); });
+
+  tabLogin && tabLogin.addEventListener("click", ()=>setMode("login"));
+  tabReg && tabReg.addEventListener("click", ()=>setMode("reg"));
+
+  form && form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    hideMsg();
+    const em = (email.value||"").trim().toLowerCase();
+    const pw = (pass.value||"").trim();
+    const dn = (disp.value||"").trim();
+    if(!em || !pw){ showErr(t("accNeedEmailPass")); return; }
+
+    try{
+      submitBtn.disabled = true;
+      if(mode==="reg"){
+        showOk(t("accCreating"));
+        const out = await api("/auth/register", "POST", { email: em, password: pw, displayName: dn });
+        setToken(out.token); setUser(out.user);
+      }else{
+        showOk(t("accSigningIn"));
+        const out = await api("/auth/login", "POST", { email: em, password: pw });
+        setToken(out.token); setUser(out.user);
+      }
+      await refreshMe();
+      showOk(t("accSignedIn"));
+      loggedBox.style.display = "block";
+      form.style.display = "none";
+      const u = getUser();
+      accName.textContent = u.display_name || u.email || "—";
+      syncTexts();
+    }catch(ex){
+      showErr(ex.message || "Error");
+    }finally{
+      submitBtn.disabled = false;
+    }
+  });
+
+  accLogout && accLogout.addEventListener("click", async ()=>{
+    try{ await api("/auth/logout", "POST", {}); }catch(e){}
+    setToken(""); setUser(null);
+    await refreshMe();
+    loggedBox.style.display = "none";
+    form.style.display = "block";
+    setMode("login");
+    showOk(t("accSignedOut"));
+    setTimeout(()=>hideMsg(), 1200);
+    syncTexts();
+  });
+
+  $("lang") && $("lang").addEventListener("change", syncTexts);
+
+  setMode("login");
+  syncTexts();
+  refreshMe();
 })();
 
 </script>
