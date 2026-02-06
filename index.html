@@ -1341,6 +1341,19 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 .accMini b{ font-weight:950; }
 
 </style>
+
+<style>
+.accountModal{backdrop-filter:blur(14px)}
+.accountModal .card{animation:popIn .35s ease}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.password-meter{height:6px;border-radius:4px;background:#1f2937;overflow:hidden;margin-top:6px}
+.password-meter>div{height:100%;width:0%;transition:width .3s ease}
+.pm-weak{background:#ef4444}
+.pm-mid{background:#f59e0b}
+.pm-strong{background:#22c55e}
+.accountModal.force .closeBtn{display:none}
+</style>
+
 </head>
 <body>
 <!-- Fluid background -->
@@ -3590,5 +3603,33 @@ async function api(path, method="GET", body=null){
 })();
 
 </script>
+
+<script>
+async function enforceAuthOnFirstVisit(){
+ const firstVisit=!localStorage.getItem("fg_seen");
+ if(!window.currentUser&&firstVisit){
+   openAccountModal("register",{force:true});
+ }
+ localStorage.setItem("fg_seen","1");
+}
+document.addEventListener("DOMContentLoaded",enforceAuthOnFirstVisit);
+
+document.addEventListener("input",e=>{
+ if(e.target&&e.target.id==="accPass"){
+  const v=e.target.value;let s=0;
+  if(v.length>=6)s++;
+  if(/[A-Z]/.test(v))s++;
+  if(/[0-9]/.test(v))s++;
+  if(/[^A-Za-z0-9]/.test(v))s++;
+  const bar=document.querySelector(".password-meter>div");
+  if(!bar)return;
+  bar.className="";
+  if(s<=1){bar.classList.add("pm-weak");bar.style.width="33%"}
+  else if(s==2){bar.classList.add("pm-mid");bar.style.width="66%"}
+  else{bar.classList.add("pm-strong");bar.style.width="100%"}
+ }
+});
+</script>
+
 </body>
 </html>
