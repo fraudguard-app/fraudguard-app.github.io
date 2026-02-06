@@ -1364,7 +1364,12 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 
 <style>
-#accBtnTxt, .accBtn span, .accHeader, .accHeader * { color:#fff !important; }
+/* force white text near account name */
+.accountModal .row span,
+.accountModal .row div,
+.accBtn span {
+  color:#fff !important;
+}
 </style>
 
 </head>
@@ -1427,7 +1432,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
       
 <button class="accBtn" id="accBtn" type="button" title="Account">
-  <span id="accBtnTxt"></span>
+  <span id="accBtnTxt">Аккаунт</span>
   <span class="badge" id="accBadge">Гость</span>
 </button>
 
@@ -3652,7 +3657,6 @@ function t(key){
   return (I18N[currentLang] && I18N[currentLang][key]) || key;
 }
 function rerenderI18N(){
-  if (typeof syncTexts === 'function') syncTexts();
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const k = el.getAttribute("data-i18n");
     el.textContent = t(k);
@@ -3683,6 +3687,35 @@ window.renderResult = function(res){
     <p>${t("resAdvice")}: ${t(res.adviceKey)}</p>
   `;
 };
+</script>
+
+
+<script>
+// === HARD I18N FIX FOR ACCOUNT UI ===
+function forceTranslateAccountUI(){
+  const map = {
+    accLogin: t("accLogin"),
+    accReg: t("accReg"),
+    accLoggedAs: t("accLoggedAs"),
+    accLogout: t("accLogout"),
+    accBtn: t("accBtn"),
+    accGuest: t("accGuest")
+  };
+  document.querySelectorAll("button, span, div").forEach(el=>{
+    const txt = el.textContent && el.textContent.trim();
+    if(map[txt]){
+      el.textContent = map[txt];
+    }
+  });
+}
+document.addEventListener("DOMContentLoaded", ()=>{
+  forceTranslateAccountUI();
+  const _old = window.rerenderI18N;
+  window.rerenderI18N = function(){
+    if(_old) _old();
+    forceTranslateAccountUI();
+  }
+});
 </script>
 
 </body>
