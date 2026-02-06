@@ -1364,12 +1364,8 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 
 <style>
-/* force white text near account name */
-.accountModal .row span,
-.accountModal .row div,
-.accBtn span {
-  color:#fff !important;
-}
+/* Make 'Signed in as / Вы вошли как' label white */
+#accYou{ color:#fff !important; }
 </style>
 
 </head>
@@ -2042,6 +2038,16 @@ const I18N = {
     toastModePro: "Mode: detailed"
   }
 };
+
+// expose I18N + translator globally (so all modules can translate)
+window.I18N = I18N;
+window.t = function(key){
+  const sel = document.getElementById("lang");
+  const lang = (sel && sel.value) || (window.state && window.state.lang) || localStorage.getItem("fg_lang") || "ru";
+  const dict = I18N[lang] || I18N.ru || {};
+  return dict[key] || key;
+};
+
 
 function applyLang(next){
   state.lang = (next === "en") ? "en" : "ru";
@@ -3691,31 +3697,34 @@ window.renderResult = function(res){
 
 
 <script>
-// === HARD I18N FIX FOR ACCOUNT UI ===
-function forceTranslateAccountUI(){
-  const map = {
-    accLogin: t("accLogin"),
-    accReg: t("accReg"),
-    accLoggedAs: t("accLoggedAs"),
-    accLogout: t("accLogout"),
-    accBtn: t("accBtn"),
-    accGuest: t("accGuest")
-  };
-  document.querySelectorAll("button, span, div").forEach(el=>{
-    const txt = el.textContent && el.textContent.trim();
-    if(map[txt]){
-      el.textContent = map[txt];
+// ===== Ensure no raw i18n keys leak to UI (account + badges) =====
+(function(){
+  const KEY_PREFIX = /^acc[A-Z]/;
+  function fixNode(root){
+    if(!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while((node = walker.nextNode())){
+      const s = (node.nodeValue || "").trim();
+      if(KEY_PREFIX.test(s) && typeof window.t === "function"){
+        const tr = window.t(s);
+        if(tr && tr !== s) node.nodeValue = node.nodeValue.replace(s, tr);
+      }
+    }
+  }
+  function run(){
+    fixNode(document.body);
+  }
+  document.addEventListener("DOMContentLoaded", ()=>{
+    run();
+    const mo = new MutationObserver(()=>run());
+    mo.observe(document.body, { subtree:true, childList:true, characterData:true });
+    const langSel = document.getElementById("lang");
+    if(langSel){
+      langSel.addEventListener("change", ()=>setTimeout(run, 0));
     }
   });
-}
-document.addEventListener("DOMContentLoaded", ()=>{
-  forceTranslateAccountUI();
-  const _old = window.rerenderI18N;
-  window.rerenderI18N = function(){
-    if(_old) _old();
-    forceTranslateAccountUI();
-  }
-});
+})();
 </script>
 
 </body>
