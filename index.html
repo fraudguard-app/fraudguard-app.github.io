@@ -1370,12 +1370,8 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
 
 <style>
-/* Force white text in account pill (left label) */
-#accBtnTxt{ color: rgba(255,255,255,.92) !important; }
-#accBtn, .accBtn, .accBtn * { color: rgba(255,255,255,.92) !important; }
-.accBtn .badge{ color: rgba(255,255,255,.92) !important; }
-/* If the label is rendered as a pseudo/secondary text somewhere */
-.accBtn span{ text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+/* HARD FIX: force account pill label to be white */
+button#accBtn, button#accBtn * { color: rgba(255,255,255,.92) !important; }
 </style>
 
 </head>
@@ -1438,7 +1434,7 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 
       
 <button class="accBtn" id="accBtn" type="button" title="Account">
-  <span id="accBtnTxt">Аккаунт</span>
+  <span id="accBtnTxt" style="color: rgba(255,255,255,.92) !important;">Аккаунт</span>
   <span class="badge" id="accBadge">Гость</span>
 </button>
 
