@@ -3631,5 +3631,45 @@ document.addEventListener("input",e=>{
 });
 </script>
 
+
+<script>
+// === I18N helpers ===
+window.currentLang = localStorage.getItem("fg_lang") || "ru";
+function t(key){
+  return (I18N[currentLang] && I18N[currentLang][key]) || key;
+}
+function rerenderI18N(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    el.textContent = t(k);
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const k = el.getAttribute("data-i18n-ph");
+    el.setAttribute("placeholder", t(k));
+  });
+}
+document.addEventListener("DOMContentLoaded", rerenderI18N);
+
+// === Language toggle ===
+document.addEventListener("click", e=>{
+  const btn = e.target.closest("[data-lang]");
+  if(!btn) return;
+  currentLang = btn.getAttribute("data-lang");
+  localStorage.setItem("fg_lang", currentLang);
+  rerenderI18N();
+});
+
+// === Results language rerender ===
+window.renderResult = function(res){
+  const box = document.getElementById("resultBox");
+  if(!box) return;
+  box.innerHTML = `
+    <h3>${t("resTitle")}</h3>
+    <p>${t("resRisk")}: ${res.risk}/100</p>
+    <p>${t("resAdvice")}: ${t(res.adviceKey)}</p>
+  `;
+};
+</script>
+
 </body>
 </html>
