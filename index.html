@@ -1780,6 +1780,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 const I18N = {
   ru: {
+
     // Account
     accBtn: "Аккаунт",
     accGuest: "Гость",
@@ -1797,11 +1798,122 @@ const I18N = {
     accSigningIn: "Входим…",
     accSignedIn: "Вы вошли",
     accSignedOut: "Вы вышли",
+    // Top
+    title: "FraudGuard — Anti-Scam",
+    sub: "Профессиональная проверка сообщений, ссылок и вложений на признаки мошенничества",
+    pillAI: "Интеллект‑проверка",
+    pillHotkeys: "Горячие клавиши:",
+    langLabel: "Язык",
+    langTitle: "Выбор языка",
+
+    // Check card
+    checkTitle: "Проверка",
+    checkCaption: "Вставь текст и/или ссылку — получишь оценку риска, причины и безопасные действия",
+    tabQuick: "Быстро",
+    tabPro: "Подробно",
+
+    fromLabel: "Отправитель (необязательно)",
+    fromPh: 'например: "[ТЕСТ] Служба поддержки • Безопасность"',
+    urlLabel: "Ссылка (если есть)",
+    urlPh: "например: https://bank-secure.example",
+    textLabel: "Текст сообщения",
+    textPh: "Вставь сюда сообщение…",
+    smartPaste: "Совет: можно вставить сразу и текст, и ссылку — мы разберём автоматически",
+    cntLabel: "Символов",
+
+    // Chips
+    chipUrgent: "Срочность",
+    chipCode: "Коды/OTP",
+    chipLink: "Ссылки",
+    chipMoney: "Деньги",
+    chipThreat: "Угрозы",
+
+    // Buttons
+    btnCheck: "Запустить проверку",
+    btnClear: "Очистить",
+    btnDemo: "Вставить пример",
+
+    // Upload
+    imgTitle: "Вложения",
+    imgCaption: "Перетащи файлы сюда или выбери на устройстве. Мы сожмём для телефона, чтобы работало быстро.",
+    imgPick: "Выбрать файлы",
+    imgHint: "Поддержка: PNG/JPG/WEBP • До {n} файлов",
+    imgTooMany: "Слишком много файлов (лимит: {n})",
+    imgTooBig: "Суммарный размер слишком большой. Убери пару файлов и попробуй снова.",
+    imgProcessing: "Оптимизация вложений…",
+    imgReady: "Вложения готовы",
+
+    // Note
+    note: "Проверка помогает оценить риски, но не заменяет официальные каналы поддержки. Не передавай коды и данные карты.",
+
+    // Result
+    resTitle: "Результат",
+    resCaption: "Ниже — итог, ключевые признаки и безопасные шаги",
+    riskScore: "Оценка риска",
+    emptyB: "Пока ничего не проверено",
+    emptyT1: "Вставь сообщение и нажми ",
+    why: "Почему так",
+    safe: "Что сделать безопасно",
+    hl: "Найденные фрагменты",
+
+    // Loader
+    loadingB: "Проводим проверку",
+    loadingS: "Анализируем структуру, язык, ссылки и паттерны…",
+
+    // Toasts
+    toastCopied: "Скопировано",
+    toastCleared: "Очищено",
+    toastDemo: "Пример вставлен",
+    toastLinkExtracted: "Ссылка извлечена в поле URL",
+    toastImgDrop: "Файлы добавлены",
+    toastImgRemoved: "Удалено",
+    toastImgCleared: "Вложения очищены",
+    imgErrPrefix: "Ошибка вложений: ",
+    riskLow: "низкий",
+    riskMedium: "средний",
+    riskHigh: "высокий",
+    officialVerify: "Проверь через официальный канал (приложение/сайт вручную)",
+    jsonErrPrefix: "Функция вернула не-JSON: ",
+    toastModeQuick: "Режим: быстро",
+    
+    // Account
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Account
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     toastModePro: "Режим: подробно"
   },
-
   en: {
+
     // Account
     accBtn: "Account",
     accGuest: "Guest",
@@ -1819,7 +1931,83 @@ const I18N = {
     accSigningIn: "Signing in…",
     accSignedIn: "Signed in",
     accSignedOut: "Signed out",
+    // Top
+    title: "FraudGuard — Anti-Scam",
+    sub: "Professional checks for messages, links, and attachments for scam signals",
+    pillAI: "Smart verification",
+    pillHotkeys: "Hotkeys:",
+    langLabel: "Language",
+    langTitle: "Language selector",
 
+    // Check card
+    checkTitle: "Check",
+    checkCaption: "Paste text and/or a link — get a risk score, reasons, and safe next steps",
+    tabQuick: "Quick",
+    tabPro: "Detailed",
+
+    fromLabel: "Sender (optional)",
+    fromPh: 'e.g.: "[TEST] Support • Security"',
+    urlLabel: "Link (if any)",
+    urlPh: "e.g.: https://bank-secure.example",
+    textLabel: "Message text",
+    textPh: "Paste the message here…",
+    smartPaste: "Tip: you can paste both text and a link — we'll extract automatically",
+    cntLabel: "Characters",
+
+    // Chips
+    chipUrgent: "Urgency",
+    chipCode: "Codes/OTP",
+    chipLink: "Links",
+    chipMoney: "Money",
+    chipThreat: "Threats",
+
+    // Buttons
+    btnCheck: "Run check",
+    btnClear: "Clear",
+    btnDemo: "Paste example",
+
+    // Upload
+    imgTitle: "Attachments",
+    imgCaption: "Drag & drop files here or pick on your device. We'll optimize for phones so it stays fast.",
+    imgPick: "Choose files",
+    imgHint: "Supported: PNG/JPG/WEBP • Up to {n} files",
+    imgTooMany: "Too many files (limit: {n})",
+    imgTooBig: "Total size is too large. Remove a couple of files and try again.",
+    imgProcessing: "Optimizing attachments…",
+    imgReady: "Attachments ready",
+
+    // Note
+    note: "This check helps assess risk, but doesn't replace official support channels. Never share codes or card details.",
+
+    // Result
+    resTitle: "Result",
+    resCaption: "Summary, key signals, and safe actions",
+    riskScore: "Risk score",
+    emptyB: "No checks yet",
+    emptyT1: "Paste a message and press ",
+    why: "Why",
+    safe: "Safe next steps",
+    hl: "Detected snippets",
+
+    // Loader
+    loadingB: "Running verification",
+    loadingS: "Analyzing language, links, and behavioral patterns…",
+
+    // Toasts
+    toastCopied: "Copied",
+    toastCleared: "Cleared",
+    toastDemo: "Example pasted",
+    toastLinkExtracted: "Link extracted into the URL field",
+    toastImgDrop: "Files added",
+    toastImgRemoved: "Removed",
+    toastImgCleared: "Attachments cleared",
+    imgErrPrefix: "Attachment error: ",
+    riskLow: "low",
+    riskMedium: "medium",
+    riskHigh: "high",
+    officialVerify: "Verify via official channel (app/site manually)",
+    jsonErrPrefix: "Non-JSON response: ",
+    toastModeQuick: "Mode: quick",
     toastModePro: "Mode: detailed"
   }
 };
