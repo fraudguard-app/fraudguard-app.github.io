@@ -3135,6 +3135,15 @@ function setFieldLoading(on){
   });
 }
 
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
 // hook into loading overlay if exists
 (function(){
   const _show = window.showLoading;
