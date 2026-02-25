@@ -2647,6 +2647,12 @@ function loadingFinish(){
 
 /* ===== RENDER (AI -> UI) ===== */
 function render(data){
+  // ===== EMERGENCY CRASH FIX =====
+var undefinedreasons = [];
+var reasons = Array.isArray(data?.reasons)
+  ? data.reasons
+  : (data?.reasons ? [String(data.reasons)] : []);
+
   let reasons = Array.isArray(data?.reasons)
   ? data.reasons
   : (data?.reasons ? [String(data.reasons)] : []);
@@ -2695,7 +2701,7 @@ const safeReasons = Array.isArray(reasons)
   ? reasons
   : [];
 
-const fromReasons = safeReasons
+const fromReasons = (Array.isArray(reasons) ? reasons : [])
   .join(" ")
   .split(/[\s.,;:!?()]+/g)
   .filter(w => w && w.length >= 4)
