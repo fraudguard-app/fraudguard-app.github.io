@@ -3346,5 +3346,34 @@ function setFieldLoading(on){
 })();
 </script>
 
+
+<script>
+/* ===== AUTO CLOSE ALL TABS AFTER RENDER ===== */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const closeAllTabs = () => {
+    document.querySelectorAll(".open, .active").forEach(el=>{
+      el.classList.remove("open");
+      el.classList.remove("active");
+    });
+
+    document.querySelectorAll("[aria-expanded='true']").forEach(el=>{
+      el.setAttribute("aria-expanded","false");
+    });
+  };
+
+  const originalRender = window.render;
+
+  if(originalRender){
+    window.render = function(data){
+      originalRender(data);
+      closeAllTabs();
+    }
+  }
+
+});
+</script>
+
 </body>
 </html>
