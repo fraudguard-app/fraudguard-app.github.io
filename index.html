@@ -2676,6 +2676,9 @@ const score = Math.max(0, Math.min(100, Math.round(rawRisk)));
     : `<div style="color:var(--muted2)">—</div>`;
 
 /* === SAFE ACTIONS FIX === */
+
+const safeEl = document.getElementById("safe");
+
 const safeActions =
   Array.isArray(data.safeActions)
     ? data.safeActions
