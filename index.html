@@ -3230,5 +3230,121 @@ function setFieldLoading(on){
 })();
 </script>
 
+
+<script>
+/* ===============================
+   FRAUDGUARD FINAL STABLE VERSION
+   =============================== */
+
+(function(){
+
+  const $ = id => document.getElementById(id);
+
+  window.render = function(data){
+
+    if(!data) return;
+
+    try{
+
+      const rawScore =
+        data?.score ??
+        data?.risk ??
+        data?.scam_score ??
+        data?.risk_score ??
+        85;
+
+      const score = Math.max(
+        0,
+        Math.min(100, Math.round(Number(rawScore) || 0))
+      );
+
+      let catText = "низкий";
+      let color = "var(--good)";
+
+      if(score >= 70){
+        catText = "высокий";
+        color = "var(--bad)";
+      }
+      else if(score >= 40){
+        catText = "средний";
+        color = "var(--warn)";
+      }
+
+      if($("catText")) $("catText").textContent = catText;
+
+      if($("categoryTag")?.querySelector(".miniDot"))
+        $("categoryTag").querySelector(".miniDot").style.background = color;
+
+      const circumference = 2 * Math.PI * 31;
+
+      if($("ringFg")){
+        $("ringFg").setAttribute(
+          "stroke-dasharray",
+          `${(score/100)*circumference} ${circumference}`
+        );
+        $("ringFg").setAttribute("stroke", color);
+      }
+
+      if($("ringNum")) $("ringNum").textContent = score;
+      if($("scoreText")) $("scoreText").textContent = score + " / 100";
+      if($("barFill")){
+        $("barFill").style.width = score + "%";
+        $("barFill").style.background = color;
+      }
+
+      // ===== REASONS =====
+      let reasons = Array.isArray(data?.reasons)
+        ? data.reasons
+        : (data?.reasons ? [String(data.reasons)] : []);
+
+      if($("reasons")){
+        $("reasons").innerHTML = reasons.length
+          ? reasons.map(r => `
+              <div class="reason">
+                <div class="ico">⚠️</div>
+                <div class="txt">${r}</div>
+              </div>
+            `).join("")
+          : "—";
+      }
+
+      // ===== SAFE ACTIONS =====
+      let safe = Array.isArray(data?.safe)
+        ? data.safe
+        : [];
+
+      if(!safe.length){
+        if(score >= 70){
+          safe = [
+            "Не отправляйте личные данные или фото документов.",
+            "Свяжитесь с организацией через официальный сайт или приложение.",
+            "Не переходите по подозрительным ссылкам."
+          ];
+        } else if(score >= 40){
+          safe = [
+            "Проверьте отправителя через официальный канал.",
+            "Не вводите коды подтверждения третьим лицам."
+          ];
+        } else {
+          safe = [
+            "Будьте внимательны и проверяйте источник сообщения."
+          ];
+        }
+      }
+
+      if($("safe")){
+        $("safe").innerHTML =
+          "<ul>" + safe.map(s => `<li>${s}</li>`).join("") + "</ul>";
+      }
+
+    }catch(e){
+      console.error("Render crash prevented:", e);
+    }
+
+  };
+
+})();
+</script>
+
 </body>
 </html>
