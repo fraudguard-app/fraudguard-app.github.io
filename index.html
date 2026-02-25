@@ -2647,6 +2647,7 @@ function loadingFinish(){
 
 /* ===== RENDER (AI -> UI) ===== */
 function render(data){
+  let reasons = data?.reasons ?? data?.why ?? [];
   if(!data) return;
 
   $("emptyState").style.display = "none";
@@ -2685,7 +2686,7 @@ $("catText").textContent = I18N[state.lang][catKey];
 
 const safeReasons = Array.isArray(reasons)
   ? reasons
-  : (reasons ? [String(reasons)] : []);
+  : [];
 
 const fromReasons = safeReasons
   .join(" ")
