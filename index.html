@@ -2683,11 +2683,15 @@ $("catText").textContent = I18N[state.lang][catKey];
     ? ["код","sms","смс","пароль","cvv","cvc","переведи","переведите","оплати","оплатите","срочно","немедленно","подтверд","введите","логин","аккаунт","карта","пин","pin"]
     : ["code","sms","password","cvv","cvc","pay","transfer","urgent","immediately","verify","login","account","card","pin"];
 
-  const fromReasons = reasons
-    .join(" ")
-    .split(/[\s,.;:!?()]+/g)
-    .filter(w=>w && w.length>=4)
-    .slice(0, 20);
+const safeReasons = Array.isArray(reasons)
+  ? reasons
+  : (reasons ? [String(reasons)] : []);
+
+const fromReasons = safeReasons
+  .join(" ")
+  .split(/[\s.,;:!?()]+/g)
+  .filter(w => w && w.length >= 4)
+  .slice(0, 20);
 
   const badWords = Array.from(new Set([...base, ...fromReasons]));
   let out = escapeHTML(text);
