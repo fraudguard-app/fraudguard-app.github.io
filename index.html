@@ -2675,10 +2675,22 @@ const score = Math.max(0, Math.min(100, Math.round(rawRisk)));
       }</div>`
     : `<div style="color:var(--muted2)">—</div>`;
 
-  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
-  $("safe").innerHTML = safe.length
-    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
-    : `<div style="color:var(--muted2)">—</div>`;
+/* === SAFE ACTIONS FIX === */
+const safeActions =
+  Array.isArray(data.safeActions)
+    ? data.safeActions
+    : Array.isArray(data.safe)
+    ? data.safe
+    : [];
+
+if (safeActions.length) {
+  safeEl.innerHTML =
+    "<ul>" +
+    safeActions.map(a => "<li>" + escapeHtml(a) + "</li>").join("") +
+    "</ul>";
+} else {
+  safeEl.textContent = "—";
+}
 
   // highlight risky words
   const text = $("text").value || "";
