@@ -2646,11 +2646,7 @@ function render(data){
 
   const scam = Number(data.scam_score ?? data.risk_score ?? 0);
   const danger = Number(data.danger_score ?? 0);
-/* === FIX REAL RISK SCORE === */
-const rawRisk =
-  Number(data.risk ?? data.scam_score ?? data.risk_score ?? 0);
-
-const score = Math.max(0, Math.min(100, Math.round(rawRisk)));
+  const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
   const color = riskColor(score);
 
   // animate risk (spring)
@@ -2675,25 +2671,10 @@ const score = Math.max(0, Math.min(100, Math.round(rawRisk)));
       }</div>`
     : `<div style="color:var(--muted2)">—</div>`;
 
-/* === SAFE ACTIONS FIX === */
-
-const safeEl = document.getElementById("safe");
-
-const safeActions =
-  Array.isArray(data.safeActions)
-    ? data.safeActions
-    : Array.isArray(data.safe)
-    ? data.safe
-    : [];
-
-if (safeActions.length) {
-  safeEl.innerHTML =
-    "<ul>" +
-    safeActions.map(a => "<li>" + escapeHtml(a) + "</li>").join("") +
-    "</ul>";
-} else {
-  safeEl.textContent = "—";
-}
+  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
+  $("safe").innerHTML = safe.length
+    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
+    : `<div style="color:var(--muted2)">—</div>`;
 
   // highlight risky words
   const text = $("text").value || "";
@@ -3136,15 +3117,6 @@ function setFieldLoading(on){
       el.removeAttribute("aria-busy");
     }
   });
-}
-
-function escapeHtml(str){
-  return String(str)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
 }
 
 // hook into loading overlay if exists
