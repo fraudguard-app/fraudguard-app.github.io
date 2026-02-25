@@ -1517,6 +1517,13 @@ mark{ background: rgba(255,92,122,.26); border-radius: 6px; padding: 1px 4px; }
 const API_URL = "https://fraudguard-app.guideyeahofc.workers.dev/analyze";
 
 const $ = id => document.getElementById(id);
+
+function ensureArray(v){
+  if (Array.isArray(v)) return v;
+  if (v === undefined || v === null) return [];
+  return [String(v)];
+}
+
 const state = { lang: "ru", images: [] };
 
 /* ===== Motion: reveal-on-scroll + tasteful ripples ===== */
