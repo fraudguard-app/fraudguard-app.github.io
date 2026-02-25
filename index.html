@@ -2647,7 +2647,14 @@ function loadingFinish(){
 
 /* ===== RENDER (AI -> UI) ===== */
 function render(data){
-  let reasons = data?.reasons ?? data?.why ?? [];
+  let reasons = Array.isArray(data?.reasons)
+  ? data.reasons
+  : (data?.reasons ? [String(data.reasons)] : []);
+
+  let safe = Array.isArray(data?.safe)
+  ? data.safe
+  : (data?.safe ? [String(data.safe)] : []);
+
   if(!data) return;
 
   $("emptyState").style.display = "none";
