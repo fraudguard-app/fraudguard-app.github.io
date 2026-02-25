@@ -2644,37 +2644,28 @@ function render(data){
 
   $("emptyState").style.display = "none";
 
-  const scam = Number(data.scam_score ?? data.risk_score ?? 0);
+  const scam = Number(data.risk ?? data.scam_score ?? data.risk_score ?? 0);
   const danger = Number(data.danger_score ?? 0);
   const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
   const color = riskColor(score);
 
-  // animate risk (spring)
-  riskAnim.setColor(color);
-  riskAnim.animateTo(score);
+/* === REAL CATEGORY FIX === */
+let catKey;
 
-  const cat = data.category || (score < 20 ? I18N[state.lang].riskLow : score < 50 ? I18N[state.lang].riskMedium : I18N[state.lang].riskHigh);
-  $("catText").textContent = cat;
-  $("categoryTag").querySelector(".miniDot").style.background = color;
+if (score >= 70) {
+  catKey = "riskHigh";
+  $("categoryTag").querySelector(".miniDot").style.background = "var(--bad)";
+}
+else if (score >= 40) {
+  catKey = "riskMedium";
+  $("categoryTag").querySelector(".miniDot").style.background = "var(--warn)";
+}
+else {
+  catKey = "riskLow";
+  $("categoryTag").querySelector(".miniDot").style.background = "var(--good)";
+}
 
-  const reasons = Array.isArray(data.reasons) ? data.reasons : [];
-  $("reasons").innerHTML = reasons.length
-    ? `<div class="reasons-grid">${
-        reasons.map(r=>`
-          <div class="reason">
-            <div class="ico">${iconFor(r)}</div>
-            <div class="txt">
-              ${escapeHTML(r)}
-              <div class="sub">${I18N[state.lang].officialVerify}</div>
-            </div>
-          </div>`).join("")
-      }</div>`
-    : `<div style="color:var(--muted2)">—</div>`;
-
-  const safe = Array.isArray(data.safe_actions) ? data.safe_actions : [];
-  $("safe").innerHTML = safe.length
-    ? `<ul>${safe.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`
-    : `<div style="color:var(--muted2)">—</div>`;
+$("catText").textContent = I18N[state.lang][catKey];
 
   // highlight risky words
   const text = $("text").value || "";
