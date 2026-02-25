@@ -2646,7 +2646,16 @@ function render(data){
 
   const scam = Number(data.risk ?? data.scam_score ?? data.risk_score ?? 0);
   const danger = Number(data.danger_score ?? 0);
-  const score = Math.max(0, Math.min(100, Math.round(Math.max(scam, danger))));
+/* === FORCE REAL RISK SCORE === */
+const score = Math.max(
+  0,
+  Math.min(
+    100,
+    Math.round(
+      Number(data.risk ?? data.scam_score ?? data.risk_score ?? 0)
+    )
+  )
+);
   const color = riskColor(score);
 
 /* === REAL CATEGORY FIX === */
